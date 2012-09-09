@@ -12,16 +12,18 @@ public class ApiVersionPlugin<C extends BaseApiObject,P extends BasePersistentOb
     private Integer version;
     private Translator<C,P> translator;
     private Validator<C,P> validator;
+    private Class<C> apiClass;
 
     public ApiVersionPlugin()
     {
     }
 
-    public ApiVersionPlugin(Integer version, Translator<C,P> translator, Validator<C,P> validator)
+    public ApiVersionPlugin(Integer version, Translator<C, P> translator, Validator<C, P> validator, Class<C> apiClass)
     {
         this.version = version;
         this.translator = translator;
         this.validator = validator;
+        this.apiClass = apiClass;
     }
 
     public Integer getVersion()
@@ -52,5 +54,15 @@ public class ApiVersionPlugin<C extends BaseApiObject,P extends BasePersistentOb
     public void setValidator(Validator<C,P> validator)
     {
         this.validator = validator;
+    }
+
+    public Class<C> getApiClass()
+    {
+        return apiClass;
+    }
+
+    public void setApiClass(Class<C> apiClass)
+    {
+        this.apiClass = apiClass;
     }
 }

@@ -1,6 +1,8 @@
 package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.api.BaseApiObject;
+import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
+import com.dottydingo.hyperion.service.persistence.QueryResult;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
@@ -8,13 +10,13 @@ import com.dottydingo.hyperion.service.exception.ServiceException;
 import com.dottydingo.hyperion.service.model.BasePersistentObject;
 import com.dottydingo.hyperion.service.translation.DefaultTranslationContext;
 import com.dottydingo.hyperion.service.translation.Translator;
-import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.Set;
 /**
  */
 @Path("/data/{entity}")
-public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersistentObject>
+public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersistentObject,ID extends Serializable>
 {
     private ServiceRegistry serviceRegistry;
 
@@ -38,16 +40,16 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
     @Produces(MediaType.APPLICATION_JSON)
     public Response queryData(@PathParam("entity") String entity,
                               @QueryParam("fields") String fields,
-                              @QueryParam("start") Integer start,
-                              @QueryParam("limit") Integer limit,
+                              @QueryParam("start")  Integer start,
+                              @QueryParam("limit")  Integer limit,
                               @QueryParam("query") String query,
                               @QueryParam("version")  Integer version)
     {
-        EntityPlugin<C,P> plugin = getEntityPlugin(entity);
+        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        Page<P> page = plugin.getQueryHandler().processQuery(query,start,limit);
-        List<P> persistent = page.getContent();
+        QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query,start,limit);
+        List<P> persistent = queryResult.getItems();
 
         Set<String> fieldSet = buildFieldSet(fields);
         DefaultTranslationContext translationContext = new DefaultTranslationContext();
@@ -57,9 +59,9 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
 
         EntityResponse<C> entityResponse = new EntityResponse<C>();
         entityResponse.setEntries(converted);
-        entityResponse.setPageSize(page.getSize());
-        entityResponse.setStart(page.getNumber() * page.getSize());
-        entityResponse.setTotalCount(page.getTotalElements());
+        entityResponse.setResponseCount(queryResult.getResponseCount());
+        entityResponse.setStart(start);
+        entityResponse.setTotalCount(queryResult.getTotalCount());
 
         return Response.ok(entityResponse).build();
 
@@ -75,18 +77,32 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
                             @QueryParam("version")  Integer version)
 
     {
-        EntityPlugin<C,P> plugin = getEntityPlugin(entity);
+        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        P persistent = plugin.getJpaRepository().findOne(new Long(id));
+        List<ID> ids = plugin.getKeyConverter().covertKeys(id);
+        List<P> persistent = plugin.getPersistenceOperations().findByIds(ids);
 
         Set<String> fieldSet = buildFieldSet(fields);
         DefaultTranslationContext translationContext = new DefaultTranslationContext();
         translationContext.setRequestedFields(fieldSet);
 
-        Object converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,translationContext);
+        List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,translationContext);
 
-        return Response.ok(converted).build();
+        Object response;
+        if(converted.size() == 1)
+            response = converted.get(0);
+        else
+        {
+            EntityResponse<C> entityResponse = new EntityResponse<C>();
+            entityResponse.setEntries(converted);
+            entityResponse.setResponseCount(converted.size());
+            entityResponse.setStart(1);
+            entityResponse.setTotalCount(new Long(converted.size()));
+            response = entityResponse;
+        }
+
+        return Response.ok(response).build();
 
     }
 
@@ -99,7 +115,7 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
                                @QueryParam("version")  Integer version,
                                EntityRequest<C> entityRequest)
     {
-        EntityPlugin<C,P> plugin = getEntityPlugin(entity);
+        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
         Set<String> fieldSet = buildFieldSet(fields);
@@ -112,7 +128,7 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         P persistent = translator.convertClient(entityRequest.getItem(), translationContext);
-        P saved = plugin.getJpaRepository().save(persistent);
+        P saved = plugin.getPersistenceOperations().createItem(persistent);
 
         C toReturn = translator.convertPersistent(saved,translationContext);
 
@@ -129,7 +145,7 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
                                @QueryParam("version")  Integer version,
                                EntityRequest<C> entityRequest)
     {
-        EntityPlugin<C,P> plugin = getEntityPlugin(entity);
+        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
         if(entityRequest == null || entityRequest.getItem() == null || entityRequest.getItem().getId() == null)
@@ -142,18 +158,22 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
         DefaultTranslationContext translationContext = new DefaultTranslationContext();
         translationContext.setRequestedFields(fieldSet);
 
-        P existing = plugin.getJpaRepository().findOne(entityRequest.getItem().getId());
+        C item = entityRequest.getItem();
+        ID id = (ID) item.getId();
+
+        PersistenceOperations<P,ID> persistenceOperations = plugin.getPersistenceOperations();
+        P existing = persistenceOperations.findById(id);
         if(existing == null)
             throw new ServiceException(404,
-                    String.format("%s with id %d was not found.",entity,entityRequest.getItem().getId()));
+                    String.format("%s with id %s was not found.",entity,entityRequest.getItem().getId()));
 
         apiVersionPlugin.getValidator().validateUpdate(entityRequest.getItem(),existing);
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         translator.copyClient(entityRequest.getItem(), existing,translationContext);
-        P saved = plugin.getJpaRepository().save(existing);
+        P saved = plugin.getPersistenceOperations().updateItem(existing);
 
-        C toReturn = translator.convertPersistent(saved,translationContext);
+        BaseApiObject toReturn = translator.convertPersistent(saved,translationContext);
 
         return Response.ok(toReturn).build();
 
@@ -161,26 +181,32 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
 
     @DELETE()
     @Path("/{id}")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteItem(@PathParam("entity") String entity,
                             @PathParam("id") String id)
 
     {
-        EntityPlugin<C,P> plugin = getEntityPlugin(entity);
+        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
 
-        P persistent = plugin.getJpaRepository().findOne(new Long(id));
+        List<ID> ids = plugin.getKeyConverter().covertKeys(id);
+        List<P> persistentItems = plugin.getPersistenceOperations().findByIds(ids);
+        for (P p : persistentItems)
+        {
+            plugin.getPersistenceOperations().deleteItem(p);
+        }
 
-        plugin.getJpaRepository().delete(persistent);
+        DeleteResponse response = new DeleteResponse();
+        response.setCount(persistentItems.size());
 
-        return Response.ok().build();
+        return Response.ok(response).build();
 
     }
 
 
-    private EntityPlugin<C,P> getEntityPlugin(String entity)
+    private EntityPlugin<C,P,ID> getEntityPlugin(String entity)
     {
-        EntityPlugin<C,P> plugin = serviceRegistry.getPluginForName(entity);
+        EntityPlugin<C,P,ID> plugin = serviceRegistry.getPluginForName(entity);
         if(plugin == null)
             throw new ServiceException(404,String.format("%s is not a valid entity.",entity));
 

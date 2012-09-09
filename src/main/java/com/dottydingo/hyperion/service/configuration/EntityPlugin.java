@@ -1,23 +1,19 @@
 package com.dottydingo.hyperion.service.configuration;
 
 import com.dottydingo.hyperion.api.BaseApiObject;
-import com.dottydingo.hyperion.service.marshall.ApiMarshaller;
+import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
+import com.dottydingo.hyperion.service.key.KeyConverter;
 import com.dottydingo.hyperion.service.model.BasePersistentObject;
-import com.dottydingo.hyperion.service.query.QueryHandler;
-import com.dottydingo.hyperion.service.validation.Validator;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.io.Serializable;
 
 /**
  */
-public class EntityPlugin<C extends BaseApiObject,P extends BasePersistentObject>
+public class EntityPlugin<C extends BaseApiObject,P extends BasePersistentObject,ID extends Serializable>
 {
     private String endpointName;
-    private Class apiClass;
-    private JpaRepository<P,Serializable> jpaRepository;
-    private QueryHandler queryHandler;
-    private ApiMarshaller apiMarshaller;
+    private KeyConverter<ID> keyConverter;
+    private PersistenceOperations<P,ID> persistenceOperations;
     private ApiVersionRegistry<C,P> apiVersionRegistry;
 
     public String getEndpointName()
@@ -30,46 +26,25 @@ public class EntityPlugin<C extends BaseApiObject,P extends BasePersistentObject
         this.endpointName = endpointName;
     }
 
-    public Class getApiClass()
+    public KeyConverter<ID> getKeyConverter()
     {
-        return apiClass;
+        return keyConverter;
     }
 
-    public void setApiClass(Class apiClass)
+    public void setKeyConverter(KeyConverter<ID> keyConverter)
     {
-        this.apiClass = apiClass;
+        this.keyConverter = keyConverter;
     }
 
-    public JpaRepository<P,Serializable> getJpaRepository()
+    public PersistenceOperations<P, ID> getPersistenceOperations()
     {
-        return jpaRepository;
+        return persistenceOperations;
     }
 
-    public void setJpaRepository(JpaRepository<P,Serializable> jpaRepository)
+    public void setPersistenceOperations(PersistenceOperations<P, ID> persistenceOperations)
     {
-        this.jpaRepository = jpaRepository;
+        this.persistenceOperations = persistenceOperations;
     }
-
-    public QueryHandler getQueryHandler()
-    {
-        return queryHandler;
-    }
-
-    public void setQueryHandler(QueryHandler queryHandler)
-    {
-        this.queryHandler = queryHandler;
-    }
-
-    public ApiMarshaller getApiMarshaller()
-    {
-        return apiMarshaller;
-    }
-
-    public void setApiMarshaller(ApiMarshaller apiMarshaller)
-    {
-        this.apiMarshaller = apiMarshaller;
-    }
-
 
     public ApiVersionRegistry<C,P> getApiVersionRegistry()
     {

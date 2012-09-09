@@ -14,9 +14,9 @@ public class ApiPluginRegistryTest
     public void testGetPluginForVersion()
     {
         List<ApiVersionPlugin> plugins = new ArrayList<ApiVersionPlugin>();
-        plugins.add(new ApiVersionPlugin(1,null,null));
-        plugins.add(new ApiVersionPlugin(5,null,null));
-        plugins.add(new ApiVersionPlugin(10,null,null));
+        plugins.add(new ApiVersionPlugin(1,null,null, null));
+        plugins.add(new ApiVersionPlugin(5,null,null, null));
+        plugins.add(new ApiVersionPlugin(10,null,null, null));
 
         ApiVersionRegistry registry = new ApiVersionRegistry();
         registry.setPlugins(plugins);

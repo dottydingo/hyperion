@@ -9,7 +9,7 @@ import java.util.List;
 public class EntityResponse<T extends BaseApiObject>
 {
     private Integer start;
-    private Integer pageSize;
+    private Integer responseCount;
     private Long totalCount;
     private List<T> entries;
 
@@ -23,14 +23,14 @@ public class EntityResponse<T extends BaseApiObject>
         this.start = start;
     }
 
-    public Integer getPageSize()
+    public Integer getResponseCount()
     {
-        return pageSize;
+        return responseCount;
     }
 
-    public void setPageSize(Integer pageSize)
+    public void setResponseCount(Integer responseCount)
     {
-        this.pageSize = pageSize;
+        this.responseCount = responseCount;
     }
 
     public Long getTotalCount()

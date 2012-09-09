@@ -1,8 +1,11 @@
 package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.api.BaseApiObject;
+import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
+import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.exception.ServiceException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
@@ -28,11 +31,17 @@ public class EntityRequestMessageBodyReader implements MessageBodyReader<EntityR
     @Context
     private UriInfo uriInfo;
 
-    private Map<String,EntityPlugin> entityPluginMap;
+    private ServiceRegistry serviceRegistry;
+    private ObjectMapper objectMapper;
 
-    public void setEntityPluginMap(Map<String, EntityPlugin> entityPluginMap)
+    public void setServiceRegistry(ServiceRegistry serviceRegistry)
     {
-        this.entityPluginMap = entityPluginMap;
+        this.serviceRegistry = serviceRegistry;
+    }
+
+    public void setObjectMapper(ObjectMapper objectMapper)
+    {
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -53,13 +62,23 @@ public class EntityRequestMessageBodyReader implements MessageBodyReader<EntityR
         }
 
         String entity = entities.get(0);
-        EntityPlugin plugin = entityPluginMap.get(entity);
+        EntityPlugin plugin = serviceRegistry.getPluginForName(entity);
         if(plugin == null)
             throw new ServiceException(404,String.format("%s is not a valid endpoint.",entity));
 
+        String versionString = uriInfo.getQueryParameters().getFirst("version");
+        Integer version = null;
         try
         {
-            BaseApiObject value = plugin.getApiMarshaller().unmarshallItem(entityStream);
+            version = Integer.parseInt(versionString);
+        }
+        catch (NumberFormatException ignore){}
+
+        ApiVersionPlugin apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
+
+        try
+        {
+            BaseApiObject value = (BaseApiObject) objectMapper.readValue(entityStream,apiVersionPlugin.getApiClass());
             EntityRequest entityRequest = new EntityRequest();
             entityRequest.setItem(value);
             return entityRequest;
