@@ -29,7 +29,7 @@
     <scm>
         <connection>scm:git:git@github.com:dottydingo/hyperion.git</connection>
         <developerConnection>scm:git:git@github.com:dottydingo/hyperion.git</developerConnection>
-        <url>http://github.com/dottydingo/hyperion</url>
+        <url>http://dottydingo.github.com/hyperion/</url>
     </scm>
     <developers>
         <developer>
