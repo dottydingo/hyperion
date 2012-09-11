@@ -60,6 +60,8 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
         {
             clientValue = valueConverter.convertToPersistentValue(clientValue,context);
         }
-        persistentBeanMap.put(persistentObject,getPersistentFieldName(),clientValue);
+
+        if(clientObject != null)
+            persistentBeanMap.put(persistentObject,getPersistentFieldName(),clientValue);
     }
 }
