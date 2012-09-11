@@ -8,9 +8,9 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
 {
     private String clientFieldName;
     private String persistentFieldName;
-    private BeanMap clientBeanMap;
-    private BeanMap persistentBeanMap;
-    private ValueConverter valueConverter;
+    protected BeanMap clientBeanMap;
+    protected BeanMap persistentBeanMap;
+    protected ValueConverter valueConverter;
 
     public DefaultFieldMapper(String name, BeanMap clientBeanMap, BeanMap persistentBeanMap)
     {
@@ -33,7 +33,6 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
         return clientFieldName;
     }
 
-    @Override
     public String getPersistentFieldName()
     {
         return persistentFieldName;

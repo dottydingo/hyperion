@@ -7,14 +7,11 @@ import net.sf.cglib.beans.BeanMap;
 import java.util.*;
 
 /**
- * User: mark
- * Date: 9/3/12
- * Time: 9:31 PM
  */
 public abstract class BaseTranslator<C extends BaseApiObject,P extends BasePersistentObject> implements Translator<C,P>
 {
-    private BeanMap clientBeanMap;
-    private BeanMap persistentBeanMap;
+    protected BeanMap clientBeanMap;
+    protected BeanMap persistentBeanMap;
     private Map<String,FieldMapper> fieldMapperMap = new HashMap<String, FieldMapper>();
 
     protected abstract C createClientInstance();
