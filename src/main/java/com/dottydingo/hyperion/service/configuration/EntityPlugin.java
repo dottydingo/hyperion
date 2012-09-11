@@ -1,15 +1,15 @@
 package com.dottydingo.hyperion.service.configuration;
 
-import com.dottydingo.hyperion.api.BaseApiObject;
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
 
 import java.io.Serializable;
 
 /**
  */
-public class EntityPlugin<C extends BaseApiObject,P extends BasePersistentObject,ID extends Serializable>
+public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
 {
     private String endpointName;
     private KeyConverter<ID> keyConverter;

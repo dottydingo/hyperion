@@ -11,6 +11,7 @@ import java.util.Date;
  */
 @MappedSuperclass
 public abstract class BaseAuditablePersistentObject<ID extends Serializable> extends BasePersistentObject<ID>
+        implements AuditablePersistentObject<ID>
 {
 
     @Column(name = "created")
@@ -24,41 +25,49 @@ public abstract class BaseAuditablePersistentObject<ID extends Serializable> ext
     @Column(name = "modified_by")
     private String modifiedBy;
 
+    @Override
     public Date getCreated()
     {
         return created;
     }
 
+    @Override
     public void setCreated(Date created)
     {
         this.created = created;
     }
 
+    @Override
     public String getCreatedBy()
     {
         return createdBy;
     }
 
+    @Override
     public void setCreatedBy(String createdBy)
     {
         this.createdBy = createdBy;
     }
 
+    @Override
     public Date getModified()
     {
         return modified;
     }
 
+    @Override
     public void setModified(Date modified)
     {
         this.modified = modified;
     }
 
+    @Override
     public String getModifiedBy()
     {
         return modifiedBy;
     }
 
+    @Override
     public void setModifiedBy(String modifiedBy)
     {
         this.modifiedBy = modifiedBy;

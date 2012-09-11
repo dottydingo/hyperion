@@ -1,16 +1,20 @@
 package com.dottydingo.hyperion.service.model;
 
 
-import org.springframework.data.domain.Persistable;
-
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
 
+/**
+ * An abstract base class that can be used for persistent objects.
+ * @param <ID>
+ */
 @MappedSuperclass
-public abstract class BasePersistentObject<ID extends Serializable> implements Persistable<ID>
+public abstract class BasePersistentObject<ID extends Serializable> implements PersistentObject<ID>
 {
-    @Override
+    /**
+     * A flag indicating if an id has been set (for compatibility with Spring JPA Persistable)
+     * @return true if the ID has been set, false otherwise.
+     */
     public boolean isNew()
     {
         return getId() == null;

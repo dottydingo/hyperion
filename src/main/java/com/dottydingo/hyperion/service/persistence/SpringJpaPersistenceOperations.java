@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.persistence;
 
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  */
-public class SpringJpaPersistenceOperations<P extends BasePersistentObject, ID extends Serializable>
+public class SpringJpaPersistenceOperations<P extends PersistentObject, ID extends Serializable>
         implements PersistenceOperations<P,ID>
 {
     private JpaRepository<P,ID> jpaRepository;

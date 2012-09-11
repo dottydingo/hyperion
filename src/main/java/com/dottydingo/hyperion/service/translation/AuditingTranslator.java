@@ -1,18 +1,30 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.BaseAuditableApiObject;
-import com.dottydingo.hyperion.service.model.BaseAuditablePersistentObject;
+import com.dottydingo.hyperion.service.model.AuditablePersistentObject;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
- * User: mark
- * Date: 9/8/12
- * Time: 4:02 PM
+ * A base field mapper for auditable entities
  */
-public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P extends BaseAuditablePersistentObject>
+public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P extends AuditablePersistentObject>
     extends BaseTranslator<C,P>
 {
+
+    @Override
+    protected List<FieldMapper> getCustomFieldMappers()
+    {
+        List<FieldMapper> mappers = new ArrayList<FieldMapper>();
+        mappers.add(new ReadOnlyFieldMapper("created",clientBeanMap,persistentBeanMap));
+        mappers.add(new ReadOnlyFieldMapper("createdBy",clientBeanMap,persistentBeanMap));
+        mappers.add(new ReadOnlyFieldMapper("modified",clientBeanMap,persistentBeanMap));
+        mappers.add(new ReadOnlyFieldMapper("modifiedBy",clientBeanMap,persistentBeanMap));
+        return mappers;
+    }
+
     @Override
     protected void afterConvert(C client, P persistent, TranslationContext context)
     {
@@ -28,10 +40,6 @@ public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P exte
     protected void beforeCopy(C client, P persistent, TranslationContext context)
     {
         super.beforeCopy(client, persistent, context);
-        client.setCreated(null);
-        client.setCreatedBy(null);
-        client.setModified(null);
-        client.setModifiedBy(null);
     }
 
     @Override

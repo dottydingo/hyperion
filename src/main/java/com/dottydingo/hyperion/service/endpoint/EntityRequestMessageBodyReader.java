@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.endpoint;
 
-import com.dottydingo.hyperion.api.BaseApiObject;
+import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
@@ -77,7 +77,7 @@ public class EntityRequestMessageBodyReader implements MessageBodyReader<EntityR
 
         try
         {
-            BaseApiObject value = (BaseApiObject) objectMapper.readValue(entityStream,apiVersionPlugin.getApiClass());
+            ApiObject value = (ApiObject) objectMapper.readValue(entityStream,apiVersionPlugin.getApiClass());
             EntityRequest entityRequest = new EntityRequest();
             entityRequest.setItem(value);
             return entityRequest;

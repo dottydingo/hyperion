@@ -1,13 +1,13 @@
 package com.dottydingo.hyperion.service.endpoint;
 
-import com.dottydingo.hyperion.api.BaseApiObject;
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.exception.ServiceException;
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
 import com.dottydingo.hyperion.service.translation.DefaultTranslationContext;
 import com.dottydingo.hyperion.service.translation.Translator;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  */
 @Path("/data/{entity}")
-public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersistentObject,ID extends Serializable>
+public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
 {
     private ServiceRegistry serviceRegistry;
 
@@ -173,7 +173,7 @@ public class DataServiceEndpoint<C extends BaseApiObject,P extends BasePersisten
         translator.copyClient(entityRequest.getItem(), existing,translationContext);
         P saved = plugin.getPersistenceOperations().updateItem(existing);
 
-        BaseApiObject toReturn = translator.convertPersistent(saved,translationContext);
+        ApiObject toReturn = translator.convertPersistent(saved,translationContext);
 
         return Response.ok(toReturn).build();
 

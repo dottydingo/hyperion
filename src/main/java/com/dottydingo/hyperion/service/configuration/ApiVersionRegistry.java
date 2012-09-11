@@ -1,14 +1,14 @@
 package com.dottydingo.hyperion.service.configuration;
 
 
-import com.dottydingo.hyperion.api.BaseApiObject;
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 
 import java.util.*;
 
 /**
  */
-public class ApiVersionRegistry<C extends BaseApiObject,P extends BasePersistentObject>
+public class ApiVersionRegistry<C extends ApiObject,P extends PersistentObject>
 {
     private Map<Integer,ApiVersionPlugin<C,P>> versionMap = new HashMap<Integer, ApiVersionPlugin<C,P>>();
     private NavigableSet<Integer> versions = new TreeSet<Integer>();

@@ -1,12 +1,12 @@
 package com.dottydingo.hyperion.service.endpoint;
 
-import com.dottydingo.hyperion.api.BaseApiObject;
+import com.dottydingo.hyperion.api.ApiObject;
 
 import java.util.List;
 
 /**
  */
-public class EntityResponse<T extends BaseApiObject>
+public class EntityResponse<T extends ApiObject>
 {
     private Integer start;
     private Integer responseCount;

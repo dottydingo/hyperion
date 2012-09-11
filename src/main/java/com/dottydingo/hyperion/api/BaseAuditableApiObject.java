@@ -4,67 +4,82 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * User: mark
- * Date: 9/8/12
- * Time: 3:57 PM
+ * An implementation of an auditable api object.
  */
-public class BaseAuditableApiObject<ID extends Serializable> extends BaseApiObject<ID>
+public class BaseAuditableApiObject<ID extends Serializable> extends BaseApiObject<ID> implements AuditableApiObject<ID>
 {
-    /**
-     * The date the object was created (read only)
-     */
     private Date created;
-
-    /**
-     * The user who created the object (read only)
-     */
     private String createdBy;
-
-    /**
-     * The date the the object was last modified (read only)
-     */
     private Date modified;
-
-    /**
-     * The user who last modified the object
-     */
     private String modifiedBy;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Date getCreated()
     {
         return created;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setCreated(Date created)
     {
         this.created = created;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getCreatedBy()
     {
         return createdBy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setCreatedBy(String createdBy)
     {
         this.createdBy = createdBy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Date getModified()
     {
         return modified;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setModified(Date modified)
     {
         this.modified = modified;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getModifiedBy()
     {
         return modifiedBy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setModifiedBy(String modifiedBy)
     {
         this.modifiedBy = modifiedBy;

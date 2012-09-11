@@ -1,13 +1,13 @@
 package com.dottydingo.hyperion.service.configuration;
 
-import com.dottydingo.hyperion.api.BaseApiObject;
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.translation.Translator;
 import com.dottydingo.hyperion.service.validation.Validator;
 
 /**
  */
-public class ApiVersionPlugin<C extends BaseApiObject,P extends BasePersistentObject>
+public class ApiVersionPlugin<C extends ApiObject,P extends PersistentObject>
 {
     private Integer version;
     private Translator<C,P> translator;

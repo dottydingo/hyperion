@@ -1,14 +1,14 @@
 package com.dottydingo.hyperion.service.translation;
 
 
-import com.dottydingo.hyperion.api.BaseApiObject;
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 
 import java.util.List;
 
 /**
  */
-public interface Translator<C extends BaseApiObject, P extends BasePersistentObject>
+public interface Translator<C extends ApiObject, P extends PersistentObject>
 {
     P convertClient(C client, TranslationContext context);
 

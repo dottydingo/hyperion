@@ -1,14 +1,14 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.api.BaseApiObject;
-import com.dottydingo.hyperion.service.model.BasePersistentObject;
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 import net.sf.cglib.beans.BeanMap;
 
 import java.util.*;
 
 /**
  */
-public abstract class BaseTranslator<C extends BaseApiObject,P extends BasePersistentObject> implements Translator<C,P>
+public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObject> implements Translator<C,P>
 {
     protected BeanMap clientBeanMap;
     protected BeanMap persistentBeanMap;
