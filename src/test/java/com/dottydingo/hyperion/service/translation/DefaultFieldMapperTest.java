@@ -39,6 +39,24 @@ public class DefaultFieldMapperTest
     }
 
     @Test
+    public void testSparseMapping()
+    {
+        DefaultFieldMapper<SimpleClientObject,SimplePersistentObject> mapper =
+                new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("name",clientBeanMap,persistentBeanMap);
+
+        SimpleClientObject client = new SimpleClientObject();
+        client.setName(null);
+
+        SimplePersistentObject persistent = new SimplePersistentObject();
+        persistent.setName("Don't overwrite me");
+
+        DefaultTranslationContext context = new DefaultTranslationContext();
+
+        mapper.convertToPersistent(client,persistent,context);
+        Assert.assertEquals("Don't overwrite me",persistent.getName());
+    }
+
+    @Test
     public void testDifferentNameMapping()
     {
         DefaultFieldMapper<SimpleClientObject,SimplePersistentObject> mapper =

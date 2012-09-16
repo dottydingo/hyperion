@@ -73,6 +73,32 @@ public class TranslatorTest
     }
 
     @Test
+    public void testCopyClient_Sparse()
+    {
+        SimpleClientObject clientObject = new SimpleClientObject();
+        clientObject.setId(10L);
+        clientObject.setName("name");
+
+        SimplePersistentObject persistentObject = new SimplePersistentObject();
+        persistentObject.setId(50L);
+        persistentObject.setName("should get overwritten");
+        persistentObject.setNumber(5);
+        persistentObject.setDifferentType(88);
+        persistentObject.setPersistentOnly("Should not be touched");
+
+        TranslationContext context = new DefaultTranslationContext();
+
+        translator.copyClient(clientObject, persistentObject, context);
+
+        Assert.assertNotNull(persistentObject);
+        Assert.assertEquals(new Long(10),persistentObject.getId());
+        Assert.assertEquals("name",persistentObject.getName());
+        Assert.assertEquals(new Integer(5),persistentObject.getNumber());
+        Assert.assertEquals(new Integer(88),persistentObject.getDifferentType());
+        Assert.assertEquals("Should not be touched",persistentObject.getPersistentOnly());
+    }
+
+    @Test
     public void testConvertPersistent()
     {
         new SimpleClientObject();
