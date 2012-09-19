@@ -18,7 +18,7 @@ public class ServiceException extends WebApplicationException
         super(Response.status(status).entity(message).build());
     }
 
-    public ServiceException(int status, Throwable throwable, String message)
+    public ServiceException(int status, String message, Throwable throwable)
     {
         super(throwable,Response.status(status).entity(message).build());
     }
