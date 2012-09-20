@@ -13,7 +13,7 @@ public interface PersistenceOperations<P extends PersistentObject,ID extends Ser
 
     List<P> findByIds(List<ID> ids);
 
-    QueryResult<P> query(String query,Integer start, Integer limit);
+    QueryResult<P> query(String query, Integer start, Integer limit, String sort);
 
     P createItem(P item);
 

@@ -1,13 +1,14 @@
 package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.exception.BadRequestException;
+import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
-import com.dottydingo.hyperion.service.exception.ServiceException;
 import com.dottydingo.hyperion.service.translation.DefaultTranslationContext;
 import com.dottydingo.hyperion.service.translation.Translator;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ import java.util.Set;
 
 /**
  */
-@Path("/data/{entity}")
+@Path("/data/{entity}/")
 public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
 {
     private ServiceRegistry serviceRegistry;
@@ -35,7 +36,6 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
     }
 
     @GET()
-    @Path("/")
     @Transactional(readOnly = true)
     @Produces(MediaType.APPLICATION_JSON)
     public Response queryData(@PathParam("entity") String entity,
@@ -43,12 +43,13 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
                               @QueryParam("start")  Integer start,
                               @QueryParam("limit")  Integer limit,
                               @QueryParam("query") String query,
+                              @QueryParam("sort") String sort,
                               @QueryParam("version")  Integer version)
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query,start,limit);
+        QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query,start,limit, sort);
         List<P> persistent = queryResult.getItems();
 
         Set<String> fieldSet = buildFieldSet(fields);
@@ -68,7 +69,7 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
     }
 
     @GET()
-    @Path("/{id}")
+    @Path("{id}")
     @Transactional(readOnly = true)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getItem(@PathParam("entity") String entity,
@@ -107,7 +108,6 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
     }
 
     @POST
-    @Path("/")
     @Transactional(readOnly = false)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createItem(@PathParam("entity") String entity,
@@ -137,7 +137,6 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
     }
 
     @PUT
-    @Path("/")
     @Transactional(readOnly = false)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateItem(@PathParam("entity") String entity,
@@ -149,7 +148,7 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
         if(entityRequest == null || entityRequest.getItem() == null || entityRequest.getItem().getId() == null)
-            throw new ServiceException(400,"Missing payload");
+            throw new BadRequestException("Missing payload");
 
         Set<String> fieldSet = buildFieldSet(fields);
         if(fieldSet != null)
@@ -164,7 +163,7 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
         PersistenceOperations<P,ID> persistenceOperations = plugin.getPersistenceOperations();
         P existing = persistenceOperations.findById(id);
         if(existing == null)
-            throw new ServiceException(404,
+            throw new NotFoundException(
                     String.format("%s with id %s was not found.",entity,entityRequest.getItem().getId()));
 
         apiVersionPlugin.getValidator().validateUpdate(entityRequest.getItem(),existing);
@@ -180,7 +179,7 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
     }
 
     @DELETE()
-    @Path("/{id}")
+    @Path("{id}")
     @Transactional(readOnly = false)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteItem(@PathParam("entity") String entity,
@@ -208,7 +207,7 @@ public class DataServiceEndpoint<C extends ApiObject,P extends PersistentObject,
     {
         EntityPlugin<C,P,ID> plugin = serviceRegistry.getPluginForName(entity);
         if(plugin == null)
-            throw new ServiceException(404,String.format("%s is not a valid entity.",entity));
+            throw new NotFoundException(String.format("%s is not a valid entity.",entity));
 
         return plugin;
     }

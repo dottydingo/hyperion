@@ -1,10 +1,13 @@
 package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.exception.BadRequestException;
+import com.dottydingo.hyperion.exception.InternalException;
+import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
-import com.dottydingo.hyperion.service.exception.ServiceException;
+import com.dottydingo.hyperion.exception.ServiceException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.Consumes;
@@ -57,13 +60,13 @@ public class EntityRequestMessageBodyReader implements MessageBodyReader<EntityR
         List<String> entities = uriInfo.getPathParameters().get("entity");
         if(entities == null || entities.size() != 1)
         {
-            throw new ServiceException("Invalid request.");
+            throw new BadRequestException("Invalid request.");
         }
 
         String entity = entities.get(0);
         EntityPlugin plugin = serviceRegistry.getPluginForName(entity);
         if(plugin == null)
-            throw new ServiceException(404,String.format("%s is not a valid endpoint.",entity));
+            throw new NotFoundException(String.format("%s is not a valid endpoint.",entity));
 
         String versionString = uriInfo.getQueryParameters().getFirst("version");
         Integer version = null;
@@ -84,7 +87,7 @@ public class EntityRequestMessageBodyReader implements MessageBodyReader<EntityR
         }
         catch (Exception e)
         {
-            throw new ServiceException(String.format("Error unmarshalling %s",entity));
+            throw new InternalException(String.format("Error unmarshalling %s",entity));
         }
 
     }

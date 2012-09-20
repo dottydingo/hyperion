@@ -13,7 +13,7 @@ import javax.persistence.metamodel.EntityType;
  * Date: 9/16/12
  * Time: 3:12 PM
  */
-public interface ExpressionBuilder
+public interface ExpressionPredicateBuilder
 {
     ArgumentParser getArgumentParser();
 
@@ -23,6 +23,6 @@ public interface ExpressionBuilder
 
     CriteriaBuilder getCriteriaBuilder();
 
-    Predicate delegateToBuilder(From entityRoot, String property, Comparison operator, String argument)
+    Predicate buildPredicate(From entityRoot, String property, Comparison operator, String argument)
             throws ArgumentFormatException, UnknownSelectorException, IllegalArgumentException;
 }

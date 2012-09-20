@@ -15,18 +15,17 @@ import javax.persistence.metamodel.EntityType;
 public class AssociationsPredicateBuilder extends AbstractPredicateBuilder
 {
     @Override
-    public boolean accept(String propertyPath, Class<?> entityClass, ExpressionBuilder parent)
+    public boolean accept(String propertyPath, Class<?> entityClass, ExpressionPredicateBuilder parent)
     {
         return splitPath(propertyPath).length > 1;
     }
 
     @Override
     public Predicate createPredicate(String propertyPath, Comparison operator, String argument, From root,
-                                     String alias, ExpressionBuilder parent)
+                                     ExpressionPredicateBuilder parent)
             throws ArgumentFormatException, UnknownSelectorException
     {
         String[] path = splitPath(propertyPath);
-        String lastAlias = alias;
         String property = null;
         From lastRoot = root;
 
@@ -40,20 +39,18 @@ public class AssociationsPredicateBuilder extends AbstractPredicateBuilder
             {
                 throw new UnknownSelectorException(path[i]);
             }
-            //Path objectPath = lastRoot.get(property);
+
             lastRoot = lastRoot.join(property);
-            //lastRoot = findPropertyType(property, metadata);
 
             logger.trace("Nesting level {}: property '{}' of entity {}",
                     new Object[]{i, property, metadata.getJavaType().getSimpleName()});
 
-            //lastAlias = parent.createAssociationAlias(lastAlias + property) + '.';
         }
 
         // the last property may by an ordinal property (not an association)
         property = parent.getMapper().translate(path[path.length - 1], lastRoot.getJavaType());
 
-        return parent.delegateToBuilder(lastRoot,property, operator, argument);
+        return parent.buildPredicate(lastRoot, property, operator, argument);
 
     }
 

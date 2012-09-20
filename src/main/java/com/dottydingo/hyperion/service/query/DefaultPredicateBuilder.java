@@ -3,7 +3,6 @@ package com.dottydingo.hyperion.service.query;
 import cz.jirutka.rsql.parser.model.Comparison;
 
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.EntityType;
 
@@ -15,14 +14,14 @@ import javax.persistence.metamodel.EntityType;
 public class DefaultPredicateBuilder extends AbstractPredicateBuilder
 {
     @Override
-    public boolean accept(String property, Class<?> entityClass, ExpressionBuilder parent)
+    public boolean accept(String property, Class<?> entityClass, ExpressionPredicateBuilder parent)
     {
         return true;
     }
 
     @Override
     public Predicate createPredicate(String property, Comparison operator, String argument, From root,
-                                     String alias, ExpressionBuilder parent)
+                                     ExpressionPredicateBuilder parent)
             throws ArgumentFormatException, UnknownSelectorException
     {
 
@@ -35,7 +34,7 @@ public class DefaultPredicateBuilder extends AbstractPredicateBuilder
         Class<?> type = findPropertyType(property, metadata);
         Object castedArgument = parent.getArgumentParser().parse(argument, type);
 
-        return createPredicate(root, parent.getCriteriaBuilder(), alias + property, operator,
+        return createPredicate(root, parent.getCriteriaBuilder(), property, operator,
                 castedArgument);
     }
 }

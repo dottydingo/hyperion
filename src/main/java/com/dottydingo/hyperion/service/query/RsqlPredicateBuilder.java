@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.query;
 
-import com.dottydingo.hyperion.service.exception.QueryException;
+import com.dottydingo.hyperion.exception.BadRequestException;
+import com.dottydingo.hyperion.exception.InternalException;
 import cz.jirutka.rsql.parser.ParseException;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.TokenMgrError;
@@ -65,16 +66,16 @@ public class RsqlPredicateBuilder implements PredicateBuilder
         }
         catch (ParseException ex)
         {
-            throw new QueryException("Error parsing query.", ex);
+            throw new BadRequestException("Error parsing query.", ex);
         }
         catch (TokenMgrError er)
         {
-            throw new QueryException("Invalid query", er);
+            throw new BadRequestException("Invalid query", er);
         }
         return new InternalExpressionBuilder(cb).buildPredicate(queryTree,root);
     }
 
-    private class InternalExpressionBuilder implements ExpressionBuilder
+    private class InternalExpressionBuilder implements ExpressionPredicateBuilder
     {
 
         private CriteriaBuilder cb;
@@ -98,7 +99,7 @@ public class RsqlPredicateBuilder implements PredicateBuilder
                 return buildPredicate((ComparisonExpression) expression,entityRoot);
             }
 
-            throw new RuntimeException("Invalid expression.");
+            throw new BadRequestException("Invalid expression.");
         }
 
         private Predicate buildPredicate(LogicalExpression logical,  Root entityRoot)
@@ -115,7 +116,7 @@ public class RsqlPredicateBuilder implements PredicateBuilder
                             buildPredicate(logical.getLeft(),entityRoot),
                             buildPredicate(logical.getRight(),entityRoot));
             }
-            throw new RuntimeException("Invalid expression.");
+            throw new BadRequestException("Invalid expression.");
         }
 
         private Predicate buildPredicate(ComparisonExpression comparison,  Root entityRoot)
@@ -124,26 +125,22 @@ public class RsqlPredicateBuilder implements PredicateBuilder
 
             try
             {
-                return delegateToBuilder(entityRoot, property, comparison.getOperator(), comparison.getArgument());
+                return buildPredicate(entityRoot, property, comparison.getOperator(), comparison.getArgument());
 
             }
-            /*catch (ArgumentFormatException ex)
+            catch (ArgumentFormatException ex)
             {
-                throw new RSQLException(
+                throw new BadRequestException(null,
                         new ArgumentFormatException(comparison.getSelector(), ex.getArgument(), ex.getPropertyType()));
             }
             catch (UnknownSelectorException ex)
             {
-                throw new RSQLException(ex);
-            }*/
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
+                throw new BadRequestException(null,ex);
             }
         }
 
         @Override
-        public Predicate delegateToBuilder(From entityRoot, String property, Comparison operator, String argument)
+        public Predicate buildPredicate(From entityRoot, String property, Comparison operator, String argument)
                 throws ArgumentFormatException, UnknownSelectorException, IllegalArgumentException
         {
             Class<?> entityClass = entityRoot.getJavaType();
@@ -152,11 +149,11 @@ public class RsqlPredicateBuilder implements PredicateBuilder
                     logger.debug("Delegating comparison [{} {} {}] on entity {} to builder: {}",
                             new Object[]{property, operator, argument, entityClass.getSimpleName(), builder.getClass().getSimpleName()});
 
-                    return builder.createPredicate(property, operator, argument, entityRoot, "", this);
+                    return builder.createPredicate(property, operator, argument, entityRoot, this);
                 }
             }
 
-            throw new IllegalArgumentException("No Criterion Builder found for property " + property + " of " + entityClass);
+            throw new InternalException("No Criterion Builder found for property " + property + " of " + entityClass);
         }
 
         @Override

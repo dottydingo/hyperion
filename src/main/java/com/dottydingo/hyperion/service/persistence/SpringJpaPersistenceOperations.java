@@ -1,8 +1,10 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.service.model.PersistentObject;
+import com.dottydingo.hyperion.service.query.Mapper;
 import com.dottydingo.hyperion.service.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.query.RsqlPredicateBuilder;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +29,10 @@ import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 public class SpringJpaPersistenceOperations<P extends PersistentObject, ID extends Serializable>
         implements PersistenceOperations<P,ID>
 {
+    private Sort defaultSort = new Sort("id");
     private HyperionJpaRepository<P,ID> jpaRepository;
-    //private RSQL2CriteriaConverter criteriaConverter;
     private RsqlPredicateBuilder predicateBuilder;
+    private Mapper mapper;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -38,14 +41,14 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
         this.jpaRepository = jpaRepository;
     }
 
-    /*public void setCriteriaConverter(RSQL2CriteriaConverter criteriaConverter)
-    {
-        this.criteriaConverter = criteriaConverter;
-    }*/
-
     public void setPredicateBuilder(RsqlPredicateBuilder predicateBuilder)
     {
         this.predicateBuilder = predicateBuilder;
+    }
+
+    public void setMapper(Mapper mapper)
+    {
+        this.mapper = mapper;
     }
 
     @Override
@@ -68,11 +71,11 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
     }
 
     @Override
-    public QueryResult<P> query(String query, Integer start, Integer limit)
+    public QueryResult<P> query(String query, Integer start, Integer limit, String sort)
     {
         int size = limit == null ? 500 : limit;
         int page = start == null ? 0 : (start - 1) * size;
-        Pageable pageable = new PageRequest(page,size,new Sort("id"));
+        Pageable pageable = new PageRequest(page,size,getSort(sort));
 
 
         Page<P> all = null;
@@ -87,20 +90,6 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
         }
 
         List<P> list = all.getContent();
-        /*Criteria criteria = ((Session)entityManager.getDelegate()).createCriteria(getDomainType());
-
-     if(query != null && query.length() > 0)
-     {
-         criteriaConverter.extendCriteria(query,getDomainType(), criteria);
-     }
-
-     criteria.setMaxResults(size);
-     if(start != null)
-         criteria.setFirstResult(start - 1);
-
-     criteria.addOrder(Order.asc("id"));
-
-     List<P> list = criteria.list();*/
 
         QueryResult<P> queryResult= new QueryResult<P>();
         queryResult.setItems(list);
@@ -136,6 +125,44 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
         return arguments == null ? null : arguments[0];
     }
 
+    private Sort getSort(String sortString)
+    {
+        if (sortString == null || sortString.length() == 0)
+        {
+            return defaultSort;
+        }
+
+        Class entityType = getDomainType();
+
+        boolean hasId = false;
+        Sort sort = null;
+        String[] split = sortString.split(",");
+        for (String s1 : split)
+        {
+            String[] props = s1.split(":");
+            String translated = mapper.translate(props[0].trim(), entityType);
+            if(translated.equals("id"))
+                hasId = true;
+            boolean desc = props.length == 2 && props[1].equalsIgnoreCase("desc");
+            Sort s = new Sort(desc ? Sort.Direction.DESC : Sort.Direction.ASC,translated);
+            if (sort == null)
+            {
+                sort = s;
+            }
+            else
+            {
+                sort = sort.and(s);
+            }
+        }
+
+        if(sort == null)
+            sort = defaultSort;
+        else if(!hasId)
+            sort = sort.and(defaultSort);
+
+        return sort;
+    }
+
     private class QuerySpecification<T> implements Specification<T>
     {
         private PredicateBuilder predicateBuilder;
@@ -155,4 +182,6 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
             return predicateBuilder.buildPredicate(queryString,entityClass,root,cb);
         }
     }
+
+
 }

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.ManagedType;
 
 /**
  */
@@ -27,18 +26,17 @@ public abstract class AbstractPredicateBuilder
      * @return <tt>true</tt> if this builder can handle given property of entity
      *         class, otherwise <tt>false</tt>
      */
-    public abstract boolean accept(String property, Class<?> entityClass, ExpressionBuilder parent);
+    public abstract boolean accept(String property, Class<?> entityClass, ExpressionPredicateBuilder parent);
 
     /**
      * Create <tt>Criterion</tt> for given comparison (constraint).
+     *
      *
      *
      * @param property    property name or path
      * @param operator    comparison operator
      * @param argument    argument
      * @param root
-     * @param alias       Association alias (incl. dot) which must be used to prefix
-*                    property name!
      * @param parent      Reference to the parent <tt>CriteriaBuilder</tt>.   @return Criterion
      * @throws ArgumentFormatException
      *          If given argument is not in suitable
@@ -48,7 +46,7 @@ public abstract class AbstractPredicateBuilder
      *          If such property does not exist.
      */
     public abstract Predicate createPredicate(String property, Comparison operator, String argument,
-                                              From root, String alias, ExpressionBuilder parent)
+                                              From root, ExpressionPredicateBuilder parent)
             throws ArgumentFormatException, UnknownSelectorException;
 
     /**

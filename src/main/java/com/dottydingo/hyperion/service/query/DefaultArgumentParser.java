@@ -103,6 +103,6 @@ public class DefaultArgumentParser implements ArgumentParser
             throw new RuntimeException(ex);
         }
 
-        throw new IllegalArgumentException("Cannot parse argument type " + type);
+        throw new InternalError("Cannot parse argument type " + type);
     }
 }
