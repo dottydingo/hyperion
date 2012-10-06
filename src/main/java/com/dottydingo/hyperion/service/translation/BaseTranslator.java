@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import net.sf.cglib.beans.BeanMap;
 
@@ -25,10 +26,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         initializeCustomFieldMappers();
     }
 
-    protected void beforeConvert(C client, P persistent, TranslationContext context){}
+    protected void beforeConvert(C client, P persistent, RequestContext context){}
 
     @Override
-    public P convertClient(C client, TranslationContext context)
+    public P convertClient(C client, RequestContext context)
     {
         P persistentObject = createPersistentInstance();
 
@@ -44,12 +45,12 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         return persistentObject;
     }
 
-    protected void afterConvert(C client, P persistent, TranslationContext context){}
+    protected void afterConvert(C client, P persistent, RequestContext context){}
 
-    protected void beforeCopy(C client, P persistent, TranslationContext context){}
+    protected void beforeCopy(C client, P persistent, RequestContext context){}
 
     @Override
-    public void copyClient(C client, P persistent, TranslationContext context)
+    public void copyClient(C client, P persistent, RequestContext context)
     {
         beforeCopy(client,persistent,context);
         for (FieldMapper mapper : fieldMapperMap.values())
@@ -59,10 +60,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         afterCopy(client,persistent,context);
     }
 
-    protected void afterCopy(C client, P persistent, TranslationContext context){}
+    protected void afterCopy(C client, P persistent, RequestContext context){}
 
     @Override
-    public C convertPersistent(P persistent, TranslationContext context)
+    public C convertPersistent(P persistent, RequestContext context)
     {
         C clientObject = createClientInstance();
 
@@ -81,10 +82,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         return clientObject;
     }
 
-    protected void convertPersistent(C client, P persistent, TranslationContext context){}
+    protected void convertPersistent(C client, P persistent, RequestContext context){}
 
     @Override
-    public List<C> convertPersistent(List<P> persistent, TranslationContext context)
+    public List<C> convertPersistent(List<P> persistent, RequestContext context)
     {
         List<C> list = new LinkedList<C>();
         for (P p : persistent)

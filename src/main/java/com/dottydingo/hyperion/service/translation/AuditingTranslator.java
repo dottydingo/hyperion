@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.BaseAuditableApiObject;
+import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.AuditablePersistentObject;
 
 import java.util.ArrayList;
@@ -26,27 +27,27 @@ public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P exte
     }
 
     @Override
-    protected void afterConvert(C client, P persistent, TranslationContext context)
+    protected void afterConvert(C client, P persistent, RequestContext context)
     {
         super.afterConvert(client, persistent, context);
         Date now = new Date();
         persistent.setCreated(now);
-        persistent.setCreatedBy(context.getUserString());
+        persistent.setCreatedBy(context.getAuthorizationContext().getUserString());
         persistent.setModified(now);
-        persistent.setModifiedBy(context.getUserString());
+        persistent.setModifiedBy(context.getAuthorizationContext().getUserString());
     }
 
     @Override
-    protected void beforeCopy(C client, P persistent, TranslationContext context)
+    protected void beforeCopy(C client, P persistent, RequestContext context)
     {
         super.beforeCopy(client, persistent, context);
     }
 
     @Override
-    protected void afterCopy(C client, P persistent, TranslationContext context)
+    protected void afterCopy(C client, P persistent, RequestContext context)
     {
         super.afterCopy(client, persistent, context);
         persistent.setModified(new Date());
-        persistent.setModifiedBy(context.getUserString()) ;
+        persistent.setModifiedBy(context.getAuthorizationContext().getUserString()) ;
     }
 }

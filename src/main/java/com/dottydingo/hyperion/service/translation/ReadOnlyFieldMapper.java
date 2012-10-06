@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
+import com.dottydingo.hyperion.service.context.RequestContext;
 import net.sf.cglib.beans.BeanMap;
 
 /**
@@ -19,7 +20,7 @@ public class ReadOnlyFieldMapper<C,P> extends DefaultFieldMapper<C,P>
     }
 
     @Override
-    public void convertToPersistent(C clientObject, P persistentObject, TranslationContext context)
+    public void convertToPersistent(C clientObject, P persistentObject, RequestContext context)
     {
         // no-op
     }

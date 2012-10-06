@@ -1,5 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
+import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.RequestContextImpl;
 import net.sf.cglib.beans.BeanMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +28,7 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setName("happy new value");
 
-        DefaultTranslationContext context = new DefaultTranslationContext();
+        RequestContextImpl context = new RequestContextImpl();
         mapper.convertToClient(persistent,client, context);
 
         Assert.assertEquals("happy new value",client.getName());
@@ -50,7 +52,7 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setName("Don't overwrite me");
 
-        DefaultTranslationContext context = new DefaultTranslationContext();
+        RequestContextImpl context = new RequestContextImpl();
 
         mapper.convertToPersistent(client,persistent,context);
         Assert.assertEquals("Don't overwrite me",persistent.getName());
@@ -69,7 +71,7 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setPersistentOnly("happy new value");
 
-        DefaultTranslationContext context = new DefaultTranslationContext();
+        RequestContextImpl context = new RequestContextImpl();
         mapper.convertToClient(persistent,client, context);
 
         Assert.assertEquals("happy new value",client.getClientOnly());
@@ -94,7 +96,7 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setDifferentType(22);
 
-        DefaultTranslationContext context = new DefaultTranslationContext();
+        RequestContextImpl context = new RequestContextImpl();
         mapper.convertToClient(persistent,client, context);
 
         Assert.assertEquals("22",client.getDifferentType());
@@ -109,7 +111,7 @@ public class DefaultFieldMapperTest
     private class StringConverter implements ValueConverter<String,Integer>
     {
         @Override
-        public String convertToClientValue(Integer persistentValue, TranslationContext context)
+        public String convertToClientValue(Integer persistentValue, RequestContext context)
         {
             if(persistentValue == null)
                 return null;
@@ -118,7 +120,7 @@ public class DefaultFieldMapperTest
         }
 
         @Override
-        public Integer convertToPersistentValue(String clientValue, TranslationContext context)
+        public Integer convertToPersistentValue(String clientValue, RequestContext context)
         {
             if(clientValue == null)
                 return null;

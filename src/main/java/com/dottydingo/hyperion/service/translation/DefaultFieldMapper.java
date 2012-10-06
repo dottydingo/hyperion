@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
+import com.dottydingo.hyperion.service.context.RequestContext;
 import net.sf.cglib.beans.BeanMap;
 
 /**
@@ -39,7 +40,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
     }
 
     @Override
-    public void convertToClient(P persistentObject, C clientObject, TranslationContext context)
+    public void convertToClient(P persistentObject, C clientObject, RequestContext context)
     {
         Object persistentValue = persistentBeanMap.get(persistentObject,getPersistentFieldName());
 
@@ -53,7 +54,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
     }
 
     @Override
-    public void convertToPersistent(C clientObject, P persistentObject, TranslationContext context)
+    public void convertToPersistent(C clientObject, P persistentObject, RequestContext context)
     {
         Object clientValue = clientBeanMap.get(clientObject,getClientFieldName());
         if(valueConverter != null)
