@@ -22,13 +22,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.Serializable;
 import java.net.URI;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  */
-public class AbstractDataServiceEndpoint<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
+public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
 {
     private ServiceRegistry serviceRegistry;
     private RequestContextBuilder requestContextBuilder;
@@ -59,10 +58,10 @@ public class AbstractDataServiceEndpoint<C extends ApiObject,P extends Persisten
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
+        QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort, requestContext);
         List<P> persistent = queryResult.getItems();
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
         List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,requestContext);
 
         EntityResponse<C> entityResponse = new EntityResponse<C>();
@@ -88,10 +87,10 @@ public class AbstractDataServiceEndpoint<C extends ApiObject,P extends Persisten
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        List<ID> ids = plugin.getKeyConverter().covertKeys(id);
-        List<P> persistent = plugin.getPersistenceOperations().findByIds(ids);
-
         RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
+
+        List<ID> ids = plugin.getKeyConverter().covertKeys(id);
+        List<P> persistent = plugin.getPersistenceOperations().findByIds(ids, requestContext);
 
         List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,requestContext);
 
@@ -133,11 +132,14 @@ public class AbstractDataServiceEndpoint<C extends ApiObject,P extends Persisten
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         P persistent = translator.convertClient(entityRequest.getItem(), requestContext);
-        P saved = plugin.getPersistenceOperations().createItem(persistent);
+        P saved = plugin.getPersistenceOperations().createItem(persistent, requestContext);
+        if(saved != null)
+        {
+            C toReturn = translator.convertPersistent(saved,requestContext);
+            return Response.created(URI.create(toReturn.getId().toString())).entity(toReturn).build();
+        }
 
-        C toReturn = translator.convertPersistent(saved,requestContext);
-
-        return Response.created(URI.create(toReturn.getId().toString())).entity(toReturn).build();
+        return Response.notModified().build();
 
     }
 
@@ -165,7 +167,7 @@ public class AbstractDataServiceEndpoint<C extends ApiObject,P extends Persisten
         ID id = (ID) item.getId();
 
         PersistenceOperations<P,ID> persistenceOperations = plugin.getPersistenceOperations();
-        P existing = persistenceOperations.findById(id);
+        P existing = persistenceOperations.findById(id, requestContext);
         if(existing == null)
             throw new NotFoundException(
                     String.format("%s with id %s was not found.",entity,entityRequest.getItem().getId()));
@@ -174,12 +176,15 @@ public class AbstractDataServiceEndpoint<C extends ApiObject,P extends Persisten
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         translator.copyClient(entityRequest.getItem(), existing,requestContext);
-        P saved = plugin.getPersistenceOperations().updateItem(existing);
+        P saved = plugin.getPersistenceOperations().updateItem(existing, requestContext);
 
-        ApiObject toReturn = translator.convertPersistent(saved,requestContext);
+        if(saved != null)
+        {
+            ApiObject toReturn = translator.convertPersistent(saved,requestContext);
+            return Response.ok(toReturn).build();
+        }
 
-        return Response.ok(toReturn).build();
-
+        return Response.notModified().build();
     }
 
     @DELETE()
@@ -192,15 +197,18 @@ public class AbstractDataServiceEndpoint<C extends ApiObject,P extends Persisten
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
 
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,null);
+
         List<ID> ids = plugin.getKeyConverter().covertKeys(id);
-        List<P> persistentItems = plugin.getPersistenceOperations().findByIds(ids);
+        List<P> persistentItems = plugin.getPersistenceOperations().findByIds(ids, requestContext);
+        int deleted = 0;
         for (P p : persistentItems)
         {
-            plugin.getPersistenceOperations().deleteItem(p);
+            deleted+=plugin.getPersistenceOperations().deleteItem(p, requestContext);
         }
 
         DeleteResponse response = new DeleteResponse();
-        response.setCount(persistentItems.size());
+        response.setCount(deleted);
 
         return Response.ok(response).build();
 

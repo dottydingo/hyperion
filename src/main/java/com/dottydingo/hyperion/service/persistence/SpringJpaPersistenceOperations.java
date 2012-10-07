@@ -1,15 +1,16 @@
 package com.dottydingo.hyperion.service.persistence;
 
+import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.query.Mapper;
 import com.dottydingo.hyperion.service.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.query.RsqlPredicateBuilder;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.data.repository.Repository;
 
 import javax.persistence.EntityManager;
@@ -33,6 +34,7 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
     private HyperionJpaRepository<P,ID> jpaRepository;
     private RsqlPredicateBuilder predicateBuilder;
     private Mapper mapper;
+    private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -51,43 +53,61 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
         this.mapper = mapper;
     }
 
-    @Override
-    public P findById(ID id)
+    public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
     {
-        return jpaRepository.findOne(id);
+        this.persistenceFilter = persistenceFilter;
     }
 
     @Override
-    public List<P> findByIds(List<ID> ids)
+    public P findById(ID id, RequestContext context)
+    {
+        P persistent = jpaRepository.findOne(id);
+        if(persistenceFilter.isVisible(persistent,context))
+            return persistent;
+        return null;
+    }
+
+    @Override
+    public List<P> findByIds(List<ID> ids, RequestContext context)
     {
         Iterable<P> iterable = jpaRepository.findAll(ids);
 
         List<P> result = new ArrayList<P>();
         for (P p : iterable)
         {
-            result.add(p);
+            if(persistenceFilter.isVisible(p,context))
+                result.add(p);
         }
         return result;
     }
 
     @Override
-    public QueryResult<P> query(String query, Integer start, Integer limit, String sort)
+    public QueryResult<P> query(String query, Integer start, Integer limit, String sort, RequestContext context)
     {
         int size = limit == null ? 500 : limit;
         int page = start == null ? 0 : (start - 1) * size;
         Pageable pageable = new PageRequest(page,size,getSort(sort));
 
-
-        Page<P> all = null;
-
+        List<Specification<P>> specificationList = new ArrayList<Specification<P>>();
         if(query != null && query.length() > 0)
         {
-            all = jpaRepository.findAll(new QuerySpecification(predicateBuilder,query,getDomainType()),pageable);
+            specificationList.add(new QuerySpecification(predicateBuilder, query, getDomainType()));
         }
-        else
+
+        Specification<P> filter = persistenceFilter.getFilterSpecification(context);
+        if(filter != null)
+            specificationList.add(filter);
+
+        Specifications<P> specification = null;
+        for (Specification<P> spec : specificationList)
         {
-            all = jpaRepository.findAll(pageable);
+            if(specification == null)
+                specification = Specifications.where(spec);
+            else
+                specification = specification.and(spec);
         }
+
+        Page<P> all = jpaRepository.findAll(specification,pageable);
 
         List<P> list = all.getContent();
 
@@ -101,21 +121,31 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
     }
 
     @Override
-    public P createItem(P item)
+    public P createItem(P item, RequestContext context)
     {
-        return jpaRepository.save(item);
+        if(persistenceFilter.canCreate(item,context))
+            return jpaRepository.save(item);
+        return null;
     }
 
     @Override
-    public P updateItem(P item)
+    public P updateItem(P item, RequestContext context)
     {
-        return jpaRepository.save(item);
+        if(persistenceFilter.canUpdate(item,context))
+            return jpaRepository.save(item);
+        return null;
     }
 
     @Override
-    public void deleteItem(P item)
+    public int deleteItem(P item, RequestContext context)
     {
-        jpaRepository.delete(item);
+        if(persistenceFilter.canDelete(item,context))
+        {
+            jpaRepository.delete(item);
+            return 1;
+        }
+
+        return 0;
     }
 
     private Class<?> getDomainType()
