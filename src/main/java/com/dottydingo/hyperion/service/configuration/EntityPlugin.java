@@ -1,11 +1,14 @@
 package com.dottydingo.hyperion.service.configuration;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  */
@@ -15,6 +18,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private KeyConverter<ID> keyConverter;
     private PersistenceOperations<P,ID> persistenceOperations;
     private ApiVersionRegistry<C,P> apiVersionRegistry;
+    private Set<HttpMethod> limitMethods = new HashSet<HttpMethod>();
 
     public String getEndpointName()
     {
@@ -54,5 +58,16 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setApiVersionRegistry(ApiVersionRegistry<C,P> apiVersionRegistry)
     {
         this.apiVersionRegistry = apiVersionRegistry;
+    }
+
+
+    public void setLimitMethods(Set<HttpMethod> limitMethods)
+    {
+        this.limitMethods = limitMethods;
+    }
+
+    public boolean isMethodAllowed(HttpMethod method)
+    {
+        return limitMethods.isEmpty() || limitMethods.contains(method);
     }
 }

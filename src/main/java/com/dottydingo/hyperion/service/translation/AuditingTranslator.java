@@ -32,9 +32,9 @@ public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P exte
         super.afterConvert(client, persistent, context);
         Date now = new Date();
         persistent.setCreated(now);
-        persistent.setCreatedBy(context.getAuthorizationContext().getUserString());
+        persistent.setCreatedBy(context.getUserIdentifier());
         persistent.setModified(now);
-        persistent.setModifiedBy(context.getAuthorizationContext().getUserString());
+        persistent.setModifiedBy(context.getUserIdentifier());
     }
 
     @Override
@@ -48,6 +48,6 @@ public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P exte
     {
         super.afterCopy(client, persistent, context);
         persistent.setModified(new Date());
-        persistent.setModifiedBy(context.getAuthorizationContext().getUserString()) ;
+        persistent.setModifiedBy(context.getUserIdentifier()) ;
     }
 }

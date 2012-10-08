@@ -1,8 +1,10 @@
 package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.exception.AuthorizationException;
 import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.NotFoundException;
+import com.dottydingo.hyperion.exception.ServiceException;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.context.RequestContextBuilder;
 import com.dottydingo.hyperion.service.model.PersistentObject;
@@ -31,6 +33,8 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
 {
     private ServiceRegistry serviceRegistry;
     private RequestContextBuilder requestContextBuilder;
+    private EndpointAuthorizationChecker endpointAuthorizationChecker = new EmptyAuthorizationChecker();
+
     @Context
     private UriInfo uriInfo;
 
@@ -42,6 +46,11 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
     public void setRequestContextBuilder(RequestContextBuilder requestContextBuilder)
     {
         this.requestContextBuilder = requestContextBuilder;
+    }
+
+    public void setEndpointAuthorizationChecker(EndpointAuthorizationChecker endpointAuthorizationChecker)
+    {
+        this.endpointAuthorizationChecker = endpointAuthorizationChecker;
     }
 
     @GET()
@@ -56,9 +65,13 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
                               @QueryParam("version")  Integer version)
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+        checkMethodAllowed(plugin,HttpMethod.GET);
+
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.GET, fields);
+        endpointAuthorizationChecker.checkAuthorization(requestContext);
+
         QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort, requestContext);
         List<P> persistent = queryResult.getItems();
 
@@ -85,9 +98,12 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
 
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+        checkMethodAllowed(plugin,HttpMethod.GET);
+
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.GET, fields);
+        endpointAuthorizationChecker.checkAuthorization(requestContext);
 
         List<ID> ids = plugin.getKeyConverter().covertKeys(id);
         List<P> persistent = plugin.getPersistenceOperations().findByIds(ids, requestContext);
@@ -120,9 +136,11 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
                                EntityRequest<C> entityRequest)
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+        checkMethodAllowed(plugin,HttpMethod.POST);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.POST, fields);
+        endpointAuthorizationChecker.checkAuthorization(requestContext);
 
         Set<String> fieldSet = requestContext.getRequestedFields();
         if(fieldSet != null)
@@ -152,12 +170,14 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
                                EntityRequest<C> entityRequest)
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+        checkMethodAllowed(plugin,HttpMethod.PUT);
         ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
         if(entityRequest == null || entityRequest.getItem() == null || entityRequest.getItem().getId() == null)
             throw new BadRequestException("Missing payload");
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,fields);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.PUT, fields);
+        endpointAuthorizationChecker.checkAuthorization(requestContext);
 
         Set<String> fieldSet = requestContext.getRequestedFields();
         if(fieldSet != null)
@@ -196,8 +216,10 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
 
     {
         EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+        checkMethodAllowed(plugin,HttpMethod.DELETE);
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,entity,null);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.DELETE);
+        endpointAuthorizationChecker.checkAuthorization(requestContext);
 
         List<ID> ids = plugin.getKeyConverter().covertKeys(id);
         List<P> persistentItems = plugin.getPersistenceOperations().findByIds(ids, requestContext);
@@ -224,5 +246,16 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
         return plugin;
     }
 
+    private void checkMethodAllowed(EntityPlugin plugin, HttpMethod httpMethod)
+    {
+        if(!plugin.isMethodAllowed(httpMethod))
+            throw new ServiceException(406,String.format("%s is not allowed.",httpMethod));
+    }
 
+
+    private class EmptyAuthorizationChecker implements EndpointAuthorizationChecker
+    {
+        @Override
+        public void checkAuthorization(RequestContext requestContext) throws AuthorizationException {}
+    }
 }

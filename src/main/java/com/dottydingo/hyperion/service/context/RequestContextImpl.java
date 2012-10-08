@@ -1,7 +1,9 @@
 package com.dottydingo.hyperion.service.context;
 
 
+import javax.security.auth.Subject;
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
 import java.util.Set;
 
 /**
@@ -11,9 +13,28 @@ public class RequestContextImpl implements RequestContext
 {
     private UriInfo uriInfo;
     private String entity;
-    private AuthorizationContext authorizationContext;
     private Set<String> requestedFields;
+    private Principal principal;
+    private String userIdentifier;
 
+    @Override
+    public Principal getPrincipal()
+    {
+        return principal;
+    }
+
+    @Override
+    public String getUserIdentifier()
+    {
+        return userIdentifier;
+    }
+
+    public void setUserIdentifier(String userIdentifier)
+    {
+        this.userIdentifier = userIdentifier;
+    }
+
+    @Override
     public UriInfo getUriInfo()
     {
         return uriInfo;
@@ -24,6 +45,7 @@ public class RequestContextImpl implements RequestContext
         this.uriInfo = uriInfo;
     }
 
+    @Override
     public String getEntity()
     {
         return entity;
@@ -45,14 +67,8 @@ public class RequestContextImpl implements RequestContext
         this.entity = entity;
     }
 
-    public AuthorizationContext getAuthorizationContext()
+    public void setPrincipal(Principal principal)
     {
-        return authorizationContext;
+        this.principal = principal;
     }
-
-    public void setAuthorizationContext(AuthorizationContext authorizationContext)
-    {
-        this.authorizationContext = authorizationContext;
-    }
-
 }

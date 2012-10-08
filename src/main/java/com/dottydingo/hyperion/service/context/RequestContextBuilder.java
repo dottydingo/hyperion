@@ -1,5 +1,7 @@
 package com.dottydingo.hyperion.service.context;
 
+import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -9,5 +11,7 @@ import javax.ws.rs.core.UriInfo;
  */
 public interface RequestContextBuilder
 {
-    RequestContext buildRequestContext(UriInfo uriInfo, String entityType, String fields);
+    RequestContext buildRequestContext(String entityType, HttpMethod httpMethod, String fields);
+    RequestContext buildRequestContext(String entityType, HttpMethod httpMethod);
 }
+

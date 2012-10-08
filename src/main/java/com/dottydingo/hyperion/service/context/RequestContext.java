@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.service.context;
 
 
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
 import java.util.Set;
 
 /**
@@ -14,7 +15,7 @@ public interface RequestContext
 
     Set<String> getRequestedFields();
 
-    AuthorizationContext getAuthorizationContext();
+    Principal getPrincipal();
 
-
+    String getUserIdentifier();
 }
