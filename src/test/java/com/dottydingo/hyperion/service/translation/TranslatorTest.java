@@ -13,13 +13,14 @@ import org.junit.Test;
  */
 public class TranslatorTest
 {
-    private SimpleTranslator translator;
+    private BaseTranslator<SimpleClientObject,SimplePersistentObject> translator;
 
 
     @Before
     public void setup()
     {
-        translator = new SimpleTranslator();
+        translator = new BaseTranslator<SimpleClientObject,SimplePersistentObject>(SimpleClientObject.class,
+                SimplePersistentObject.class);
         translator.init();
     }
 
