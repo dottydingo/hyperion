@@ -8,20 +8,19 @@ import net.sf.cglib.beans.BeanMap;
  */
 public class ReadOnlyFieldMapper<C,P> extends DefaultFieldMapper<C,P>
 {
-    public ReadOnlyFieldMapper(String name, BeanMap clientBeanMap, BeanMap persistentBeanMap)
+    public ReadOnlyFieldMapper(String name)
     {
-        super(name, clientBeanMap, persistentBeanMap);
+        super(name);
     }
 
-    public ReadOnlyFieldMapper(String clientFieldName, String persistentFieldName, BeanMap clientBeanMap,
-                               BeanMap persistentBeanMap, ValueConverter valueConverter)
+    public ReadOnlyFieldMapper(String clientFieldName, String persistentFieldName,ValueConverter valueConverter)
     {
-        super(clientFieldName, persistentFieldName, clientBeanMap, persistentBeanMap, valueConverter);
+        super(clientFieldName, persistentFieldName, valueConverter);
     }
 
     @Override
-    public void convertToPersistent(C clientObject, P persistentObject, RequestContext context)
+    public void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
     {
-        // no-op
+        // no op
     }
 }

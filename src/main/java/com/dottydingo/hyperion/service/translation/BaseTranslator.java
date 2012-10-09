@@ -26,46 +26,58 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         initializeCustomFieldMappers();
     }
 
-    protected void beforeConvert(C client, P persistent, RequestContext context){}
+    protected void beforeConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
+                                 RequestContext context){}
 
     @Override
     public P convertClient(C client, RequestContext context)
     {
         P persistentObject = createPersistentInstance();
+        ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistentObject,context);
+        ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(client,context);
 
-        beforeConvert(client,persistentObject,context);
+        beforeConvert(clientObjectWrapper,persistentObjectWrapper,context);
 
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            mapper.convertToPersistent(client,persistentObject,context);
+            mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         }
 
-        afterConvert(client,persistentObject,context);
+        afterConvert(clientObjectWrapper,persistentObjectWrapper,context);
 
         return persistentObject;
     }
 
-    protected void afterConvert(C client, P persistent, RequestContext context){}
+    protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
+                                RequestContext context){}
 
-    protected void beforeCopy(C client, P persistent, RequestContext context){}
+    protected void beforeCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
+                              RequestContext context){}
 
     @Override
     public void copyClient(C client, P persistent, RequestContext context)
     {
-        beforeCopy(client,persistent,context);
+        ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistent,context);
+        ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(client,context);
+
+        beforeCopy(clientObjectWrapper,persistentObjectWrapper,context);
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            mapper.convertToPersistent(client,persistent,context);
+            mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         }
-        afterCopy(client,persistent,context);
+        afterCopy(clientObjectWrapper,persistentObjectWrapper,context);
     }
 
-    protected void afterCopy(C client, P persistent, RequestContext context){}
+    protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
+                             RequestContext context){}
 
     @Override
     public C convertPersistent(P persistent, RequestContext context)
     {
         C clientObject = createClientInstance();
+
+        ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistent,context);
+        ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(clientObject,context);
 
         Set<String> requestedFields = context.getRequestedFields();
 
@@ -73,7 +85,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         {
             if(requestedFields == null || requestedFields.contains(entry.getKey()))
             {
-                entry.getValue().convertToClient(persistent,clientObject,context);
+                entry.getValue().convertToClient(persistentObjectWrapper,clientObjectWrapper,context);
             }
         }
 
@@ -106,7 +118,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
             Class persistentType = persistentBeanMap.getPropertyType(clientField);
             if(persistentType != null && clientType.equals(persistentType))
             {
-                fieldMapperMap.put(clientField,new DefaultFieldMapper(clientField,clientBeanMap,persistentBeanMap));
+                fieldMapperMap.put(clientField,new DefaultFieldMapper(clientField));
             }
         }
     }
@@ -123,5 +135,15 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
     protected List<FieldMapper> getCustomFieldMappers()
     {
         return new ArrayList<FieldMapper>();
+    }
+
+    protected ObjectWrapper<C> createClientObjectWrapper(C client,  RequestContext context)
+    {
+        return new ObjectWrapper<C>(client,clientBeanMap);
+    }
+
+    protected ObjectWrapper<P> createPersistentObjectWrapper(P persistent, RequestContext context)
+    {
+        return new ObjectWrapper<P>(persistent,persistentBeanMap);
     }
 }

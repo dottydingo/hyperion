@@ -20,7 +20,7 @@ public class DefaultFieldMapperTest
     public void testSameNameMapping()
     {
         DefaultFieldMapper<SimpleClientObject,SimplePersistentObject> mapper =
-                new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("name",clientBeanMap,persistentBeanMap);
+                new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("name");
 
         SimpleClientObject client = new SimpleClientObject();
         client.setName("should be overwritten");
@@ -28,15 +28,19 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setName("happy new value");
 
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+
         RequestContextImpl context = new RequestContextImpl();
-        mapper.convertToClient(persistent,client, context);
+        mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
 
         Assert.assertEquals("happy new value",client.getName());
 
         persistent.setName("Overwrite me");
         client.setName("new value");
 
-        mapper.convertToPersistent(client,persistent,context);
+
+        mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         Assert.assertEquals("new value",persistent.getName());
     }
 
@@ -44,7 +48,7 @@ public class DefaultFieldMapperTest
     public void testSparseMapping()
     {
         DefaultFieldMapper<SimpleClientObject,SimplePersistentObject> mapper =
-                new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("name",clientBeanMap,persistentBeanMap);
+                new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("name");
 
         SimpleClientObject client = new SimpleClientObject();
         client.setName(null);
@@ -54,7 +58,9 @@ public class DefaultFieldMapperTest
 
         RequestContextImpl context = new RequestContextImpl();
 
-        mapper.convertToPersistent(client,persistent,context);
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+        mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         Assert.assertEquals("Don't overwrite me",persistent.getName());
     }
 
@@ -63,7 +69,7 @@ public class DefaultFieldMapperTest
     {
         DefaultFieldMapper<SimpleClientObject,SimplePersistentObject> mapper =
                 new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("clientOnly","persistentOnly",
-                        clientBeanMap,persistentBeanMap,null);
+                        null);
 
         SimpleClientObject client = new SimpleClientObject();
         client.setClientOnly("should be overwritten");
@@ -71,15 +77,20 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setPersistentOnly("happy new value");
 
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+
         RequestContextImpl context = new RequestContextImpl();
-        mapper.convertToClient(persistent,client, context);
+        mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
 
         Assert.assertEquals("happy new value",client.getClientOnly());
 
         persistent.setPersistentOnly("Overwrite me");
         client.setClientOnly("new value");
 
-        mapper.convertToPersistent(client,persistent,context);
+
+        mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
+
         Assert.assertEquals("new value",persistent.getPersistentOnly());
     }
 
@@ -88,7 +99,7 @@ public class DefaultFieldMapperTest
     {
         DefaultFieldMapper<SimpleClientObject,SimplePersistentObject> mapper =
                 new DefaultFieldMapper<SimpleClientObject, SimplePersistentObject>("differentType","differentType",
-                        clientBeanMap,persistentBeanMap,new StringConverter());
+                        new StringConverter());
 
         SimpleClientObject client = new SimpleClientObject();
         client.setDifferentType("42");
@@ -96,15 +107,19 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setDifferentType(22);
 
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+
         RequestContextImpl context = new RequestContextImpl();
-        mapper.convertToClient(persistent,client, context);
+        mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
 
         Assert.assertEquals("22",client.getDifferentType());
 
         persistent.setDifferentType(99);
         client.setDifferentType("4");
 
-        mapper.convertToPersistent(client,persistent,context);
+
+        mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         Assert.assertEquals(new Integer(4), persistent.getDifferentType());
     }
 

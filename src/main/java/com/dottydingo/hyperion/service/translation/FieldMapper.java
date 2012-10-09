@@ -8,7 +8,7 @@ public interface FieldMapper <C,P>
 {
     String getClientFieldName();
 
-    void convertToClient(P persistentObject, C clientObject, RequestContext context);
+    void convertToClient(ObjectWrapper<P> persistentObjectWrapper, ObjectWrapper<C> clientObjectWrapper, RequestContext context);
 
-    void convertToPersistent(C clientObject, P persistentObject, RequestContext context);
+    void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context);
 }

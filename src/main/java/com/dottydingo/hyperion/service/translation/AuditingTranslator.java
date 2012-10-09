@@ -19,18 +19,19 @@ public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P exte
     protected List<FieldMapper> getCustomFieldMappers()
     {
         List<FieldMapper> mappers = new ArrayList<FieldMapper>();
-        mappers.add(new ReadOnlyFieldMapper("created",clientBeanMap,persistentBeanMap));
-        mappers.add(new ReadOnlyFieldMapper("createdBy",clientBeanMap,persistentBeanMap));
-        mappers.add(new ReadOnlyFieldMapper("modified",clientBeanMap,persistentBeanMap));
-        mappers.add(new ReadOnlyFieldMapper("modifiedBy",clientBeanMap,persistentBeanMap));
+        mappers.add(new ReadOnlyFieldMapper("created"));
+        mappers.add(new ReadOnlyFieldMapper("createdBy"));
+        mappers.add(new ReadOnlyFieldMapper("modified"));
+        mappers.add(new ReadOnlyFieldMapper("modifiedBy"));
         return mappers;
     }
 
     @Override
-    protected void afterConvert(C client, P persistent, RequestContext context)
+    protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
     {
-        super.afterConvert(client, persistent, context);
+        super.afterConvert(clientObjectWrapper, persistentObjectWrapper,context);
         Date now = new Date();
+        P persistent = persistentObjectWrapper.getWrappedObject();
         persistent.setCreated(now);
         persistent.setCreatedBy(context.getUserIdentifier());
         persistent.setModified(now);
@@ -38,16 +39,12 @@ public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P exte
     }
 
     @Override
-    protected void beforeCopy(C client, P persistent, RequestContext context)
+    protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
     {
-        super.beforeCopy(client, persistent, context);
-    }
-
-    @Override
-    protected void afterCopy(C client, P persistent, RequestContext context)
-    {
-        super.afterCopy(client, persistent, context);
+        super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
+        P persistent = persistentObjectWrapper.getWrappedObject();
         persistent.setModified(new Date());
         persistent.setModifiedBy(context.getUserIdentifier()) ;
     }
+
 }
