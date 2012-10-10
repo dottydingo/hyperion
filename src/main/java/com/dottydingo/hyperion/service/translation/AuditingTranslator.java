@@ -11,19 +11,15 @@ import java.util.List;
 /**
  * A base field mapper for auditable entities
  */
-public  class AuditingTranslator<C extends BaseAuditableApiObject,P extends AuditablePersistentObject>
+public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P extends AuditablePersistentObject>
     extends BaseTranslator<C,P>
 {
-
-    public AuditingTranslator(Class<C> clientClass, Class<P> persistentClass)
-    {
-        super(clientClass, persistentClass);
-    }
 
     @Override
     protected List<FieldMapper> getCustomFieldMappers()
     {
         List<FieldMapper> mappers = new ArrayList<FieldMapper>();
+        mappers.addAll(super.getCustomFieldMappers());
         mappers.add(new ReadOnlyFieldMapper("created"));
         mappers.add(new ReadOnlyFieldMapper("createdBy"));
         mappers.add(new ReadOnlyFieldMapper("modified"));

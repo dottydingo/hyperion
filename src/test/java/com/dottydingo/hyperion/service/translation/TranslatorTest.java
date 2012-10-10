@@ -19,7 +19,7 @@ public class TranslatorTest
     @Before
     public void setup()
     {
-        translator = new BaseTranslator<SimpleClientObject,SimplePersistentObject>(SimpleClientObject.class,
+        translator = new DefaultTranslator<SimpleClientObject,SimplePersistentObject>(SimpleClientObject.class,
                 SimplePersistentObject.class);
         translator.init();
     }

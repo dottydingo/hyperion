@@ -249,7 +249,7 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
     private void checkMethodAllowed(EntityPlugin plugin, HttpMethod httpMethod)
     {
         if(!plugin.isMethodAllowed(httpMethod))
-            throw new ServiceException(406,String.format("%s is not allowed.",httpMethod));
+            throw new ServiceException(405,String.format("%s is not allowed.",httpMethod));
     }
 
 

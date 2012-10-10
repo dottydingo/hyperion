@@ -4,49 +4,21 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import net.sf.cglib.beans.BeanMap;
-import net.sf.cglib.reflect.FastClass;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
  */
-public class BaseTranslator<C extends ApiObject,P extends PersistentObject> implements Translator<C,P>
+public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObject> implements Translator<C,P>
 {
     protected BeanMap clientBeanMap;
     protected BeanMap persistentBeanMap;
-    private FastClass clientClass;
-    private FastClass persistentClass;
     private Map<String,FieldMapper> fieldMapperMap = new HashMap<String, FieldMapper>();
 
-    protected BaseTranslator(Class<C> clientClass, Class<P> persistentClass)
-    {
-        this.clientClass = FastClass.create(clientClass);
-        this.persistentClass = FastClass.create(persistentClass);
-    }
 
-    protected C createClientInstance()
-    {
-        try
-        {
-            return (C) clientClass.newInstance();
-        }
-        catch (InvocationTargetException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    protected P createPersistentInstance()
-    {
-        try
-        {
-            return (P) persistentClass.newInstance();
-        }
-        catch (InvocationTargetException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
+
+    protected abstract C createClientInstance();
+    protected abstract P createPersistentInstance();
 
     public void init()
     {
@@ -176,4 +148,5 @@ public class BaseTranslator<C extends ApiObject,P extends PersistentObject> impl
     {
         return new ObjectWrapper<P>(persistent,persistentBeanMap);
     }
+
 }
