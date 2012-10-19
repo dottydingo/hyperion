@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.context;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
@@ -18,40 +19,41 @@ import java.util.Set;
 public class DefaultRequestContextBuilder implements RequestContextBuilder
 {
 
-    @Context
-    protected UriInfo uriInfo;
-
-    @Context
-    protected HttpServletRequest httpServletRequest;
-    private Principal principal;
-
     @Override
-    public RequestContext buildRequestContext(String entityType, HttpMethod httpMethod, String fields)
+    public RequestContext buildRequestContext(UriInfo uriInfo,
+                                              HttpServletRequest httpServletRequest,
+                                              HttpServletResponse httpServletResponse,
+                                              String entityType, String fields)
     {
         RequestContextImpl requestContext = new RequestContextImpl();
         requestContext.setRequestedFields(buildFieldSet(fields));
         requestContext.setEntity(entityType);
         requestContext.setUriInfo(uriInfo);
-        requestContext.setUserIdentifier(getUserIdentifier());
-        requestContext.setPrincipal(getPrincipal());
+        requestContext.setUserIdentifier(getUserIdentifier(httpServletRequest));
+        requestContext.setPrincipal(getPrincipal(httpServletRequest));
+        requestContext.setHttpServletRequest(httpServletRequest);
+        requestContext.setHttpServletResponse(httpServletResponse);
 
         return requestContext;
     }
 
     @Override
-    public RequestContext buildRequestContext(String entityType, HttpMethod httpMethod)
+    public RequestContext buildRequestContext(UriInfo uriInfo,
+                                              HttpServletRequest httpServletRequest,
+                                              HttpServletResponse httpServletResponse,
+                                              String entityType)
     {
-        return buildRequestContext(entityType,httpMethod,null);
+        return buildRequestContext(uriInfo,httpServletRequest,httpServletResponse,entityType,null);
     }
 
-    protected String getUserIdentifier()
+    protected String getUserIdentifier(HttpServletRequest httpServletRequest)
     {
         return "";
     }
 
-    protected Principal getPrincipal()
+    protected Principal getPrincipal(HttpServletRequest httpServletRequest)
     {
-        return principal;
+        return null;
     }
 
     private Set<String> buildFieldSet(String fields)

@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * An API object.
  */
-public interface ApiObject<ID extends Serializable>
+public interface ApiObject<ID extends Serializable> extends Serializable
 {
     /**
      * Return the Id of the API object.

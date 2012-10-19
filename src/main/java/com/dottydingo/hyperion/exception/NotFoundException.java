@@ -1,11 +1,8 @@
 package com.dottydingo.hyperion.exception;
 
 /**
- * User: mark
- * Date: 9/19/12
- * Time: 8:20 PM
  */
-public class NotFoundException extends ServiceException
+public class NotFoundException extends HyperionException
 {
     public NotFoundException(String message)
     {

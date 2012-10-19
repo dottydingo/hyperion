@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.context;
 
-
-import javax.security.auth.Subject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.util.Set;
@@ -16,6 +16,8 @@ public class RequestContextImpl implements RequestContext
     private Set<String> requestedFields;
     private Principal principal;
     private String userIdentifier;
+    private HttpServletRequest httpServletRequest;
+    private HttpServletResponse httpServletResponse;
 
     @Override
     public Principal getPrincipal()
@@ -70,5 +72,27 @@ public class RequestContextImpl implements RequestContext
     public void setPrincipal(Principal principal)
     {
         this.principal = principal;
+    }
+
+    @Override
+    public HttpServletRequest getHttpServletRequest()
+    {
+        return httpServletRequest;
+    }
+
+    public void setHttpServletRequest(HttpServletRequest httpServletRequest)
+    {
+        this.httpServletRequest = httpServletRequest;
+    }
+
+    @Override
+    public HttpServletResponse getHttpServletResponse()
+    {
+        return httpServletResponse;
+    }
+
+    public void setHttpServletResponse(HttpServletResponse httpServletResponse)
+    {
+        this.httpServletResponse = httpServletResponse;
     }
 }

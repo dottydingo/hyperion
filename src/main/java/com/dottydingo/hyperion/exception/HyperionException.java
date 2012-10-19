@@ -1,25 +1,22 @@
 package com.dottydingo.hyperion.exception;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 /**
  */
-public class ServiceException extends RuntimeException
+public class HyperionException extends RuntimeException
 {
     private int statusCode;
 
-    public ServiceException(String message)
+    public HyperionException(String message)
     {
         this(500,message);
     }
 
-    public ServiceException(int statusCode, String message)
+    public HyperionException(int statusCode, String message)
     {
         this(statusCode,message,null);
     }
 
-    public ServiceException(int statusCode, String message, Throwable throwable)
+    public HyperionException(int statusCode, String message, Throwable throwable)
     {
         super(message,throwable);
         this.statusCode = statusCode;

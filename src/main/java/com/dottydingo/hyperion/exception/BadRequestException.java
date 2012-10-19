@@ -1,11 +1,8 @@
 package com.dottydingo.hyperion.exception;
 
 /**
- * User: mark
- * Date: 9/16/12
- * Time: 11:26 AM
  */
-public class BadRequestException extends ServiceException
+public class BadRequestException extends HyperionException
 {
     public BadRequestException(String message)
     {

@@ -1,6 +1,8 @@
 package com.dottydingo.hyperion.service.context;
 
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.util.Set;
@@ -18,4 +20,8 @@ public interface RequestContext
     Principal getPrincipal();
 
     String getUserIdentifier();
+
+    HttpServletRequest getHttpServletRequest();
+
+    HttpServletResponse getHttpServletResponse();
 }

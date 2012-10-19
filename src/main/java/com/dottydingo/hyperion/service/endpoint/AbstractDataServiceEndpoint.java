@@ -3,10 +3,11 @@ package com.dottydingo.hyperion.service.endpoint;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.AuthorizationException;
 import com.dottydingo.hyperion.exception.BadRequestException;
+import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.NotFoundException;
-import com.dottydingo.hyperion.exception.ServiceException;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.context.RequestContextBuilder;
+import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
@@ -17,9 +18,10 @@ import com.dottydingo.hyperion.service.translation.Translator;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.Serializable;
@@ -34,9 +36,16 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
     private ServiceRegistry serviceRegistry;
     private RequestContextBuilder requestContextBuilder;
     private EndpointAuthorizationChecker endpointAuthorizationChecker = new EmptyAuthorizationChecker();
+    private EndpointMarshaller endpointMarshaller = new EndpointMarshaller();
+    private EndpointExceptionHandler endpointExceptionHandler = new DefaultEndpointExceptionHandler();
 
     @Context
     private UriInfo uriInfo;
+    @Context
+    private HttpServletRequest httpServletRequest;
+    @Context
+    private HttpServletResponse httpServletResponse;
+
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
     {
@@ -53,9 +62,18 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
         this.endpointAuthorizationChecker = endpointAuthorizationChecker;
     }
 
+    public void setEndpointMarshaller(EndpointMarshaller endpointMarshaller)
+    {
+        this.endpointMarshaller = endpointMarshaller;
+    }
+
+    public void setEndpointExceptionHandler(EndpointExceptionHandler endpointExceptionHandler)
+    {
+        this.endpointExceptionHandler = endpointExceptionHandler;
+    }
+
     @GET()
     @Transactional(readOnly = true)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response queryData(@PathParam("entity") String entity,
                               @QueryParam("fields") String fields,
                               @QueryParam("start")  Integer start,
@@ -64,175 +82,220 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
                               @QueryParam("sort") String sort,
                               @QueryParam("version")  Integer version)
     {
-        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
-        checkMethodAllowed(plugin,HttpMethod.GET);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,
+                httpServletResponse,entity, fields);
 
-        ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
+        try
+        {
+            EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+            checkMethodAllowed(plugin,HttpMethod.GET);
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.GET, fields);
-        endpointAuthorizationChecker.checkAuthorization(requestContext);
+            ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort, requestContext);
-        List<P> persistent = queryResult.getItems();
+            endpointAuthorizationChecker.checkAuthorization(requestContext);
 
-        List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,requestContext);
+            QueryResult<P> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort, requestContext);
+            List<P> persistent = queryResult.getItems();
 
-        EntityResponse<C> entityResponse = new EntityResponse<C>();
-        entityResponse.setEntries(converted);
-        entityResponse.setResponseCount(queryResult.getResponseCount());
-        entityResponse.setStart(start);
-        entityResponse.setTotalCount(queryResult.getTotalCount());
+            List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,requestContext);
 
-        return Response.ok(entityResponse).build();
+            EntityResponse<C> entityResponse = new EntityResponse<C>();
+            entityResponse.setEntries(converted);
+            entityResponse.setResponseCount(queryResult.getResponseCount());
+            entityResponse.setStart(start);
+            entityResponse.setTotalCount(queryResult.getTotalCount());
+
+            endpointMarshaller.marshall(httpServletResponse,entityResponse);
+
+            return Response.ok().build();
+        }
+        catch (Throwable t)
+        {
+            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+        }
 
     }
 
     @GET()
     @Path("{id}")
     @Transactional(readOnly = true)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getItem(@PathParam("entity") String entity,
                             @PathParam("id") String id,
                             @QueryParam("fields") String fields,
                             @QueryParam("version")  Integer version)
 
     {
-        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
-        checkMethodAllowed(plugin,HttpMethod.GET);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,
+                httpServletResponse,entity, fields);
 
-        ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.GET, fields);
-        endpointAuthorizationChecker.checkAuthorization(requestContext);
-
-        List<ID> ids = plugin.getKeyConverter().covertKeys(id);
-        List<P> persistent = plugin.getPersistenceOperations().findByIds(ids, requestContext);
-
-        List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,requestContext);
-
-        Object response;
-        if(converted.size() == 1)
-            response = converted.get(0);
-        else
+        try
         {
-            EntityResponse<C> entityResponse = new EntityResponse<C>();
-            entityResponse.setEntries(converted);
-            entityResponse.setResponseCount(converted.size());
-            entityResponse.setStart(1);
-            entityResponse.setTotalCount(new Long(converted.size()));
-            response = entityResponse;
-        }
+            EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+            checkMethodAllowed(plugin,HttpMethod.GET);
 
-        return Response.ok(response).build();
+            ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
+
+            endpointAuthorizationChecker.checkAuthorization(requestContext);
+
+            List<ID> ids = plugin.getKeyConverter().covertKeys(id);
+            List<P> persistent = plugin.getPersistenceOperations().findByIds(ids, requestContext);
+
+            List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(persistent,requestContext);
+
+            Object response;
+            if(converted.size() == 1)
+                response = converted.get(0);
+            else
+            {
+                EntityResponse<C> entityResponse = new EntityResponse<C>();
+                entityResponse.setEntries(converted);
+                entityResponse.setResponseCount(converted.size());
+                entityResponse.setStart(1);
+                entityResponse.setTotalCount(new Long(converted.size()));
+                response = entityResponse;
+            }
+
+            endpointMarshaller.marshall(httpServletResponse,response);
+
+            return Response.ok().build();
+        }
+        catch (Throwable t)
+        {
+            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+        }
 
     }
 
     @POST
     @Transactional(readOnly = false)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response createItem(@PathParam("entity") String entity,
                                @QueryParam("fields") String fields,
-                               @QueryParam("version")  Integer version,
-                               EntityRequest<C> entityRequest)
+                               @QueryParam("version")  Integer version                               )
     {
-        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
-        checkMethodAllowed(plugin,HttpMethod.POST);
-        ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.POST, fields);
-        endpointAuthorizationChecker.checkAuthorization(requestContext);
-
-        Set<String> fieldSet = requestContext.getRequestedFields();
-        if(fieldSet != null)
-            fieldSet.add("id");
-
-        apiVersionPlugin.getValidator().validateCreate(entityRequest.getItem());
-
-        Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        P persistent = translator.convertClient(entityRequest.getItem(), requestContext);
-        P saved = plugin.getPersistenceOperations().createItem(persistent, requestContext);
-        if(saved != null)
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,
+                httpServletResponse,entity, fields);
+        try
         {
-            C toReturn = translator.convertPersistent(saved,requestContext);
-            return Response.created(URI.create(toReturn.getId().toString())).entity(toReturn).build();
-        }
+            EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+            checkMethodAllowed(plugin,HttpMethod.POST);
+            ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        return Response.notModified().build();
+            endpointAuthorizationChecker.checkAuthorization(requestContext);
+
+            C clientObject = endpointMarshaller.unmarshall(httpServletRequest,apiVersionPlugin.getApiClass());
+            Set<String> fieldSet = requestContext.getRequestedFields();
+            if(fieldSet != null)
+                fieldSet.add("id");
+
+            apiVersionPlugin.getValidator().validateCreate(clientObject);
+
+            Translator<C,P> translator = apiVersionPlugin.getTranslator();
+            P persistent = translator.convertClient(clientObject, requestContext);
+            P saved = plugin.getPersistenceOperations().createItem(persistent, requestContext);
+            if(saved != null)
+            {
+                C toReturn = translator.convertPersistent(saved,requestContext);
+                endpointMarshaller.marshall(httpServletResponse,toReturn);
+                return Response.created(URI.create(toReturn.getId().toString())).build();
+            }
+
+            return Response.notModified().build();
+        }
+        catch (Throwable t)
+        {
+            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+        }
 
     }
 
     @PUT
     @Transactional(readOnly = false)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response updateItem(@PathParam("entity") String entity,
                                @QueryParam("fields") String fields,
-                               @QueryParam("version")  Integer version,
-                               EntityRequest<C> entityRequest)
+                               @QueryParam("version")  Integer version)
     {
-        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
-        checkMethodAllowed(plugin,HttpMethod.PUT);
-        ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-
-        if(entityRequest == null || entityRequest.getItem() == null || entityRequest.getItem().getId() == null)
-            throw new BadRequestException("Missing payload");
-
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.PUT, fields);
-        endpointAuthorizationChecker.checkAuthorization(requestContext);
-
-        Set<String> fieldSet = requestContext.getRequestedFields();
-        if(fieldSet != null)
-            fieldSet.add("id");
-
-        C item = entityRequest.getItem();
-        ID id = (ID) item.getId();
-
-        PersistenceOperations<P,ID> persistenceOperations = plugin.getPersistenceOperations();
-        P existing = persistenceOperations.findById(id, requestContext);
-        if(existing == null)
-            throw new NotFoundException(
-                    String.format("%s with id %s was not found.",entity,entityRequest.getItem().getId()));
-
-        apiVersionPlugin.getValidator().validateUpdate(entityRequest.getItem(),existing);
-
-        Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        translator.copyClient(entityRequest.getItem(), existing,requestContext);
-        P saved = plugin.getPersistenceOperations().updateItem(existing, requestContext);
-
-        if(saved != null)
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,
+                httpServletResponse,entity, fields);
+        try
         {
-            ApiObject toReturn = translator.convertPersistent(saved,requestContext);
-            return Response.ok(toReturn).build();
-        }
+            EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+            checkMethodAllowed(plugin,HttpMethod.PUT);
+            ApiVersionPlugin<C,P> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-        return Response.notModified().build();
+            C clientObject = endpointMarshaller.unmarshall(httpServletRequest,apiVersionPlugin.getApiClass());
+
+            if( clientObject.getId() == null)
+                throw new BadRequestException("Missing payload");
+
+            endpointAuthorizationChecker.checkAuthorization(requestContext);
+
+            Set<String> fieldSet = requestContext.getRequestedFields();
+            if(fieldSet != null)
+                fieldSet.add("id");
+
+            ID id = (ID) clientObject.getId();
+
+            PersistenceOperations<P,ID> persistenceOperations = plugin.getPersistenceOperations();
+            P existing = persistenceOperations.findById(id, requestContext);
+            if(existing == null)
+                throw new NotFoundException(
+                        String.format("%s with id %s was not found.",entity,clientObject.getId()));
+
+            apiVersionPlugin.getValidator().validateUpdate(clientObject,existing);
+
+            Translator<C,P> translator = apiVersionPlugin.getTranslator();
+            translator.copyClient(clientObject, existing,requestContext);
+            P saved = plugin.getPersistenceOperations().updateItem(existing, requestContext);
+
+            if(saved != null)
+            {
+                ApiObject toReturn = translator.convertPersistent(saved,requestContext);
+                endpointMarshaller.marshall(httpServletResponse,toReturn);
+                return Response.ok().build();
+            }
+
+            return Response.notModified().build();
+        }
+        catch (Throwable t)
+        {
+            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+        }
     }
 
     @DELETE()
     @Path("{id}")
     @Transactional(readOnly = false)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteItem(@PathParam("entity") String entity,
                             @PathParam("id") String id)
-
     {
-        EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
-        checkMethodAllowed(plugin,HttpMethod.DELETE);
+        RequestContext requestContext = requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,
+                httpServletResponse,entity);
 
-        RequestContext requestContext = requestContextBuilder.buildRequestContext(entity, HttpMethod.DELETE);
-        endpointAuthorizationChecker.checkAuthorization(requestContext);
-
-        List<ID> ids = plugin.getKeyConverter().covertKeys(id);
-        List<P> persistentItems = plugin.getPersistenceOperations().findByIds(ids, requestContext);
-        int deleted = 0;
-        for (P p : persistentItems)
+        try
         {
-            deleted+=plugin.getPersistenceOperations().deleteItem(p, requestContext);
+            EntityPlugin<C,P,ID> plugin = getEntityPlugin(entity);
+            checkMethodAllowed(plugin,HttpMethod.DELETE);
+
+            endpointAuthorizationChecker.checkAuthorization(requestContext);
+
+            List<ID> ids = plugin.getKeyConverter().covertKeys(id);
+            List<P> persistentItems = plugin.getPersistenceOperations().findByIds(ids, requestContext);
+            int deleted = 0;
+            for (P p : persistentItems)
+            {
+                deleted+=plugin.getPersistenceOperations().deleteItem(p, requestContext);
+            }
+
+            DeleteResponse response = new DeleteResponse();
+            response.setCount(deleted);
+            endpointMarshaller.marshall(httpServletResponse,deleted);
+
+            return Response.ok(response).build();
         }
-
-        DeleteResponse response = new DeleteResponse();
-        response.setCount(deleted);
-
-        return Response.ok(response).build();
+        catch (Throwable t)
+        {
+            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+        }
 
     }
 
@@ -249,7 +312,7 @@ public abstract class AbstractDataServiceEndpoint<C extends ApiObject,P extends 
     private void checkMethodAllowed(EntityPlugin plugin, HttpMethod httpMethod)
     {
         if(!plugin.isMethodAllowed(httpMethod))
-            throw new ServiceException(405,String.format("%s is not allowed.",httpMethod));
+            throw new HyperionException(405,String.format("%s is not allowed.",httpMethod));
     }
 
 
