@@ -2,7 +2,6 @@ package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.InternalException;
-import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import org.slf4j.Logger;

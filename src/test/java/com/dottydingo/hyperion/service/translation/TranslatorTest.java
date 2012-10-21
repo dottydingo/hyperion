@@ -1,7 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.service.context.RequestContext;
-import com.dottydingo.hyperion.service.context.RequestContextImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class TranslatorTest
         clientObject.setDifferentType("Should not get copied by default");
         clientObject.setClientOnly("No field");
 
-        RequestContext context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
 
         SimplePersistentObject persistentObject = translator.convertClient(clientObject,context);
 
@@ -63,7 +62,7 @@ public class TranslatorTest
         persistentObject.setDifferentType(88);
         persistentObject.setPersistentOnly("Should not be touched");
 
-        RequestContext context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
 
         translator.copyClient(clientObject, persistentObject, context);
 
@@ -89,7 +88,7 @@ public class TranslatorTest
         persistentObject.setDifferentType(88);
         persistentObject.setPersistentOnly("Should not be touched");
 
-        RequestContext context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
 
         translator.copyClient(clientObject, persistentObject, context);
 
@@ -113,7 +112,7 @@ public class TranslatorTest
         persistentObject.setDifferentType(88);
         persistentObject.setPersistentOnly("Should not be copied");
 
-        RequestContext context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
 
         SimpleClientObject clientObject = translator.convertPersistent(persistentObject, context);
 

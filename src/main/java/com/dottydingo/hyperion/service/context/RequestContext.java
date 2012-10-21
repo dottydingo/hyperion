@@ -1,5 +1,7 @@
 package com.dottydingo.hyperion.service.context;
 
+import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
+import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,20 +10,96 @@ import java.security.Principal;
 import java.util.Set;
 
 /**
+ * Default Request Context Implementation
  */
-public interface RequestContext
+public class RequestContext
 {
-    UriInfo getUriInfo();
+    private UriInfo uriInfo;
+    private String entity;
+    private Set<String> requestedFields;
+    private HttpServletRequest httpServletRequest;
+    private HttpServletResponse httpServletResponse;
+    private ApiVersionPlugin apiVersionPlugin;
+    private HttpMethod httpMethod;
+    private UserContext userContext;
 
-    String getEntity();
+    public UriInfo getUriInfo()
+    {
+        return uriInfo;
+    }
 
-    Set<String> getRequestedFields();
+    public void setUriInfo(UriInfo uriInfo)
+    {
+        this.uriInfo = uriInfo;
+    }
 
-    Principal getPrincipal();
+    public String getEntity()
+    {
+        return entity;
+    }
 
-    String getUserIdentifier();
+    public void setEntity(String entity)
+    {
+        this.entity = entity;
+    }
 
-    HttpServletRequest getHttpServletRequest();
+    public Set<String> getRequestedFields()
+    {
+        return requestedFields;
+    }
 
-    HttpServletResponse getHttpServletResponse();
+    public void setRequestedFields(Set<String> requestedFields)
+    {
+        this.requestedFields = requestedFields;
+    }
+
+    public HttpServletRequest getHttpServletRequest()
+    {
+        return httpServletRequest;
+    }
+
+    public void setHttpServletRequest(HttpServletRequest httpServletRequest)
+    {
+        this.httpServletRequest = httpServletRequest;
+    }
+
+    public HttpServletResponse getHttpServletResponse()
+    {
+        return httpServletResponse;
+    }
+
+    public void setHttpServletResponse(HttpServletResponse httpServletResponse)
+    {
+        this.httpServletResponse = httpServletResponse;
+    }
+
+    public ApiVersionPlugin getApiVersionPlugin()
+    {
+        return apiVersionPlugin;
+    }
+
+    public void setApiVersionPlugin(ApiVersionPlugin apiVersionPlugin)
+    {
+        this.apiVersionPlugin = apiVersionPlugin;
+    }
+
+    public HttpMethod getHttpMethod()
+    {
+        return httpMethod;
+    }
+
+    public void setHttpMethod(HttpMethod httpMethod)
+    {
+        this.httpMethod = httpMethod;
+    }
+
+    public UserContext getUserContext()
+    {
+        return userContext;
+    }
+
+    public void setUserContext(UserContext userContext)
+    {
+        this.userContext = userContext;
+    }
 }

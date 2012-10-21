@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.service.context;
 
+import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,10 +17,8 @@ public interface RequestContextBuilder
     RequestContext buildRequestContext(UriInfo uriInfo,
                                        HttpServletRequest httpServletRequest,
                                        HttpServletResponse httpServletResponse,
-                                       String entityType,  String fields);
-    RequestContext buildRequestContext(UriInfo uriInfo,
-                                       HttpServletRequest httpServletRequest,
-                                       HttpServletResponse httpServletResponse,
-                                       String entityType);
+                                       String entityType, String fields, ApiVersionPlugin apiVersionPlugin,
+                                       HttpMethod httpMethod);
+
 }
 

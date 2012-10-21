@@ -8,6 +8,6 @@ import javax.ws.rs.*;
 /**
  */
 @Path("/data/{entity}/")
-public class DataServiceEndpoint extends AbstractDataServiceEndpoint
+public class DataServiceEndpoint extends BaseDataServiceEndpoint
 {
 }

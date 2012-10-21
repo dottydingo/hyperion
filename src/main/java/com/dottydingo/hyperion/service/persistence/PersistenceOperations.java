@@ -1,24 +1,22 @@
 package com.dottydingo.hyperion.service.persistence;
 
+import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.context.RequestContext;
-import com.dottydingo.hyperion.service.model.PersistentObject;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
  */
-public interface PersistenceOperations<P extends PersistentObject,ID extends Serializable>
+public interface PersistenceOperations<C extends ApiObject, ID extends Serializable>
 {
-    P findById(ID id, RequestContext context);
+    List<C> findByIds(List<ID> ids, RequestContext context);
 
-    List<P> findByIds(List<ID> ids, RequestContext context);
+    QueryResult<C> query(String query, Integer start, Integer limit, String sort, RequestContext context);
 
-    QueryResult<P> query(String query, Integer start, Integer limit, String sort, RequestContext context);
+    C createItem(C item, RequestContext context);
 
-    P createItem(P item, RequestContext context);
+    C updateItem(C item, RequestContext context);
 
-    P updateItem(P item, RequestContext context);
-
-    int deleteItem(P item, RequestContext context);
+    int deleteItem(List<ID> ids, RequestContext context);
 }

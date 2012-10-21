@@ -1,7 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.service.context.RequestContext;
-import net.sf.cglib.beans.BeanMap;
 
 /**
  * A field mapper that prevents writing to read only fields

@@ -1,7 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.service.context.RequestContext;
-import com.dottydingo.hyperion.service.context.RequestContextImpl;
 import net.sf.cglib.beans.BeanMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +30,7 @@ public class DefaultFieldMapperTest
         ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
         ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
 
-        RequestContextImpl context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
         mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
 
         Assert.assertEquals("happy new value",client.getName());
@@ -56,7 +55,7 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setName("Don't overwrite me");
 
-        RequestContextImpl context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
 
         ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
         ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
@@ -80,7 +79,7 @@ public class DefaultFieldMapperTest
         ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
         ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
 
-        RequestContextImpl context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
         mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
 
         Assert.assertEquals("happy new value",client.getClientOnly());
@@ -110,7 +109,7 @@ public class DefaultFieldMapperTest
         ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
         ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
 
-        RequestContextImpl context = new RequestContextImpl();
+        RequestContext context = new RequestContext();
         mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
 
         Assert.assertEquals("22",client.getDifferentType());

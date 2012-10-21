@@ -16,7 +16,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
 {
     private String endpointName;
     private KeyConverter<ID> keyConverter;
-    private PersistenceOperations<P,ID> persistenceOperations;
+    private PersistenceOperations<C,ID> persistenceOperations;
     private ApiVersionRegistry<C,P> apiVersionRegistry;
     private Set<HttpMethod> limitMethods = new HashSet<HttpMethod>();
 
@@ -40,12 +40,12 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
         this.keyConverter = keyConverter;
     }
 
-    public PersistenceOperations<P, ID> getPersistenceOperations()
+    public PersistenceOperations<C,ID> getPersistenceOperations()
     {
         return persistenceOperations;
     }
 
-    public void setPersistenceOperations(PersistenceOperations<P, ID> persistenceOperations)
+    public void setPersistenceOperations(PersistenceOperations<C,ID> persistenceOperations)
     {
         this.persistenceOperations = persistenceOperations;
     }

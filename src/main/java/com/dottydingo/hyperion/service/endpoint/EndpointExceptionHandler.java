@@ -1,6 +1,5 @@
 package com.dottydingo.hyperion.service.endpoint;
 
-import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 

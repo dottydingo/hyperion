@@ -1,10 +1,14 @@
 package com.dottydingo.hyperion.service.persistence;
 
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.exception.NotFoundException;
+import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.query.Mapper;
 import com.dottydingo.hyperion.service.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.query.RsqlPredicateBuilder;
+import com.dottydingo.hyperion.service.translation.Translator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.data.repository.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,14 +26,15 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 /**
  */
-public class SpringJpaPersistenceOperations<P extends PersistentObject, ID extends Serializable>
-        implements PersistenceOperations<P,ID>
+public class SpringJpaPersistenceOperations<C extends ApiObject, P extends PersistentObject, ID extends Serializable>
+        implements PersistenceOperations<C,ID>
 {
     private Sort defaultSort = new Sort("id");
     private HyperionJpaRepository<P,ID> jpaRepository;
@@ -59,17 +65,13 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
     }
 
     @Override
-    public P findById(ID id, RequestContext context)
+    @Transactional(readOnly = true)
+    public List<C> findByIds(List<ID> ids, RequestContext context)
     {
-        P persistent = jpaRepository.findOne(id);
-        if(persistenceFilter.isVisible(persistent,context))
-            return persistent;
-        return null;
-    }
 
-    @Override
-    public List<P> findByIds(List<ID> ids, RequestContext context)
-    {
+        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+
+
         Iterable<P> iterable = jpaRepository.findAll(ids);
 
         List<P> result = new ArrayList<P>();
@@ -78,12 +80,16 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
             if(persistenceFilter.isVisible(p,context))
                 result.add(p);
         }
-        return result;
+
+        return apiVersionPlugin.getTranslator().convertPersistent(result,context);
     }
 
     @Override
-    public QueryResult<P> query(String query, Integer start, Integer limit, String sort, RequestContext context)
+    @Transactional(readOnly = true)
+    public QueryResult<C> query(String query, Integer start, Integer limit, String sort, RequestContext context)
     {
+        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+
         int size = limit == null ? 500 : limit;
         int page = start == null ? 0 : (start - 1) * size;
         Pageable pageable = new PageRequest(page,size,getSort(sort));
@@ -111,8 +117,10 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
 
         List<P> list = all.getContent();
 
-        QueryResult<P> queryResult= new QueryResult<P>();
-        queryResult.setItems(list);
+        List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(list,context);
+
+        QueryResult<C> queryResult= new QueryResult<C>();
+        queryResult.setItems(converted);
         queryResult.setResponseCount(list.size());
         queryResult.setTotalCount(list.size());
         queryResult.setStart(start == null ? 1 : (start));
@@ -121,31 +129,74 @@ public class SpringJpaPersistenceOperations<P extends PersistentObject, ID exten
     }
 
     @Override
-    public P createItem(P item, RequestContext context)
+    @Transactional(readOnly = false)
+    public C createItem(C clientObject, RequestContext context)
     {
-        if(persistenceFilter.canCreate(item,context))
-            return jpaRepository.save(item);
-        return null;
+        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+
+        apiVersionPlugin.getValidator().validateCreate(clientObject);
+
+        Translator<C,P> translator = apiVersionPlugin.getTranslator();
+        P persistent = translator.convertClient(clientObject, context);
+
+        if(!persistenceFilter.canCreate(persistent,context))
+            return null;
+
+        P saved = jpaRepository.save(persistent);
+        C toReturn = translator.convertPersistent(saved,context);
+
+        return toReturn;
     }
 
     @Override
-    public P updateItem(P item, RequestContext context)
+    @Transactional(readOnly = false)
+    public C updateItem(C item, RequestContext context)
     {
-        if(persistenceFilter.canUpdate(item,context))
-            return jpaRepository.save(item);
-        return null;
-    }
+        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
-    @Override
-    public int deleteItem(P item, RequestContext context)
-    {
-        if(persistenceFilter.canDelete(item,context))
+        // convert the ID
+        RequestContext idConversionContext = new RequestContext();
+        idConversionContext.setRequestedFields(Collections.singleton("id"));
+        Translator<C,P> translator = apiVersionPlugin.getTranslator();
+        P empty = translator.convertClient(item, idConversionContext);
+
+        P existing = jpaRepository.findOne((ID) empty.getId());
+
+        if(existing == null)
+            throw new NotFoundException(
+                    String.format("%s with id %s was not found.",context.getEntity(),item.getId()));
+
+        apiVersionPlugin.getValidator().validateUpdate(item,existing);
+
+        if(!persistenceFilter.canUpdate(existing,context))
         {
-            jpaRepository.delete(item);
-            return 1;
+            return null;
         }
 
-        return 0;
+        translator.copyClient(item, existing,context);
+
+        return translator.convertPersistent(jpaRepository.save(existing), context);
+
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public int deleteItem(List<ID> ids, RequestContext context)
+    {
+
+
+        Iterable<P> persistentItems = jpaRepository.findAll(ids);
+        int deleted = 0;
+        for (P item : persistentItems)
+        {
+            if(persistenceFilter.canDelete(item,context))
+            {
+                jpaRepository.delete(item);
+                deleted++;
+            }
+        }
+
+        return deleted;
     }
 
     private Class<?> getDomainType()
