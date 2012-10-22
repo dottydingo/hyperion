@@ -7,6 +7,7 @@ import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 
 /**
@@ -16,9 +17,9 @@ public class DefaultEndpointExceptionHandler implements EndpointExceptionHandler
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public Response handleException(Throwable throwable,
+    public void handleException(Throwable throwable,
                                     EndpointMarshaller marshaller,
-                                    RequestContext requestContext)
+                                    HttpServletResponse httpServletResponse)
     {
         Throwable cause = getCause(throwable);
 
@@ -39,13 +40,14 @@ public class DefaultEndpointExceptionHandler implements EndpointExceptionHandler
         else
             logger.info(cause.getMessage());
 
+        httpServletResponse.setStatus(status);
+
         ErrorResponse response = new ErrorResponse();
         response.setStatusCode(status);
         response.setMessage(cause.getMessage());
         response.setType(exceptionType);
-        marshaller.marshall(requestContext.getHttpServletResponse(),response);
+        marshaller.marshall(httpServletResponse,response);
 
-        return Response.status(status).build();
     }
 
     private Throwable getCause(Throwable t)

@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.Serializable;
 import java.net.URI;
@@ -69,7 +68,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
     }
 
     @GET()
-    public Response queryData(@PathParam("entity") String entity,
+    public void queryData(@PathParam("entity") String entity,
                               @QueryParam("fields") String fields,
                               @QueryParam("start")  Integer start,
                               @QueryParam("limit")  Integer limit,
@@ -97,20 +96,20 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             entityResponse.setStart(start);
             entityResponse.setTotalCount(queryResult.getTotalCount());
 
+            httpServletResponse.setStatus(200);
             endpointMarshaller.marshall(httpServletResponse,entityResponse);
 
-            return Response.ok().build();
         }
         catch (Throwable t)
         {
-            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+            endpointExceptionHandler.handleException(t,endpointMarshaller,httpServletResponse);
         }
 
     }
 
     @GET()
     @Path("{id}")
-    public Response getItem(@PathParam("entity") String entity,
+    public void getItem(@PathParam("entity") String entity,
                             @PathParam("id") String id,
                             @QueryParam("fields") String fields,
                             @QueryParam("version")  Integer version)
@@ -144,19 +143,19 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
                 response = entityResponse;
             }
 
+            httpServletResponse.setStatus(200);
             endpointMarshaller.marshall(httpServletResponse,response);
 
-            return Response.ok().build();
         }
         catch (Throwable t)
         {
-            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+            endpointExceptionHandler.handleException(t,endpointMarshaller,httpServletResponse);
         }
 
     }
 
     @POST
-    public Response createItem(@PathParam("entity") String entity,
+    public void createItem(@PathParam("entity") String entity,
                                @QueryParam("fields") String fields,
                                @QueryParam("version")  Integer version                               )
     {
@@ -178,20 +177,24 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             C saved = plugin.getPersistenceOperations().createItem(clientObject, requestContext);
             if(saved != null)
             {
-                return Response.created(URI.create(saved.getId().toString())).build();
+                httpServletResponse.setStatus(201);
+                httpServletResponse.setHeader("Location",URI.create(saved.getId().toString()).toString());
+                endpointMarshaller.marshall(httpServletResponse,saved);
             }
+            else
+                httpServletResponse.setStatus(304);
 
-            return Response.notModified().build();
+
         }
         catch (Throwable t)
         {
-            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+            endpointExceptionHandler.handleException(t,endpointMarshaller,httpServletResponse);
         }
 
     }
 
     @PUT
-    public Response updateItem(@PathParam("entity") String entity,
+    public void updateItem(@PathParam("entity") String entity,
                                @QueryParam("fields") String fields,
                                @QueryParam("version")  Integer version)
     {
@@ -217,21 +220,21 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             C saved = plugin.getPersistenceOperations().updateItem(clientObject, requestContext);
             if(saved != null)
             {
+                httpServletResponse.setStatus(200);
                 endpointMarshaller.marshall(httpServletResponse,saved);
-                return Response.ok().build();
-            }
+            }else
+                httpServletResponse.setStatus(304);
 
-            return Response.notModified().build();
         }
         catch (Throwable t)
         {
-            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+            endpointExceptionHandler.handleException(t,endpointMarshaller,httpServletResponse);
         }
     }
 
     @DELETE()
     @Path("{id}")
-    public Response deleteItem(@PathParam("entity") String entity,
+    public void deleteItem(@PathParam("entity") String entity,
                             @PathParam("id") String id)
     {
         RequestContext requestContext = null;
@@ -248,13 +251,15 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
 
             DeleteResponse response = new DeleteResponse();
             response.setCount(deleted);
+
+            httpServletResponse.setStatus(200);
             endpointMarshaller.marshall(httpServletResponse,deleted);
 
-            return Response.ok(response).build();
+
         }
         catch (Throwable t)
         {
-            return endpointExceptionHandler.handleException(t,endpointMarshaller,requestContext);
+            endpointExceptionHandler.handleException(t,endpointMarshaller,httpServletResponse);
         }
 
     }

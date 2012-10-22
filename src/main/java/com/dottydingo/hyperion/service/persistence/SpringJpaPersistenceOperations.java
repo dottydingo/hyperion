@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.persistence;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
+import com.dottydingo.hyperion.service.context.NullUserContext;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.query.Mapper;
@@ -157,6 +158,8 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         // convert the ID
         RequestContext idConversionContext = new RequestContext();
         idConversionContext.setRequestedFields(Collections.singleton("id"));
+        idConversionContext.setUserContext(new NullUserContext());
+
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         P empty = translator.convertClient(item, idConversionContext);
 
