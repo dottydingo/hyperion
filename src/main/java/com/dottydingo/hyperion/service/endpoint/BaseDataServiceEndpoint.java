@@ -253,7 +253,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             response.setCount(deleted);
 
             httpServletResponse.setStatus(200);
-            endpointMarshaller.marshall(httpServletResponse,deleted);
+            endpointMarshaller.marshall(httpServletResponse,response);
 
 
         }

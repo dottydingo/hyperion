@@ -16,8 +16,8 @@ public class ObjectMapperBuilder implements FactoryBean<ObjectMapper>
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.getSerializationConfig().without(SerializationFeature.CLOSE_CLOSEABLE);
-        mapper.getDeserializationConfig().without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.disable(SerializationFeature.CLOSE_CLOSEABLE);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         return mapper;
     }
