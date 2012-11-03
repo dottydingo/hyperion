@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.NotFoundException;
+import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.context.NullUserContext;
 import com.dottydingo.hyperion.service.context.RequestContext;
@@ -34,7 +35,7 @@ import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 /**
  */
-public class SpringJpaPersistenceOperations<C extends ApiObject, P extends PersistentObject, ID extends Serializable>
+public class SpringJpaPersistenceOperations<C extends ApiObject, P extends PersistentObject<ID>, ID extends Serializable>
         implements PersistenceOperations<C,ID>
 {
     private Sort defaultSort = new Sort("id");
@@ -123,7 +124,7 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         QueryResult<C> queryResult= new QueryResult<C>();
         queryResult.setItems(converted);
         queryResult.setResponseCount(list.size());
-        queryResult.setTotalCount(list.size());
+        queryResult.setTotalCount(all.getTotalElements());
         queryResult.setStart(start == null ? 1 : (start));
 
         return queryResult;
@@ -151,19 +152,13 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
 
     @Override
     @Transactional(readOnly = false)
-    public C updateItem(C item, RequestContext context)
+    public C updateItem(List<ID> ids, C item, RequestContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
-        // convert the ID
-        RequestContext idConversionContext = new RequestContext();
-        idConversionContext.setRequestedFields(Collections.singleton("id"));
-        idConversionContext.setUserContext(new NullUserContext());
-
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        P empty = translator.convertClient(item, idConversionContext);
 
-        P existing = jpaRepository.findOne((ID) empty.getId());
+        P existing = jpaRepository.findOne(ids.get(0));
 
         if(existing == null)
             throw new NotFoundException(
@@ -176,7 +171,13 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
             return null;
         }
 
+        // todo this needs a better implementation...
+        ID oldId = existing.getId();
+
         translator.copyClient(item, existing,context);
+
+        if(!oldId.equals(existing.getId()))
+            throw new ValidationException("Id in URI does not match the Id in the payload.");
 
         return translator.convertPersistent(jpaRepository.save(existing), context);
 

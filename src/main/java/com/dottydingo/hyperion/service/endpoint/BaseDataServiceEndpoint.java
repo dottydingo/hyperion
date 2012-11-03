@@ -130,21 +130,14 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);
             List<C> converted = plugin.getPersistenceOperations().findByIds(ids, requestContext);
 
-            Object response;
-            if(converted.size() == 1)
-                response = converted.get(0);
-            else
-            {
-                EntityResponse<C> entityResponse = new EntityResponse<C>();
-                entityResponse.setEntries(converted);
-                entityResponse.setResponseCount(converted.size());
-                entityResponse.setStart(1);
-                entityResponse.setTotalCount(new Long(converted.size()));
-                response = entityResponse;
-            }
+            EntityResponse<C> entityResponse = new EntityResponse<C>();
+            entityResponse.setEntries(converted);
+            entityResponse.setResponseCount(converted.size());
+            entityResponse.setStart(1);
+            entityResponse.setTotalCount(new Long(converted.size()));
 
             httpServletResponse.setStatus(200);
-            endpointMarshaller.marshall(httpServletResponse,response);
+            endpointMarshaller.marshall(httpServletResponse,entityResponse);
 
         }
         catch (Throwable t)
@@ -194,7 +187,9 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
     }
 
     @PUT
+    @Path("{id}")
     public void updateItem(@PathParam("entity") String entity,
+                           @PathParam("id") String id,
                                @QueryParam("fields") String fields,
                                @QueryParam("version")  Integer version)
     {
@@ -211,13 +206,17 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             if( clientObject.getId() == null)
                 throw new BadRequestException("Missing payload");
 
+            List<ID> ids = plugin.getKeyConverter().covertKeys(id);
+            if(ids.size() != 1)
+                throw new BadRequestException("A single id must be provided for an update.");
+
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
             Set<String> fieldSet = requestContext.getRequestedFields();
             if(fieldSet != null)
                 fieldSet.add("id");
 
-            C saved = plugin.getPersistenceOperations().updateItem(clientObject, requestContext);
+            C saved = plugin.getPersistenceOperations().updateItem(ids, clientObject, requestContext);
             if(saved != null)
             {
                 httpServletResponse.setStatus(200);

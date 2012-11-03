@@ -16,7 +16,7 @@ public interface PersistenceOperations<C extends ApiObject, ID extends Serializa
 
     C createItem(C item, RequestContext context);
 
-    C updateItem(C item, RequestContext context);
+    C updateItem(List<ID> ids, C item, RequestContext context);
 
     int deleteItem(List<ID> ids, RequestContext context);
 }
