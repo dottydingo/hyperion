@@ -176,7 +176,7 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
 
         translator.copyClient(item, existing,context);
 
-        if(!oldId.equals(existing.getId()))
+        if(oldId != null && !oldId.equals(existing.getId()))
             throw new ValidationException("Id in URI does not match the Id in the payload.");
 
         return translator.convertPersistent(jpaRepository.save(existing), context);
@@ -188,13 +188,14 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
     public int deleteItem(List<ID> ids, RequestContext context)
     {
 
-
+        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
         Iterable<P> persistentItems = jpaRepository.findAll(ids);
         int deleted = 0;
         for (P item : persistentItems)
         {
             if(persistenceFilter.canDelete(item,context))
             {
+                apiVersionPlugin.getValidator().validateDelete(item);
                 jpaRepository.delete(item);
                 deleted++;
             }

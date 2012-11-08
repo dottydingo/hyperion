@@ -203,9 +203,6 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
 
             C clientObject = endpointMarshaller.unmarshall(httpServletRequest,apiVersionPlugin.getApiClass());
 
-            if( clientObject.getId() == null)
-                throw new BadRequestException("Missing payload");
-
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);
             if(ids.size() != 1)
                 throw new BadRequestException("A single id must be provided for an update.");

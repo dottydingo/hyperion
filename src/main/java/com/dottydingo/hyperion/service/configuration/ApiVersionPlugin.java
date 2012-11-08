@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.configuration;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.translation.Translator;
+import com.dottydingo.hyperion.service.validation.DefaultValidator;
 import com.dottydingo.hyperion.service.validation.Validator;
 
 /**
@@ -11,7 +12,7 @@ public class ApiVersionPlugin<C extends ApiObject,P extends PersistentObject>
 {
     private Integer version;
     private Translator<C,P> translator;
-    private Validator<C,P> validator;
+    private Validator<C,P> validator = new DefaultValidator<C, P>();
     private Class<C> apiClass;
 
     public ApiVersionPlugin()
