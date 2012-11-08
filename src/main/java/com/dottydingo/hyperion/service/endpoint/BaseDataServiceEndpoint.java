@@ -238,8 +238,9 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
         try
         {
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
+            ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(null);
             checkMethodAllowed(plugin,HttpMethod.DELETE);
-            requestContext = buildRequestContext(entity,null,HttpMethod.GET,null);
+            requestContext = buildRequestContext(entity,null,HttpMethod.GET,apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);
