@@ -1,7 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.service.context.RequestContext;
-import net.sf.cglib.beans.BeanMap;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,8 +11,8 @@ import org.junit.Test;
  */
 public class DefaultFieldMapperTest
 {
-    private static final BeanMap clientBeanMap = BeanMap.create(new SimpleClientObject());
-    private static final BeanMap persistentBeanMap = BeanMap.create(new SimplePersistentObject());
+    private static final TypeMapper clientTypeMapper = new TypeMapper(SimpleClientObject.class);
+    private static final TypeMapper persistentTypeMapper = new TypeMapper(SimplePersistentObject.class);
 
     @Test
     public void testSameNameMapping()
@@ -27,8 +26,10 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setName("happy new value");
 
-        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
-        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,
+                clientTypeMapper);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,
+                persistentTypeMapper);
 
         RequestContext context = new RequestContext();
         mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
@@ -57,8 +58,10 @@ public class DefaultFieldMapperTest
 
         RequestContext context = new RequestContext();
 
-        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
-        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,
+                clientTypeMapper);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,
+                persistentTypeMapper);
         mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         Assert.assertEquals("Don't overwrite me",persistent.getName());
     }
@@ -76,8 +79,10 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setPersistentOnly("happy new value");
 
-        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
-        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,
+                clientTypeMapper);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,
+                persistentTypeMapper);
 
         RequestContext context = new RequestContext();
         mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);
@@ -106,8 +111,10 @@ public class DefaultFieldMapperTest
         SimplePersistentObject persistent = new SimplePersistentObject();
         persistent.setDifferentType(22);
 
-        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,clientBeanMap);
-        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,persistentBeanMap);
+        ObjectWrapper<SimpleClientObject> clientObjectWrapper = new ObjectWrapper<SimpleClientObject>(client,
+                clientTypeMapper);
+        ObjectWrapper<SimplePersistentObject> persistentObjectWrapper = new ObjectWrapper<SimplePersistentObject>(persistent,
+                persistentTypeMapper);
 
         RequestContext context = new RequestContext();
         mapper.convertToClient(persistentObjectWrapper,clientObjectWrapper, context);

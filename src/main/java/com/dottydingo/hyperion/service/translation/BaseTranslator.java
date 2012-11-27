@@ -3,7 +3,6 @@ package com.dottydingo.hyperion.service.translation;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
-import net.sf.cglib.beans.BeanMap;
 
 import java.util.*;
 
@@ -11,8 +10,8 @@ import java.util.*;
  */
 public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObject> implements Translator<C,P>
 {
-    protected BeanMap clientBeanMap;
-    protected BeanMap persistentBeanMap;
+    protected TypeMapper clientTypeMapper;
+    protected TypeMapper persistentTypeMapper;
     private Map<String,FieldMapper> fieldMapperMap = new HashMap<String, FieldMapper>();
 
 
@@ -22,8 +21,8 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
 
     public void init()
     {
-        clientBeanMap = BeanMap.create(createClientInstance());
-        persistentBeanMap = BeanMap.create(createPersistentInstance());
+        clientTypeMapper = new TypeMapper(createClientInstance().getClass());
+        persistentTypeMapper = new TypeMapper(createPersistentInstance().getClass());
         initializeDefaultFieldMappers();
         initializeCustomFieldMappers();
     }
@@ -113,11 +112,11 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
 
     private void initializeDefaultFieldMappers()
     {
-        Set<String> clientFields =  clientBeanMap.keySet();
+        Set<String> clientFields =  clientTypeMapper.getFieldNames();
         for (String clientField : clientFields)
         {
-            Class clientType = clientBeanMap.getPropertyType(clientField);
-            Class persistentType = persistentBeanMap.getPropertyType(clientField);
+            Class clientType = clientTypeMapper.getFieldType(clientField);
+            Class persistentType = persistentTypeMapper.getFieldType(clientField);
             if(persistentType != null && clientType.equals(persistentType))
             {
                 fieldMapperMap.put(clientField,new DefaultFieldMapper(clientField));
@@ -141,12 +140,12 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
 
     protected ObjectWrapper<C> createClientObjectWrapper(C client,  RequestContext context)
     {
-        return new ObjectWrapper<C>(client,clientBeanMap);
+        return new ObjectWrapper<C>(client, clientTypeMapper);
     }
 
     protected ObjectWrapper<P> createPersistentObjectWrapper(P persistent, RequestContext context)
     {
-        return new ObjectWrapper<P>(persistent,persistentBeanMap);
+        return new ObjectWrapper<P>(persistent, persistentTypeMapper);
     }
 
 }

@@ -1,28 +1,26 @@
 package com.dottydingo.hyperion.service.translation;
 
-import net.sf.cglib.beans.BeanMap;
-
 /**
  */
 public class ObjectWrapper<T>
 {
     private T wrappedObject;
-    private BeanMap beanMap;
+    private TypeMapper typeMapper;
 
-    public ObjectWrapper(T wrappedObject, BeanMap beanMap)
+    public ObjectWrapper(T wrappedObject, TypeMapper typeMapper)
     {
         this.wrappedObject = wrappedObject;
-        this.beanMap = beanMap;
+        this.typeMapper = typeMapper;
     }
 
     public void setValue(String property,Object value)
     {
-        beanMap.put(wrappedObject, property, value);
+        typeMapper.setValue(wrappedObject, property, value);
     }
 
     public Object getValue(String property)
     {
-        return beanMap.get(wrappedObject,property);
+        return typeMapper.getValue(wrappedObject,property);
     }
 
     public T getWrappedObject()
@@ -30,8 +28,8 @@ public class ObjectWrapper<T>
         return wrappedObject;
     }
 
-    public BeanMap getBeanMap()
+    public TypeMapper getTypeMapper()
     {
-        return beanMap;
+        return typeMapper;
     }
 }
