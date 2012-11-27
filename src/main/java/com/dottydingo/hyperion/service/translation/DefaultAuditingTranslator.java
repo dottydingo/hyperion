@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.api.BaseAuditableApiObject;
+import com.dottydingo.hyperion.api.AuditableApiObject;
 import com.dottydingo.hyperion.service.model.AuditablePersistentObject;
 import net.sf.cglib.reflect.FastClass;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  */
-public class DefaultAuditingTranslator<C extends BaseAuditableApiObject,P extends AuditablePersistentObject> extends AuditingTranslator<C,P>
+public class DefaultAuditingTranslator<C extends AuditableApiObject,P extends AuditablePersistentObject> extends AuditingTranslator<C,P>
 {
     private FastClass clientClass;
     private FastClass persistentClass;

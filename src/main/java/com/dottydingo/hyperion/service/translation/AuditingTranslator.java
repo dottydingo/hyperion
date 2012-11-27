@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.api.BaseAuditableApiObject;
+import com.dottydingo.hyperion.api.AuditableApiObject;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.AuditablePersistentObject;
 
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * A base field mapper for auditable entities
  */
-public abstract class AuditingTranslator<C extends BaseAuditableApiObject,P extends AuditablePersistentObject>
+public abstract class AuditingTranslator<C extends AuditableApiObject,P extends AuditablePersistentObject>
     extends BaseTranslator<C,P>
 {
 
