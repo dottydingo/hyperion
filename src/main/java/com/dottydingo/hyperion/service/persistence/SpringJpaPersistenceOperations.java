@@ -1,10 +1,10 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
-import com.dottydingo.hyperion.service.context.NullUserContext;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.query.Mapper;
@@ -20,15 +20,12 @@ import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
@@ -43,8 +40,7 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
     private RsqlPredicateBuilder predicateBuilder;
     private Mapper mapper;
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
-    @PersistenceContext
-    private EntityManager entityManager;
+
 
     public void setJpaRepository(HyperionJpaRepository<P, ID> jpaRepository)
     {
@@ -93,8 +89,9 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
         int size = limit == null ? 500 : limit;
-        int page = start == null ? 0 : (start - 1) * size;
-        Pageable pageable = new PageRequest(page,size,getSort(sort));
+        int pageStart = start == null ? 1 : start;
+
+        Pageable pageable = new RangePageAdapter(pageStart,size,getSort(sort));
 
         List<Specification<P>> specificationList = new ArrayList<Specification<P>>();
         if(query != null && query.length() > 0)

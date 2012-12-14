@@ -8,6 +8,7 @@ import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.context.RequestContextBuilder;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
+import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
@@ -83,13 +84,22 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.GET);
 
+            if(start != null && start < 1)
+                throw new BadRequestException("The start parameter must be greater than zero.");
+
+            if(limit != null && limit < 1)
+                throw new BadRequestException("The limit parameter must be greater than zero.");
+
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET,
-                    plugin.getApiVersionRegistry().getPluginForVersion(version));
+            ApiVersionPlugin<C, ? extends PersistentObject> versionPlugin =
+                    plugin.getApiVersionRegistry().getPluginForVersion(version);
+
+            requestContext = buildRequestContext(entity,fields,HttpMethod.GET,versionPlugin);
 
             QueryResult<C> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort, requestContext);
 
+            addVersionHeader(versionPlugin.getVersion());
             EntityResponse<C> entityResponse = new EntityResponse<C>();
             entityResponse.setEntries(queryResult.getItems());
             entityResponse.setResponseCount(queryResult.getResponseCount());
@@ -122,14 +132,17 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.GET);
 
+            ApiVersionPlugin<C, ? extends PersistentObject> versionPlugin =
+                    plugin.getApiVersionRegistry().getPluginForVersion(version);
             requestContext = buildRequestContext(entity,fields,HttpMethod.GET,
-                    plugin.getApiVersionRegistry().getPluginForVersion(version));
+                    versionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);
             List<C> converted = plugin.getPersistenceOperations().findByIds(ids, requestContext);
 
+            addVersionHeader(versionPlugin.getVersion());
             EntityResponse<C> entityResponse = new EntityResponse<C>();
             entityResponse.setEntries(converted);
             entityResponse.setResponseCount(converted.size());
@@ -170,6 +183,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             C saved = plugin.getPersistenceOperations().createItem(clientObject, requestContext);
             if(saved != null)
             {
+                addVersionHeader(apiVersionPlugin.getVersion());
                 httpServletResponse.setStatus(201);
                 httpServletResponse.setHeader("Location",URI.create(saved.getId().toString()).toString());
                 endpointMarshaller.marshall(httpServletResponse,saved);
@@ -216,6 +230,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             C saved = plugin.getPersistenceOperations().updateItem(ids, clientObject, requestContext);
             if(saved != null)
             {
+                addVersionHeader(apiVersionPlugin.getVersion());
                 httpServletResponse.setStatus(200);
                 endpointMarshaller.marshall(httpServletResponse,saved);
             }else
@@ -267,6 +282,11 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
     {
         return requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,httpServletResponse,
                 entity,fields,apiVersionPlugin,method);
+    }
+
+    private void addVersionHeader(Integer version)
+    {
+        httpServletResponse.addHeader("HyperionEntityVersion",version.toString());
     }
 
     private EntityPlugin<C,?,ID> getEntityPlugin(String entity)
