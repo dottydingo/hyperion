@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.exception.AuthorizationException;
 import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.NotFoundException;
+import com.dottydingo.hyperion.service.context.DefaultRequestContextBuilder;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.context.RequestContextBuilder;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
@@ -30,7 +31,7 @@ import java.util.Set;
 public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable>
 {
     private ServiceRegistry serviceRegistry;
-    private RequestContextBuilder requestContextBuilder;
+    private RequestContextBuilder requestContextBuilder = new DefaultRequestContextBuilder();
     private EndpointAuthorizationChecker endpointAuthorizationChecker = new EmptyAuthorizationChecker();
     private EndpointMarshaller endpointMarshaller = new EndpointMarshaller();
     private EndpointExceptionHandler endpointExceptionHandler = new DefaultEndpointExceptionHandler();
@@ -95,7 +96,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             ApiVersionPlugin<C, ? extends PersistentObject> versionPlugin =
                     plugin.getApiVersionRegistry().getPluginForVersion(version);
 
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET,versionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, versionPlugin);
 
             QueryResult<C> queryResult = plugin.getPersistenceOperations().query(query, start, limit, sort, requestContext);
 
@@ -135,7 +136,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             ApiVersionPlugin<C, ? extends PersistentObject> versionPlugin =
                     plugin.getApiVersionRegistry().getPluginForVersion(version);
             requestContext = buildRequestContext(entity,fields,HttpMethod.GET,
-                    versionPlugin);
+                    plugin, versionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
@@ -171,7 +172,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.POST);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET,apiVersionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
@@ -213,7 +214,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.PUT);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET,apiVersionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, apiVersionPlugin);
 
             C clientObject = endpointMarshaller.unmarshall(httpServletRequest,apiVersionPlugin.getApiClass());
 
@@ -255,7 +256,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(null);
             checkMethodAllowed(plugin,HttpMethod.DELETE);
-            requestContext = buildRequestContext(entity,null,HttpMethod.GET,apiVersionPlugin);
+            requestContext = buildRequestContext(entity,null,HttpMethod.GET, plugin, apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);
@@ -278,10 +279,10 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
 
 
     protected RequestContext buildRequestContext(String entity, String fields, HttpMethod method,
-                                                 ApiVersionPlugin apiVersionPlugin)
+                                                 EntityPlugin entityPlugin, ApiVersionPlugin apiVersionPlugin)
     {
         return requestContextBuilder.buildRequestContext(uriInfo,httpServletRequest,httpServletResponse,
-                entity,fields,apiVersionPlugin,method);
+                entity,fields, entityPlugin, apiVersionPlugin,method);
     }
 
     private void addVersionHeader(Integer version)

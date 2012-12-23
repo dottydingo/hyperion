@@ -9,9 +9,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 
 /**
- * User: mark
- * Date: 9/16/12
- * Time: 3:12 PM
  */
 public interface ExpressionPredicateBuilder
 {

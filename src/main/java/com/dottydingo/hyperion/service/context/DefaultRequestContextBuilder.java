@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.context;
 
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
+import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ public class DefaultRequestContextBuilder implements RequestContextBuilder
                                               HttpServletResponse httpServletResponse,
                                               String entityType,
                                               String fields,
-                                              ApiVersionPlugin apiVersionPlugin,
+                                              EntityPlugin entityPlugin, ApiVersionPlugin apiVersionPlugin,
                                               HttpMethod httpMethod)
     {
         RequestContext requestContext = new RequestContext();
@@ -33,6 +34,7 @@ public class DefaultRequestContextBuilder implements RequestContextBuilder
         requestContext.setHttpServletRequest(httpServletRequest);
         requestContext.setHttpServletResponse(httpServletResponse);
         requestContext.setApiVersionPlugin(apiVersionPlugin);
+        requestContext.setEntityPlugin(entityPlugin);
         requestContext.setHttpMethod(httpMethod);
 
         requestContext.setUserContext(getUserContext(requestContext));

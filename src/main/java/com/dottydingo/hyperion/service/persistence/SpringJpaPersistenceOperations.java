@@ -5,14 +5,15 @@ import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
+import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.query.Mapper;
 import com.dottydingo.hyperion.service.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.query.RsqlPredicateBuilder;
+import com.dottydingo.hyperion.service.sort.SortBuilder;
 import com.dottydingo.hyperion.service.translation.Translator;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,6 +28,7 @@ import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
@@ -38,7 +40,6 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
     private Sort defaultSort = new Sort("id");
     private HyperionJpaRepository<P,ID> jpaRepository;
     private RsqlPredicateBuilder predicateBuilder;
-    private Mapper mapper;
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
 
 
@@ -50,11 +51,6 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
     public void setPredicateBuilder(RsqlPredicateBuilder predicateBuilder)
     {
         this.predicateBuilder = predicateBuilder;
-    }
-
-    public void setMapper(Mapper mapper)
-    {
-        this.mapper = mapper;
     }
 
     public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
@@ -91,7 +87,7 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         int size = limit == null ? 500 : limit;
         int pageStart = start == null ? 1 : start;
 
-        Pageable pageable = new RangePageAdapter(pageStart,size,getSort(sort));
+        Pageable pageable = new RangePageAdapter(pageStart,size,getSort(context.getEntityPlugin(), sort));
 
         List<Specification<P>> specificationList = new ArrayList<Specification<P>>();
         if(query != null && query.length() > 0)
@@ -208,14 +204,12 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         return arguments == null ? null : arguments[0];
     }
 
-    private Sort getSort(String sortString)
+    protected Sort getSort(EntityPlugin entityPlugin, String sortString)
     {
         if (sortString == null || sortString.length() == 0)
         {
             return defaultSort;
         }
-
-        Class entityType = getDomainType();
 
         boolean hasId = false;
         Sort sort = null;
@@ -223,11 +217,17 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         for (String s1 : split)
         {
             String[] props = s1.split(":");
-            String translated = mapper.translate(props[0].trim(), entityType);
-            if(translated.equals("id"))
+            String name = props[0].trim();
+            if(name.equals("id"))
                 hasId = true;
             boolean desc = props.length == 2 && props[1].equalsIgnoreCase("desc");
-            Sort s = new Sort(desc ? Sort.Direction.DESC : Sort.Direction.ASC,translated);
+
+            Map<String,SortBuilder> sortBuilders = entityPlugin.getSortBuilders();
+            SortBuilder sortBuilder = sortBuilders.get(name);
+            if(sortBuilder == null)
+                throw new BadRequestException(String.format("%s is not a valid sort field.",name));
+
+            Sort s = sortBuilder.buildSort(name,desc);
             if (sort == null)
             {
                 sort = s;

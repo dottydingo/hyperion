@@ -10,9 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * User: mark
- * Date: 9/16/12
- * Time: 4:12 PM
  */
 public class DefaultArgumentParser implements ArgumentParser
 {

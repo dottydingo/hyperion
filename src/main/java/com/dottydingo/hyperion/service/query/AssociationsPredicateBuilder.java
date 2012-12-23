@@ -8,9 +8,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.metamodel.EntityType;
 
 /**
- * User: mark
- * Date: 9/16/12
- * Time: 8:34 PM
  */
 public class AssociationsPredicateBuilder extends AbstractPredicateBuilder
 {

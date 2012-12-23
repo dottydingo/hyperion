@@ -1,9 +1,6 @@
 package com.dottydingo.hyperion.service.query;
 
 /**
- * User: mark
- * Date: 9/16/12
- * Time: 4:18 PM
  */
 public class ArgumentFormatException extends Exception
 {

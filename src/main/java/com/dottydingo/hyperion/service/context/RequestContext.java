@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.context;
 
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
+import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +11,7 @@ import java.security.Principal;
 import java.util.Set;
 
 /**
- * Default Request Context Implementation
+ *  Request Context
  */
 public class RequestContext
 {
@@ -19,6 +20,7 @@ public class RequestContext
     private Set<String> requestedFields;
     private HttpServletRequest httpServletRequest;
     private HttpServletResponse httpServletResponse;
+    private EntityPlugin entityPlugin;
     private ApiVersionPlugin apiVersionPlugin;
     private HttpMethod httpMethod;
     private UserContext userContext;
@@ -71,6 +73,16 @@ public class RequestContext
     public void setHttpServletResponse(HttpServletResponse httpServletResponse)
     {
         this.httpServletResponse = httpServletResponse;
+    }
+
+    public EntityPlugin getEntityPlugin()
+    {
+        return entityPlugin;
+    }
+
+    public void setEntityPlugin(EntityPlugin entityPlugin)
+    {
+        this.entityPlugin = entityPlugin;
     }
 
     public ApiVersionPlugin getApiVersionPlugin()
