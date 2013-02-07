@@ -22,6 +22,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private ApiVersionRegistry<C,P> apiVersionRegistry;
     private Set<HttpMethod> limitMethods = new HashSet<HttpMethod>();
     private Map<String,SortBuilder> sortBuilders;
+    private Class<P> entityClass;
 
     public String getEndpointName()
     {
@@ -82,5 +83,15 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setSortBuilders(Map<String, SortBuilder> sortBuilders)
     {
         this.sortBuilders = sortBuilders;
+    }
+
+    public Class<P> getEntityClass()
+    {
+        return entityClass;
+    }
+
+    public void setEntityClass(Class<P> entityClass)
+    {
+        this.entityClass = entityClass;
     }
 }

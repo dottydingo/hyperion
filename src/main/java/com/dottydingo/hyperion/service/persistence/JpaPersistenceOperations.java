@@ -8,17 +8,10 @@ import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
-import com.dottydingo.hyperion.service.query.Mapper;
 import com.dottydingo.hyperion.service.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.query.RsqlPredicateBuilder;
 import com.dottydingo.hyperion.service.sort.SortBuilder;
 import com.dottydingo.hyperion.service.translation.Translator;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -34,19 +27,13 @@ import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 /**
  */
-public class SpringJpaPersistenceOperations<C extends ApiObject, P extends PersistentObject<ID>, ID extends Serializable>
+public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentObject<ID>, ID extends Serializable>
         implements PersistenceOperations<C,ID>
 {
     private Sort defaultSort = new Sort("id");
-    private HyperionJpaRepository<P,ID> jpaRepository;
     private RsqlPredicateBuilder predicateBuilder;
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
-
-
-    public void setJpaRepository(HyperionJpaRepository<P, ID> jpaRepository)
-    {
-        this.jpaRepository = jpaRepository;
-    }
+    private Dao<P,ID> dao;
 
     public void setPredicateBuilder(RsqlPredicateBuilder predicateBuilder)
     {
@@ -58,6 +45,11 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         this.persistenceFilter = persistenceFilter;
     }
 
+    public void setDao(Dao<P,ID> dao)
+    {
+        this.dao = dao;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<C> findByIds(List<ID> ids, RequestContext context)
@@ -66,7 +58,7 @@ public class SpringJpaPersistenceOperations<C extends ApiObject, P extends Persi
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
 
-        Iterable<P> iterable = jpaRepository.findAll(ids);
+        List<P> iterable = dao.findAll(context.getEntityPlugin().getEntityClass(),ids);
 
         List<P> result = new ArrayList<P>();
         for (P p : iterable)
