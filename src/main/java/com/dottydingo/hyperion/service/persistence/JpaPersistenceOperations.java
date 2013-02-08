@@ -147,7 +147,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         if(existing == null)
             throw new NotFoundException(
-                    String.format("%s with id %s was not found.",context.getEntity(),item.getId()));
+                    String.format("%s with id %s was not found.",context.getEntity(),ids.get(0)));
 
         apiVersionPlugin.getValidator().validateUpdate(item,existing);
 
