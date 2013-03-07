@@ -1,43 +1,48 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
-import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
-import com.dottydingo.hyperion.service.query.PredicateBuilder;
-import com.dottydingo.hyperion.service.query.RsqlPredicateBuilder;
-import com.dottydingo.hyperion.service.sort.SortBuilder;
+import com.dottydingo.hyperion.service.persistence.dao.Dao;
+import com.dottydingo.hyperion.service.persistence.dao.PersistentQueryResult;
+import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
+import com.dottydingo.hyperion.service.persistence.query.PredicateBuilderFactory;
+import com.dottydingo.hyperion.service.persistence.query.RsqlPredicateBuilderFactory;
+import com.dottydingo.hyperion.service.persistence.sort.OrderBuilder;
+import com.dottydingo.hyperion.service.persistence.sort.OrderBuilderFactory;
 import com.dottydingo.hyperion.service.translation.Translator;
+
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
 
 /**
  */
 public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentObject<ID>, ID extends Serializable>
         implements PersistenceOperations<C,ID>
 {
-    private Sort defaultSort = new Sort("id");
-    private RsqlPredicateBuilder predicateBuilder;
+
+    private PredicateBuilderFactory predicateBuilderFactory;
+    private OrderBuilderFactory<P> orderBuilderFactory;
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
     private Dao<P,ID> dao;
 
-    public void setPredicateBuilder(RsqlPredicateBuilder predicateBuilder)
+    public void setPredicateBuilderFactory(RsqlPredicateBuilderFactory predicateBuilderFactory)
     {
-        this.predicateBuilder = predicateBuilder;
+        this.predicateBuilderFactory = predicateBuilderFactory;
+    }
+
+    public void setOrderBuilderFactory(OrderBuilderFactory<P> orderBuilderFactory)
+    {
+        this.orderBuilderFactory = orderBuilderFactory;
     }
 
     public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
@@ -79,37 +84,34 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         int size = limit == null ? 500 : limit;
         int pageStart = start == null ? 1 : start;
 
-        Pageable pageable = new RangePageAdapter(pageStart,size,getSort(context.getEntityPlugin(), sort));
 
-        List<Specification<P>> specificationList = new ArrayList<Specification<P>>();
+        List<PredicateBuilder<P>> predicateBuilders = new ArrayList<PredicateBuilder<P>>();
         if(query != null && query.length() > 0)
         {
-            specificationList.add(new QuerySpecification(predicateBuilder, query, getDomainType()));
+            predicateBuilders.add(predicateBuilderFactory.createPredicateBuilder(query,context.getEntityPlugin()));
         }
 
-        Specification<P> filter = persistenceFilter.getFilterSpecification(context);
+        PredicateBuilder<P> filter = persistenceFilter.getFilterPredicateBuilder(context);
         if(filter != null)
-            specificationList.add(filter);
+            predicateBuilders.add(filter);
 
-        Specifications<P> specification = null;
-        for (Specification<P> spec : specificationList)
+        OrderBuilder<P> orderBuilder = orderBuilderFactory.createOrderBuilder(sort,context.getEntityPlugin());
+
+        PersistentQueryResult<P> all = dao.query(context.getEntityPlugin().getEntityClass(),pageStart,size,orderBuilder,predicateBuilders);
+
+        List<C> converted;
+        if(all.getTotalCount() > 0)
         {
-            if(specification == null)
-                specification = Specifications.where(spec);
-            else
-                specification = specification.and(spec);
+            List<P> list = all.getResults();
+            converted = apiVersionPlugin.getTranslator().convertPersistent(list,context);
         }
-
-        Page<P> all = jpaRepository.findAll(specification,pageable);
-
-        List<P> list = all.getContent();
-
-        List<C> converted = apiVersionPlugin.getTranslator().convertPersistent(list,context);
+        else
+            converted = Collections.emptyList();
 
         QueryResult<C> queryResult= new QueryResult<C>();
         queryResult.setItems(converted);
-        queryResult.setResponseCount(list.size());
-        queryResult.setTotalCount(all.getTotalElements());
+        queryResult.setResponseCount(converted.size());
+        queryResult.setTotalCount(all.getTotalCount());
         queryResult.setStart(start == null ? 1 : (start));
 
         return queryResult;
@@ -129,7 +131,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         if(!persistenceFilter.canCreate(persistent,context))
             return null;
 
-        P saved = jpaRepository.save(persistent);
+        P saved = dao.create(persistent);
         C toReturn = translator.convertPersistent(saved,context);
 
         return toReturn;
@@ -143,7 +145,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
-        P existing = jpaRepository.findOne(ids.get(0));
+        P existing = dao.find(context.getEntityPlugin().getEntityClass(),ids.get(0));
 
         if(existing == null)
             throw new NotFoundException(
@@ -164,7 +166,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         if(oldId != null && !oldId.equals(existing.getId()))
             throw new ValidationException("Id in URI does not match the Id in the payload.");
 
-        return translator.convertPersistent(jpaRepository.save(existing), context);
+        return translator.convertPersistent(dao.update(existing), context);
 
     }
 
@@ -174,89 +176,19 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     {
 
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
-        Iterable<P> persistentItems = jpaRepository.findAll(ids);
+        Iterable<P> persistentItems = dao.findAll(context.getEntityPlugin().getEntityClass(),ids);
         int deleted = 0;
         for (P item : persistentItems)
         {
             if(persistenceFilter.canDelete(item,context))
             {
                 apiVersionPlugin.getValidator().validateDelete(item);
-                jpaRepository.delete(item);
+                dao.delete(item);
                 deleted++;
             }
         }
 
         return deleted;
     }
-
-    private Class<?> getDomainType()
-    {
-
-        Class<?>[] arguments = resolveTypeArguments(jpaRepository.getClass(), Repository.class);
-        return arguments == null ? null : arguments[0];
-    }
-
-    protected Sort getSort(EntityPlugin entityPlugin, String sortString)
-    {
-        if (sortString == null || sortString.length() == 0)
-        {
-            return defaultSort;
-        }
-
-        boolean hasId = false;
-        Sort sort = null;
-        String[] split = sortString.split(",");
-        for (String s1 : split)
-        {
-            String[] props = s1.split(":");
-            String name = props[0].trim();
-            if(name.equals("id"))
-                hasId = true;
-            boolean desc = props.length == 2 && props[1].equalsIgnoreCase("desc");
-
-            Map<String,SortBuilder> sortBuilders = entityPlugin.getSortBuilders();
-            SortBuilder sortBuilder = sortBuilders.get(name);
-            if(sortBuilder == null)
-                throw new BadRequestException(String.format("%s is not a valid sort field.",name));
-
-            Sort s = sortBuilder.buildSort(name,desc);
-            if (sort == null)
-            {
-                sort = s;
-            }
-            else
-            {
-                sort = sort.and(s);
-            }
-        }
-
-        if(sort == null)
-            sort = defaultSort;
-        else if(!hasId)
-            sort = sort.and(defaultSort);
-
-        return sort;
-    }
-
-    private class QuerySpecification<T> implements Specification<T>
-    {
-        private PredicateBuilder predicateBuilder;
-        private String queryString;
-        private Class<T> entityClass;
-
-        private QuerySpecification(PredicateBuilder predicateBuilder, String queryString, Class<T> entityClass)
-        {
-            this.predicateBuilder = predicateBuilder;
-            this.queryString = queryString;
-            this.entityClass = entityClass;
-        }
-
-        @Override
-        public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb)
-        {
-            return predicateBuilder.buildPredicate(queryString,entityClass,root,cb);
-        }
-    }
-
 
 }

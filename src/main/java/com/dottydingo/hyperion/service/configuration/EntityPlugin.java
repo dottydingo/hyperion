@@ -5,7 +5,8 @@ import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
-import com.dottydingo.hyperion.service.sort.SortBuilder;
+import com.dottydingo.hyperion.service.persistence.query.QueryBuilder;
+import com.dottydingo.hyperion.service.persistence.sort.SortBuilder;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private Set<HttpMethod> limitMethods = new HashSet<HttpMethod>();
     private Map<String,SortBuilder> sortBuilders;
     private Class<P> entityClass;
+    private Map<String,QueryBuilder> queryBuilders;
 
     public String getEndpointName()
     {
@@ -93,5 +95,15 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setEntityClass(Class<P> entityClass)
     {
         this.entityClass = entityClass;
+    }
+
+    public Map<String, QueryBuilder> getQueryBuilders()
+    {
+        return queryBuilders;
+    }
+
+    public void setQueryBuilders(Map<String, QueryBuilder> queryBuilders)
+    {
+        this.queryBuilders = queryBuilders;
     }
 }

@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.service.context.RequestContext;
-import org.springframework.data.jpa.domain.Specification;
+import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 
 /**
  * User: mark
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
  */
 public interface PersistenceFilter<P>
 {
-    Specification<P> getFilterSpecification(RequestContext requestContext);
+    PredicateBuilder<P> getFilterPredicateBuilder(RequestContext requestContext);
 
     boolean isVisible(P persistentObject,RequestContext requestContext);
 

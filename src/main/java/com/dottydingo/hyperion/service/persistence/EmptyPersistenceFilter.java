@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.service.context.RequestContext;
-import org.springframework.data.jpa.domain.Specification;
+import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 
 /**
  * User: mark
@@ -11,7 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class EmptyPersistenceFilter<P> implements PersistenceFilter<P>
 {
     @Override
-    public Specification<P> getFilterSpecification(RequestContext requestContext)
+    public PredicateBuilder<P> getFilterPredicateBuilder(RequestContext requestContext)
     {
         return null;
     }

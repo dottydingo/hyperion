@@ -1,69 +1,44 @@
-package com.dottydingo.hyperion.service.query;
+package com.dottydingo.hyperion.service.persistence.query;
 
 import cz.jirutka.rsql.parser.model.Comparison;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.criteria.*;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Predicate;
 
 /**
+ * User: mark
+ * Date: 2/24/13
+ * Time: 7:20 AM
  */
-public abstract class AbstractPredicateBuilder
+public abstract class AbstractQueryBuilder<T> implements QueryBuilder
 {
-    protected Logger logger = LoggerFactory.getLogger(getClass());
-
+    private Logger logger = LoggerFactory.getLogger(AbstractQueryBuilder.class);
     protected static final Character LIKE_WILDCARD = '*';
 
-    /**
-     * This method is called by Criteria Builder to determine if this builder
-     * can handle given comparison (constraint).
-     *
-     * @param property    property name or path
-     * @param entityClass Class of entity that holds given property.
-     * @param parent      Reference to the parent <tt>CriteriaBuilder</tt>.
-     * @return <tt>true</tt> if this builder can handle given property of entity
-     *         class, otherwise <tt>false</tt>
-     */
-    public abstract boolean accept(String property, Class<?> entityClass, ExpressionPredicateBuilder parent);
+    protected ArgumentParser<T> argumentParser;
+
+    public void setArgumentParser(ArgumentParser<T> argumentParser)
+    {
+        this.argumentParser = argumentParser;
+    }
 
     /**
-     * Create <tt>Criterion</tt> for given comparison (constraint).
-     *
-     *
-     *
-     * @param property    property name or path
-     * @param operator    comparison operator
-     * @param argument    argument
-     * @param root
-     * @param parent      Reference to the parent <tt>CriteriaBuilder</tt>.   @return Criterion
-     * @throws ArgumentFormatException
-     *          If given argument is not in suitable
-     *          format required by entity's property, i.e. cannot be cast to
-     *          property's type.
-     * @throws UnknownSelectorException
-     *          If such property does not exist.
-     */
-    public abstract Predicate createPredicate(String property, Comparison operator, String argument,
-                                              From root, ExpressionPredicateBuilder parent)
-            throws ArgumentFormatException, UnknownSelectorException;
-
-    /**
-     * Delegate creating of a Criterion to an appropriate method according to
+     * Delegate creating of a Predicate to an appropriate method according to
      * operator.
      * <p/>
-     * Property name MUST be prefixed with an association alias!
      *
-     * @param propertyPath property name prefixed with an association alias
+     * @param propertyName property name
      * @param operator     comparison operator
      * @param argument     argument
-     * @return Criterion
+     * @return Predicate
      */
-    protected Predicate createPredicate(From root, CriteriaBuilder cb,  String propertyPath, Comparison operator, Object argument)
+    protected Predicate createPredicate(From root, CriteriaBuilder cb,  String propertyName, Comparison operator, Object argument)
     {
         logger.trace("Creating criterion: {} {} {}",
-                new Object[]{propertyPath, operator, argument});
+                new Object[]{propertyName, operator, argument});
 
         switch (operator)
         {
@@ -71,32 +46,32 @@ public abstract class AbstractPredicateBuilder
             {
                 if (containWildcard(argument))
                 {
-                    return createLike(root, cb, propertyPath, argument);
+                    return createLike(root, cb, propertyName, argument);
                 }
                 else
                 {
-                    return createEqual(root, cb, propertyPath, argument);
+                    return createEqual(root, cb, propertyName, argument);
                 }
             }
             case NOT_EQUAL:
             {
                 if (containWildcard(argument))
                 {
-                    return createNotLike(root, cb, propertyPath, argument);
+                    return createNotLike(root, cb, propertyName, argument);
                 }
                 else
                 {
-                    return createNotEqual(root, cb, propertyPath, argument);
+                    return createNotEqual(root, cb, propertyName, argument);
                 }
             }
             case GREATER_THAN:
-                return createGreaterThan(root, cb, propertyPath, argument);
+                return createGreaterThan(root, cb, propertyName, argument);
             case GREATER_EQUAL:
-                return createGreaterEqual(root, cb, propertyPath, argument);
+                return createGreaterEqual(root, cb, propertyName, argument);
             case LESS_THAN:
-                return createLessThan(root, cb, propertyPath, argument);
+                return createLessThan(root, cb, propertyName, argument);
             case LESS_EQUAL:
-                return createLessEqual(root, cb, propertyPath, argument);
+                return createLessEqual(root, cb, propertyName, argument);
         }
         throw new IllegalArgumentException("Unknown operator: " + operator);
     }
@@ -217,39 +192,7 @@ public abstract class AbstractPredicateBuilder
         }
 
         String casted = (String) argument;
-        if (casted.contains(LIKE_WILDCARD.toString()))
-        {
-            return true;
-        }
+        return casted.contains(LIKE_WILDCARD.toString());
 
-        return false;
     }
-
-    /**
-     * Check if entity of specified class metadata contains given property.
-     *
-     * @param property      property name
-     * @param classMetadata entity metadata
-     * @return <tt>true</tt> if specified class metadata contains given property,
-     *         otherwise <tt>false</tt>.
-     */
-    protected boolean isPropertyName(String property, EntityType classMetadata)
-    {
-        Attribute attributes = classMetadata.getAttribute(property);
-
-        return attributes != null;
-    }
-
-    /**
-     * Find the java type class of given named property in entity's metadata.
-     *
-     * @param property      property name
-     * @param classMetadata entity metadata
-     * @return The java type class of given property.
-     */
-    protected Class<?> findPropertyType(String property, EntityType classMetadata)
-    {
-        return classMetadata.getAttribute(property).getJavaType();
-    }
-
 }
