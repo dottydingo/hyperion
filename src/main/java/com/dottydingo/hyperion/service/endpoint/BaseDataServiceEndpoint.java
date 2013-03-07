@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.io.Serializable;
 import java.net.URI;
@@ -118,6 +119,19 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
 
     }
 
+    @POST()
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public void queryDataPost(@PathParam("entity") String entity,
+                          @FormParam("fields") String fields,
+                          @FormParam("start")  Integer start,
+                          @FormParam("limit")  Integer limit,
+                          @FormParam("query") String query,
+                          @FormParam("sort") String sort,
+                          @FormParam("version")  Integer version)
+    {
+        queryData(entity, fields, start, limit, query, sort, version);
+    }
+
     @GET()
     @Path("{id}")
     public void getItem(@PathParam("entity") String entity,
@@ -162,6 +176,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public void createItem(@PathParam("entity") String entity,
                                @QueryParam("fields") String fields,
                                @QueryParam("version")  Integer version                               )
