@@ -1,8 +1,10 @@
 package com.dottydingo.hyperion.service.persistence.query;
 
+import com.dottydingo.hyperion.exception.HyperionException;
+
 /**
  */
-public interface ArgumentParser<T>
+public interface ArgumentParser
 {
-    T parse(String value);
+    <T> T parse(String argument, Class<T> type) throws HyperionException;
 }

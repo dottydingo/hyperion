@@ -57,18 +57,19 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
         }
 
         PersistentQueryResult<P> result = new PersistentQueryResult<P>();
-        Long totalCount = getCount(entityClass,predicateArray);
+        Long totalCount = getCount(entityClass,predicateBuilders);
         result.setTotalCount(totalCount);
         if(totalCount == 0)
             return result;
 
         if(predicateArray != null)
-            criteriaQuery.where();
+            criteriaQuery.where(predicateArray);
 
         if(orderBuilder != null)
         {
             List<Order> orders = new ArrayList<Order>();
-            orders.addAll(orderBuilder.buildOrders(root,cb));
+            List<Order> orderList = orderBuilder.buildOrders(root, cb);
+            orders.addAll(orderList);
             if(orders.size() > 0)
                 criteriaQuery.orderBy(orders.toArray(new Order[orders.size()]));
         }
@@ -84,13 +85,27 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
         return result;
     }
 
-    private Long getCount(Class<P> entityClass,Predicate[] predicates)
+    private Long getCount(Class<P> entityClass,List<PredicateBuilder<P>> predicateBuilders)
     {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        cq.select(cb.count(cq.from(entityClass)));
-        if(predicates != null)
-            cq.where(predicates);
+        Root<P> root = cq.from(entityClass);
+        cq.select(cb.count(root));
+
+        Predicate[] predicateArray = null;
+        if(predicateBuilders.size() > 0)
+        {
+            List<Predicate> predicates = new ArrayList<Predicate>();
+            for (PredicateBuilder query : predicateBuilders)
+            {
+                predicates.add(query.buildPredicate(root,cq,cb));
+            }
+
+            predicateArray = predicates.toArray(new Predicate[predicates.size()]);
+        }
+
+        if(predicateArray != null)
+            cq.where(predicateArray);
 
         return em.createQuery(cq).getSingleResult();
     }

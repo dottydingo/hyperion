@@ -71,7 +71,7 @@ public class RsqlPredicateBuilderFactory implements PredicateBuilderFactory
 
         private Predicate buildPredicate(Expression expression,  Root entityRoot, CriteriaBuilder cb)
         {
-            logger.trace("Creating criterion for: {}", expression);
+            logger.debug("Creating criterion for: {}", expression);
 
             if (expression.isLogical())
             {

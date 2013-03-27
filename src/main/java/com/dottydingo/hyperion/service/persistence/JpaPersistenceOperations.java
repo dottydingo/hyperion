@@ -82,7 +82,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
         int size = limit == null ? 500 : limit;
-        int pageStart = start == null ? 1 : start;
+        int pageStart = start == null ? 0 : start - 1;
 
 
         List<PredicateBuilder<P>> predicateBuilders = new ArrayList<PredicateBuilder<P>>();

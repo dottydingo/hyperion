@@ -18,9 +18,9 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
     private Logger logger = LoggerFactory.getLogger(AbstractQueryBuilder.class);
     protected static final Character LIKE_WILDCARD = '*';
 
-    protected ArgumentParser<T> argumentParser;
+    protected ArgumentParser argumentParser;
 
-    public void setArgumentParser(ArgumentParser<T> argumentParser)
+    public void setArgumentParser(ArgumentParser argumentParser)
     {
         this.argumentParser = argumentParser;
     }
@@ -37,7 +37,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      */
     protected Predicate createPredicate(From root, CriteriaBuilder cb,  String propertyName, Comparison operator, Object argument)
     {
-        logger.trace("Creating criterion: {} {} {}",
+        logger.debug("Creating criterion: {} {} {}",
                 new Object[]{propertyName, operator, argument});
 
         switch (operator)
