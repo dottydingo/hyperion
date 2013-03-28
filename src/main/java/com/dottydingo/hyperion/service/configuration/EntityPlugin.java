@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.configuration;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.model.PersistentObject;
+import com.dottydingo.hyperion.service.persistence.CreateKeyProcessor;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
 import com.dottydingo.hyperion.service.persistence.query.QueryBuilder;
@@ -25,6 +26,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private Map<String,SortBuilder> sortBuilders;
     private Class<P> entityClass;
     private Map<String,QueryBuilder> queryBuilders;
+    private CreateKeyProcessor<C,ID> createKeyProcessor;
 
     public String getEndpointName()
     {
@@ -105,5 +107,15 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setQueryBuilders(Map<String, QueryBuilder> queryBuilders)
     {
         this.queryBuilders = queryBuilders;
+    }
+
+    public CreateKeyProcessor<C, ID> getCreateKeyProcessor()
+    {
+        return createKeyProcessor;
+    }
+
+    public void setCreateKeyProcessor(CreateKeyProcessor<C, ID> createKeyProcessor)
+    {
+        this.createKeyProcessor = createKeyProcessor;
     }
 }

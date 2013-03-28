@@ -8,6 +8,7 @@ import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.context.DefaultRequestContextBuilder;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.context.RequestContextBuilder;
+import com.dottydingo.hyperion.service.context.WriteContext;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
@@ -181,12 +182,19 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             if(fieldSet != null)
                 fieldSet.add("id");
 
-            C saved = plugin.getPersistenceOperations().createItem(clientObject, requestContext);
+            C saved = plugin.getPersistenceOperations().createOrUpdateItem(clientObject, requestContext);
             if(saved != null)
             {
                 addVersionHeader(apiVersionPlugin.getVersion());
-                httpServletResponse.setStatus(201);
-                httpServletResponse.setHeader("Location",URI.create(saved.getId().toString()).toString());
+                if(requestContext.getWriteContext() == WriteContext.create)
+                {
+                    httpServletResponse.setStatus(201);
+                    httpServletResponse.setHeader("Location",URI.create(saved.getId().toString()).toString());
+                }
+                else
+                {
+                    httpServletResponse.setStatus(200);
+                }
                 endpointMarshaller.marshall(httpServletResponse,saved);
             }
             else

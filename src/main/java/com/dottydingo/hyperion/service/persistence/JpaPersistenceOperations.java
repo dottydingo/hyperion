@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.WriteContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
 import com.dottydingo.hyperion.service.persistence.dao.PersistentQueryResult;
@@ -119,23 +120,33 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     @Override
     @Transactional(readOnly = false)
-    public C createItem(C clientObject, RequestContext context)
+    public C createOrUpdateItem(C item, RequestContext context)
     {
+        CreateKeyProcessor<C,ID> createKeyProcessor = context.getEntityPlugin().getCreateKeyProcessor();
+        if(createKeyProcessor != null)
+        {
+            ID id = createKeyProcessor.lookup(item);
+            if(id != null)
+                return updateItem(Collections.singletonList(id),item,context);
+        }
+
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
-        apiVersionPlugin.getValidator().validateCreate(clientObject);
+        apiVersionPlugin.getValidator().validateCreate(item);
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        P persistent = translator.convertClient(clientObject, context);
+        P persistent = translator.convertClient(item, context);
 
         if(!persistenceFilter.canCreate(persistent,context))
             return null;
 
         P saved = dao.create(persistent);
         C toReturn = translator.convertPersistent(saved,context);
+        context.setWriteContext(WriteContext.create);
 
         return toReturn;
     }
+
 
     @Override
     @Transactional(readOnly = false)
@@ -166,6 +177,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         if(oldId != null && !oldId.equals(existing.getId()))
             throw new ValidationException("Id in URI does not match the Id in the payload.");
 
+        context.setWriteContext(WriteContext.update);
         return translator.convertPersistent(dao.update(existing), context);
 
     }
