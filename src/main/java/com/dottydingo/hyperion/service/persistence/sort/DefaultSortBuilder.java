@@ -1,19 +1,22 @@
 package com.dottydingo.hyperion.service.persistence.sort;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
+import com.dottydingo.hyperion.service.persistence.PathIterator;
+
+import javax.persistence.criteria.*;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * User: mark
- * Date: 2/24/13
- * Time: 9:18 AM
  */
 public class DefaultSortBuilder implements SortBuilder
 {
+    private String propertyPath;
     private String propertyName;
+
+    public void setPropertyPath(String propertyPath)
+    {
+        this.propertyPath = propertyPath;
+    }
 
     public void setPropertyName(String propertyName)
     {
@@ -23,9 +26,16 @@ public class DefaultSortBuilder implements SortBuilder
     @Override
     public List<Order> buildOrder(boolean desc, CriteriaBuilder cb, Root root)
     {
-        if(desc)
-            return Collections.singletonList(cb.desc(root.get(propertyName)));
+        From from = getFrom(root,PathIterator.getPath(propertyPath));
+        Path path = from.get(propertyName);
+        Order order = desc ? cb.desc(path) : cb.asc(path);
+        return Collections.singletonList(order);
+    }
 
-        return Collections.singletonList(cb.asc(root.get(propertyName)));
+    protected From getFrom(From from, PathIterator path)
+    {
+        if(path.hasNext())
+            return getFrom(from.join(path.next()),path);
+        return from;
     }
 }
