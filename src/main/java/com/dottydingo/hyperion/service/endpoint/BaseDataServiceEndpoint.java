@@ -188,7 +188,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.POST);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, apiVersionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.POST, plugin, apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
@@ -237,7 +237,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.PUT);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, apiVersionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.PUT, plugin, apiVersionPlugin);
 
             C clientObject = endpointMarshaller.unmarshall(httpServletRequest,apiVersionPlugin.getApiClass());
 
@@ -279,7 +279,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(null);
             checkMethodAllowed(plugin,HttpMethod.DELETE);
-            requestContext = buildRequestContext(entity,null,HttpMethod.GET, plugin, apiVersionPlugin);
+            requestContext = buildRequestContext(entity,null,HttpMethod.DELETE, plugin, apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);

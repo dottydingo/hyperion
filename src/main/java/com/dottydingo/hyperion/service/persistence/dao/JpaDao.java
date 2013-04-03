@@ -20,7 +20,7 @@ import java.util.List;
 public class JpaDao<P extends PersistentObject,ID extends Serializable> implements Dao<P,ID>
 {
     @PersistenceContext
-    private EntityManager em;
+    protected EntityManager em;
 
     @Override
     public List<P> findAll(Class<P> entityClass, List<ID> ids)

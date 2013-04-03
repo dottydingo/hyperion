@@ -31,7 +31,7 @@ public class DefaultQueryBuilder<T> extends AbstractQueryBuilder<T>
         From from = getFrom(root,PathIterator.getPath(propertyPath));
 
         Object parsed =  argumentParser.parse(argument,from.get(propertyName).getJavaType());
-        return createPredicate(root,cb,propertyName,operator,parsed);
+        return createPredicate(from,cb,propertyName,operator,parsed);
     }
 
     protected From getFrom(From from, PathIterator path)

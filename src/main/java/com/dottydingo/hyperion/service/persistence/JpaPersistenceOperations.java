@@ -31,10 +31,10 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         implements PersistenceOperations<C,ID>
 {
 
-    private PredicateBuilderFactory predicateBuilderFactory;
-    private OrderBuilderFactory<P> orderBuilderFactory;
-    private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
-    private Dao<P,ID> dao;
+    protected PredicateBuilderFactory predicateBuilderFactory;
+    protected OrderBuilderFactory<P> orderBuilderFactory;
+    protected PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
+    protected Dao<P,ID> dao;
 
     public void setPredicateBuilderFactory(RsqlPredicateBuilderFactory predicateBuilderFactory)
     {
