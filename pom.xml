@@ -27,9 +27,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@github.com:dottydingo/hyperion.git</connection>
-        <developerConnection>scm:git:git@github.com:dottydingo/hyperion.git</developerConnection>
-        <url>http://dottydingo.github.com/hyperion/</url>
+        <connection>scm:git:git@github.com:mhellkamp/hyperion.git</connection>
+        <developerConnection>scm:git:git@github.com:mhellkamp/hyperion.git</developerConnection>
+        <url>http://mhellkamp.github.com/hyperion/</url>
     </scm>
     <developers>
         <developer>
