@@ -1,29 +1,28 @@
-package com.dottydingo.hyperion.service.query;
+package com.dottydingo.hyperion.service.persistence.query;
 
+import com.dottydingo.hyperion.exception.BadParameterException;
+import com.dottydingo.hyperion.exception.HyperionException;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  */
-public class DefaultArgumentParser implements ArgumentParser
+public class DefaultArgumentParser  implements ArgumentParser
 {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultArgumentParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultArgumentParser.class);
 
-    private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd"); //ISO 8601
-    private static final DateFormat DATE_TIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //ISO 8601
+    private DateTimeFormatter dateParser = ISODateTimeFormat.dateOptionalTimeParser();
 
     @Override
-    public <T> T parse(String argument, Class<T> type)
-            throws IllegalArgumentException, ArgumentFormatException
+    public <T> T parse(String argument, Class<T> type) throws HyperionException
     {
 
-        LOG.trace("Parsing argument '{}' as type {}", argument, type.getSimpleName());
+        logger.debug("Parsing argument '{}' as type {}", argument, type.getSimpleName());
 
         // common types
         try
@@ -59,7 +58,7 @@ public class DefaultArgumentParser implements ArgumentParser
         }
         catch (IllegalArgumentException ex)
         {
-            throw new ArgumentFormatException(argument, type);
+            throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()));
         }
 
         // date
@@ -67,39 +66,31 @@ public class DefaultArgumentParser implements ArgumentParser
         {
             try
             {
-                return (T) DATE_TIME_FORMATTER.parse(argument);
+                return (T) dateParser.parseDateTime(argument).toDate();
             }
-            catch (ParseException ex)
+            catch (IllegalArgumentException ex1)
             {
-            }
-            try
-            {
-                return (T) DATE_FORMATTER.parse(argument);
-            }
-            catch (ParseException ex1)
-            {
-                throw new ArgumentFormatException(argument, type);
+                throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()));
             }
         }
 
         // try to parse via valueOf(String s) method
         try
         {
-            LOG.trace("Trying to get and invoke valueOf(String s) method on {}", type);
+            logger.debug("Trying to get and invoke valueOf(String s) method on {}", type);
             Method method = type.getMethod("valueOf", String.class);
             return (T) method.invoke(type, argument);
 
         }
         catch (NoSuchMethodException ex)
         {
-            LOG.warn("{} does not have method valueOf(String s)", type);
+            logger.warn("{} does not have method valueOf(String s)", type);
         }
-
         catch (Exception ex)
         {
-            throw new RuntimeException(ex);
+            throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()),ex);
         }
 
-        throw new InternalError("Cannot parse argument type " + type);
+        throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()));
     }
 }

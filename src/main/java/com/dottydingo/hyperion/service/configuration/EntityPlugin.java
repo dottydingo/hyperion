@@ -3,9 +3,11 @@ package com.dottydingo.hyperion.service.configuration;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.model.PersistentObject;
+import com.dottydingo.hyperion.service.persistence.CreateKeyProcessor;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
-import com.dottydingo.hyperion.service.sort.SortBuilder;
+import com.dottydingo.hyperion.service.persistence.query.QueryBuilder;
+import com.dottydingo.hyperion.service.persistence.sort.SortBuilder;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -22,6 +24,9 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private ApiVersionRegistry<C,P> apiVersionRegistry;
     private Set<HttpMethod> limitMethods = new HashSet<HttpMethod>();
     private Map<String,SortBuilder> sortBuilders;
+    private Class<P> entityClass;
+    private Map<String,QueryBuilder> queryBuilders;
+    private CreateKeyProcessor<C,ID> createKeyProcessor;
 
     public String getEndpointName()
     {
@@ -82,5 +87,35 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setSortBuilders(Map<String, SortBuilder> sortBuilders)
     {
         this.sortBuilders = sortBuilders;
+    }
+
+    public Class<P> getEntityClass()
+    {
+        return entityClass;
+    }
+
+    public void setEntityClass(Class<P> entityClass)
+    {
+        this.entityClass = entityClass;
+    }
+
+    public Map<String, QueryBuilder> getQueryBuilders()
+    {
+        return queryBuilders;
+    }
+
+    public void setQueryBuilders(Map<String, QueryBuilder> queryBuilders)
+    {
+        this.queryBuilders = queryBuilders;
+    }
+
+    public CreateKeyProcessor<C, ID> getCreateKeyProcessor()
+    {
+        return createKeyProcessor;
+    }
+
+    public void setCreateKeyProcessor(CreateKeyProcessor<C, ID> createKeyProcessor)
+    {
+        this.createKeyProcessor = createKeyProcessor;
     }
 }

@@ -8,6 +8,7 @@ import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.context.DefaultRequestContextBuilder;
 import com.dottydingo.hyperion.service.context.RequestContext;
 import com.dottydingo.hyperion.service.context.RequestContextBuilder;
+import com.dottydingo.hyperion.service.context.WriteContext;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
@@ -187,7 +188,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.POST);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, apiVersionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.POST, plugin, apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
 
@@ -196,12 +197,19 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             if(fieldSet != null)
                 fieldSet.add("id");
 
-            C saved = plugin.getPersistenceOperations().createItem(clientObject, requestContext);
+            C saved = plugin.getPersistenceOperations().createOrUpdateItem(clientObject, requestContext);
             if(saved != null)
             {
                 addVersionHeader(apiVersionPlugin.getVersion());
-                httpServletResponse.setStatus(201);
-                httpServletResponse.setHeader("Location",URI.create(saved.getId().toString()).toString());
+                if(requestContext.getWriteContext() == WriteContext.create)
+                {
+                    httpServletResponse.setStatus(201);
+                    httpServletResponse.setHeader("Location",URI.create(saved.getId().toString()).toString());
+                }
+                else
+                {
+                    httpServletResponse.setStatus(200);
+                }
                 endpointMarshaller.marshall(httpServletResponse,saved);
             }
             else
@@ -229,7 +237,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             checkMethodAllowed(plugin,HttpMethod.PUT);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(version);
-            requestContext = buildRequestContext(entity,fields,HttpMethod.GET, plugin, apiVersionPlugin);
+            requestContext = buildRequestContext(entity,fields,HttpMethod.PUT, plugin, apiVersionPlugin);
 
             C clientObject = endpointMarshaller.unmarshall(httpServletRequest,apiVersionPlugin.getApiClass());
 
@@ -271,7 +279,7 @@ public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable
             EntityPlugin<C,?,ID> plugin = getEntityPlugin(entity);
             ApiVersionPlugin<C,?> apiVersionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(null);
             checkMethodAllowed(plugin,HttpMethod.DELETE);
-            requestContext = buildRequestContext(entity,null,HttpMethod.GET, plugin, apiVersionPlugin);
+            requestContext = buildRequestContext(entity,null,HttpMethod.DELETE, plugin, apiVersionPlugin);
 
             endpointAuthorizationChecker.checkAuthorization(requestContext);
             List<ID> ids = plugin.getKeyConverter().covertKeys(id);

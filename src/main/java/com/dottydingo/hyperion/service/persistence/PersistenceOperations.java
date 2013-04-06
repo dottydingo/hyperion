@@ -14,7 +14,7 @@ public interface PersistenceOperations<C extends ApiObject, ID extends Serializa
 
     QueryResult<C> query(String query, Integer start, Integer limit, String sort, RequestContext context);
 
-    C createItem(C item, RequestContext context);
+    C createOrUpdateItem(C item, RequestContext context);
 
     C updateItem(List<ID> ids, C item, RequestContext context);
 

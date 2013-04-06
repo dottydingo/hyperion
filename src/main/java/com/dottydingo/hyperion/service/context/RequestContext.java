@@ -7,7 +7,6 @@ import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriInfo;
-import java.security.Principal;
 import java.util.Set;
 
 /**
@@ -24,6 +23,7 @@ public class RequestContext
     private ApiVersionPlugin apiVersionPlugin;
     private HttpMethod httpMethod;
     private UserContext userContext;
+    private WriteContext writeContext;
 
     public UriInfo getUriInfo()
     {
@@ -113,5 +113,15 @@ public class RequestContext
     public void setUserContext(UserContext userContext)
     {
         this.userContext = userContext;
+    }
+
+    public WriteContext getWriteContext()
+    {
+        return writeContext;
+    }
+
+    public void setWriteContext(WriteContext writeContext)
+    {
+        this.writeContext = writeContext;
     }
 }
