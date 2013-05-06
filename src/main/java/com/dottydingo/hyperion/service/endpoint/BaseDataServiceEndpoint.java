@@ -32,11 +32,11 @@ import java.util.Set;
  */
 public class BaseDataServiceEndpoint<C extends ApiObject,ID extends Serializable>
 {
-    private ServiceRegistry serviceRegistry;
-    private RequestContextBuilder requestContextBuilder = new DefaultRequestContextBuilder();
-    private EndpointAuthorizationChecker endpointAuthorizationChecker = new EmptyAuthorizationChecker();
-    private EndpointMarshaller endpointMarshaller = new EndpointMarshaller();
-    private EndpointExceptionHandler endpointExceptionHandler = new DefaultEndpointExceptionHandler();
+    protected ServiceRegistry serviceRegistry;
+    protected RequestContextBuilder requestContextBuilder = new DefaultRequestContextBuilder();
+    protected EndpointAuthorizationChecker endpointAuthorizationChecker = new EmptyAuthorizationChecker();
+    protected EndpointMarshaller endpointMarshaller = new EndpointMarshaller();
+    protected EndpointExceptionHandler endpointExceptionHandler = new DefaultEndpointExceptionHandler();
 
     @Context
     protected UriInfo uriInfo;
