@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.BaseApiObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  */
@@ -41,6 +42,7 @@ public class SimpleClientObject extends BaseApiObject<Long>
         this.clientOnly = clientOnly;
     }
 
+    @JsonProperty("dt")
     public String getDifferentType()
     {
         return differentType;

@@ -14,6 +14,10 @@ import java.util.Date;
  */
 public class DefaultArgumentParser  implements ArgumentParser
 {
+    private static DefaultArgumentParser INSTANCE = new DefaultArgumentParser();
+
+    public static ArgumentParser getInstance() {return INSTANCE;}
+
     private static final Logger logger = LoggerFactory.getLogger(DefaultArgumentParser.class);
 
     private DateTimeFormatter dateParser = ISODateTimeFormat.dateOptionalTimeParser();

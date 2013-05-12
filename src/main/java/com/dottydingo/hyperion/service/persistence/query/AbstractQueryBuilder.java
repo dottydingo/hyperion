@@ -9,16 +9,13 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
 /**
- * User: mark
- * Date: 2/24/13
- * Time: 7:20 AM
  */
 public abstract class AbstractQueryBuilder<T> implements QueryBuilder
 {
     private Logger logger = LoggerFactory.getLogger(AbstractQueryBuilder.class);
     protected static final Character LIKE_WILDCARD = '*';
 
-    protected ArgumentParser argumentParser;
+    protected ArgumentParser argumentParser = DefaultArgumentParser.getInstance();
 
     public void setArgumentParser(ArgumentParser argumentParser)
     {
