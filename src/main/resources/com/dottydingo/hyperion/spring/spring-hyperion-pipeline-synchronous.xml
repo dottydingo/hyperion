@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+    <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler">
+        <property name="nextPhaseSelector">
+            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
+                <property name="nextPhase" ref="hyperionCompleteRequestExecutor"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="hyperionEndpointValidationPhase" class="com.dottydingo.hyperion.service.pipeline.EndpointValidationPhase">
+        <property name="serviceRegistry" ref="serviceRegistry"/>
+        <property name="hyperionEndpointConfiguration" ref="hyperionEndpointConfiguration"/>
+    </bean>
+    
+    <bean id="hyperionCompleteRequestPhase" class="com.dottydingo.hyperion.service.pipeline.CompleteRequestPhase">
+        <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+    <bean id="hyperionBaseExecutor" class="com.dottydingo.service.pipeline.SynchronousPhaseExecutor" abstract="true">
+        <property name="errorHandler" ref="hyperionErrorHandler"/>
+    </bean>
+    
+    <bean id="hyperionEndpointValidationExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionEndpointValidationPhase"/>
+        <property name="nextPhaseSelector">
+            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
+                <property name="nextPhase" ref="hyperionCompleteRequestExecutor"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="hyperionCompleteRequestExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionCompleteRequestPhase"/>
+    </bean>
+    
+
+</beans>

@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+    <bean id="hyperionEndpointHandler" class="com.dottydingo.service.endpoint.EndpointHandler">
+        <property name="contextBuilder" ref="hyperionContextBuilder"/>
+        <property name="errorHandler" ref="hyperionErrorHandler"/>
+        <property name="initialPhaseSelector">
+            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
+                <property name="nextPhase" ref="hyperionEndpointValidationExecutor"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="hyperionContextBuilder" class="com.dottydingo.hyperion.service.pipeline.context.HyperionContextBuilder">
+        <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
+        <property name="traceFactory" ref="traceFactory"/>
+    </bean>
+
+    <bean id="hyperionEndpointConfiguration" class="com.dottydingo.hyperion.service.pipeline.configuration.HyperionEndpointConfiguration">
+        <property name="allowTrace" value="${endpoint.allowTrace}"/>
+        <property name="correlationIdHeaderName" value="${endpoint.correlationIdHeaderName}"/>
+        <property name="correlationIdParameterName" value="${endpoint.correlationIdParameterName}"/>
+        <property name="maxRequestBodySize" value="${endpoint.maxRequestBodySize}"/>
+        <property name="restrictedTraceDomainsAsArray" value="${endpoint.restrictedTraceDomains}"/>
+        <property name="traceHeaderName" value="${endpoint.traceHeaderName}"/>
+        <property name="traceParameterName" value="${endpoint.traceParameterName}"/>
+        <property name="requireVersion" value="${endpoint.requireVersion}"/>
+        <property name="versionHeaderName" value="${endpoint.versionHeaderName}"/>
+        <property name="versionParameterName" value="${endpoint.versionParameterName}"/>
+    </bean>
+
+
+</beans>

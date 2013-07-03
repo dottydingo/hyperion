@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * User: mark
@@ -56,5 +56,19 @@ public class EndpointMarshaller
         {
             throw new InternalException("Error marhsalling response.",e);
         }
+
+    }
+
+    public <T> void marshall(OutputStream outputStream, T value)
+    {
+        try
+        {
+            objectMapper.writeValue(outputStream,value);
+        }
+        catch(Exception e)
+        {
+            throw new InternalException("Error marhsalling response.",e);
+        }
+
     }
 }

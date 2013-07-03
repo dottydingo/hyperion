@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+    <bean id="dao" class="com.dottydingo.hyperion.service.persistence.dao.JpaDao"/>
+    <bean id="persistenceOperations" class="com.dottydingo.hyperion.service.persistence.JpaPersistenceOperations">
+        <property name="dao" ref="dao"/>
+        <property name="orderBuilderFactory">
+            <bean class="com.dottydingo.hyperion.service.persistence.sort.HyperionOrderBuilderFactory"/>
+        </property>
+        <property name="predicateBuilderFactory">
+            <bean class="com.dottydingo.hyperion.service.persistence.query.RsqlPredicateBuilderFactory"/>
+        </property>
+    </bean>
+
+    <bean id="defaultArgumentParser" class="com.dottydingo.hyperion.service.persistence.query.DefaultArgumentParser"/>
+
+    <bean id="hyperionEndpointMarshaller" class="com.dottydingo.hyperion.service.marshall.EndpointMarshaller">
+        <property name="objectMapper" ref="objectMapper"/>
+    </bean>
+
+    <bean id="objectMapper" class="com.dottydingo.hyperion.service.marshall.ObjectMapperBuilder"/>
+
+</beans>

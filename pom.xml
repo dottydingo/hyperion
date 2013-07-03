@@ -42,6 +42,7 @@
         <jackson.version>2.1.0</jackson.version>
         <spring.data.version>1.1.0.RELEASE</spring.data.version>
         <hibernate.version>4.1.7.Final</hibernate.version>
+        <endpoint.version>1.0.0-SNAPSHOT</endpoint.version>
     </properties>
 
     <dependencies>
@@ -66,6 +67,11 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>com.dottydingo.service.endpoint</groupId>
+            <artifactId>endpoint</artifactId>
+            <version>${endpoint.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
