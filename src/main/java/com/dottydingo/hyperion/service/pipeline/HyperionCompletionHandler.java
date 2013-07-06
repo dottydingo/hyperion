@@ -5,16 +5,13 @@ import com.dottydingo.hyperion.exception.InternalException;
 import com.dottydingo.hyperion.service.endpoint.ErrorResponse;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
-import com.dottydingo.service.pipeline.Phase;
+import com.dottydingo.service.endpoint.DefaultCompletionHandler;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  */
-public class CompleteRequestPhase implements Phase<HyperionContext>
+public class HyperionCompletionHandler extends DefaultCompletionHandler<HyperionContext>
 {
-    private Logger logger = LoggerFactory.getLogger(CompleteRequestPhase.class);
 
     private EndpointMarshaller endpointMarshaller;
 
@@ -24,14 +21,29 @@ public class CompleteRequestPhase implements Phase<HyperionContext>
     }
 
     @Override
-    public void execute(HyperionContext phaseContext) throws Exception
+    protected void finalizeResponse(HyperionContext phaseContext) throws Exception
     {
-        logger.debug("Starting CompleteRequestPhase");
+        EndpointResponse response = phaseContext.getEndpointResponse();
 
         Throwable error = phaseContext.getError();
         if(error != null)
         {
-            EndpointResponse response = phaseContext.getEndpointResponse();
+            Throwable cause = getCause(error);
+
+            int status = 500;
+
+            if(error instanceof HyperionException)
+            {
+                status = ((HyperionException)error).getStatusCode();
+            }
+
+            if(status == 500)
+                logger.error(cause.getMessage(),cause);
+            else
+                logger.info(cause.getMessage());
+
+            response.setResponseCode(status);
+
             response.setContentEncoding("UTF-8");
             response.setContentType("application/json");
 
@@ -48,6 +60,17 @@ public class CompleteRequestPhase implements Phase<HyperionContext>
             endpointMarshaller.marshall(response.getOutputStream(),errorResponse);
         }
 
-        logger.debug("Ending CompleteRequestPhase");
+    }
+
+    private Throwable getCause(Throwable t)
+    {
+        Throwable cause = t;
+        while (cause.getCause() != null)
+        {
+            cause = cause.getCause();
+        }
+
+        return cause;
+
     }
 }

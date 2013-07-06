@@ -1,26 +1,36 @@
-package com.dottydingo.hyperion.service.pipeline;
+package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.NotFoundException;
+import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.pipeline.AuthorizationChecker;
+import com.dottydingo.hyperion.service.pipeline.UriParser;
+import com.dottydingo.hyperion.service.pipeline.UriRequestResult;
 import com.dottydingo.hyperion.service.pipeline.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.pipeline.context.NullUserContextBuilder;
+import com.dottydingo.hyperion.service.pipeline.context.UserContextBuilder;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
-import com.dottydingo.service.pipeline.Phase;
+import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  */
-public class EndpointValidationPhase implements Phase<HyperionContext>
+public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionContext>
 {
     private Logger logger = LoggerFactory.getLogger(EndpointValidationPhase.class);
 
     private ServiceRegistry serviceRegistry;
     private HyperionEndpointConfiguration hyperionEndpointConfiguration;
+    private AuthorizationChecker<HyperionContext> authorizationChecker;
+    private UserContextBuilder<HyperionContext> userContextBuilder = new NullUserContextBuilder();
+    private UriParser uriParser = new UriParser();
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
     {
@@ -32,17 +42,22 @@ public class EndpointValidationPhase implements Phase<HyperionContext>
         this.hyperionEndpointConfiguration = hyperionEndpointConfiguration;
     }
 
-    @Override
-    public void execute(HyperionContext phaseContext) throws Exception
+    public void setAuthorizationChecker(AuthorizationChecker<HyperionContext> authorizationChecker)
     {
-        logger.debug("Starting EndpointValidationPhase");
+        this.authorizationChecker = authorizationChecker;
+    }
+
+    @Override
+    protected void executePhase(HyperionContext phaseContext) throws Exception
+    {
         EndpointRequest request = phaseContext.getEndpointRequest();
 
-        String[] split = request.getRequestUri().split("/");
-        if(split.length < 2)
-            throw new BadRequestException("Missing entity name.");
+        UriRequestResult uriRequestResult = uriParser.parseRequestUri(request.getRequestUri());
 
-        String entityName = split[1];
+        if(uriRequestResult == null)
+            throw new NotFoundException(String.format("%s is not recognized.",request.getRequestUri()));
+
+        String entityName = uriRequestResult.getEndpoint();
 
         EntityPlugin plugin = serviceRegistry.getPluginForName(entityName);
         if(plugin == null)
@@ -51,13 +66,14 @@ public class EndpointValidationPhase implements Phase<HyperionContext>
         phaseContext.setEntityPlugin(plugin);
 
         HttpMethod httpMethod = null;
+        String requestMethod = getEffectiveMethod(request);
         try
         {
-            httpMethod = HttpMethod.valueOf(request.getRequestMethod());
+            httpMethod = HttpMethod.valueOf(requestMethod);
         }
         catch (IllegalArgumentException e)
         {
-            throw new HyperionException(405,String.format("%s is not allowed.",request.getRequestMethod()));
+            throw new HyperionException(405,String.format("%s is not allowed.", requestMethod));
         }
 
         if(!plugin.isMethodAllowed(httpMethod))
@@ -85,9 +101,22 @@ public class EndpointValidationPhase implements Phase<HyperionContext>
             }
         }
 
+        if(!validateMethod(httpMethod,uriRequestResult))
+            throw new HyperionException(405,"Not allowed.");
+
+        phaseContext.setId(uriRequestResult.getId());
+        phaseContext.setAudit(uriRequestResult.isAudit());
+
+        ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());
+        phaseContext.setVersionPlugin(versionPlugin);
+
+        if(authorizationChecker != null)
+            authorizationChecker.checkAuthorization(phaseContext);
+
+        phaseContext.setUserContext(userContextBuilder.buildUserContext(phaseContext));
+
         logRequestInformation(phaseContext);
 
-        logger.debug("Ending EndpointValidationPhase");
     }
 
     protected void logRequestInformation(HyperionContext context)
@@ -97,6 +126,7 @@ public class EndpointValidationPhase implements Phase<HyperionContext>
 
         EndpointRequest request = context.getEndpointRequest();
 
+        logger.debug("Correlation ID: {}",context.getCorrelationId());
         logger.debug("Request URL: {}",request.getRequestUrl());
         logger.debug("Base URL: {}",request.getBaseUrl());
         logger.debug("Request URI: {}",request.getRequestUri());
@@ -105,6 +135,9 @@ public class EndpointValidationPhase implements Phase<HyperionContext>
         logger.debug("Effective Method: {}",context.getHttpMethod());
         logger.debug("Endpoint Name: {}",context.getEntityPlugin().getEndpointName());
         logger.debug("ContentType: {}",request.getContentType());
+        logger.debug("User Identifier: {}",context.getUserContext().getUserIdentifier());
+        logger.debug("Id: {}",context.getId());
+        logger.debug("Audit: {}",context.isAudit());
 
         for (String name : request.getHeaderNames())
         {
@@ -117,5 +150,34 @@ public class EndpointValidationPhase implements Phase<HyperionContext>
         }
 
         logger.debug("Request Version: {}",context.getVersion());
+    }
+
+    protected String getEffectiveMethod(EndpointRequest request)
+    {
+        if(request.getRequestMethod().equalsIgnoreCase("POST") && request.getContentType() != null &&
+                request.getContentType().contains("application/x-www-form-urlencoded"))
+        {
+            return "GET";
+        }
+
+        return request.getRequestMethod();
+    }
+
+    protected boolean validateMethod(HttpMethod method,UriRequestResult requestResult)
+    {
+        switch (method)
+        {
+            case DELETE:
+                return (requestResult.getId() != null && !requestResult.isAudit());
+            case POST:
+                return (requestResult.getId() == null && !requestResult.isAudit());
+            case PUT:
+                return (!requestResult.isAudit());
+            case GET:
+                return (requestResult.isAudit() && requestResult.getId() != null) || !requestResult.isAudit();
+            default:
+                return false;
+        }
+
     }
 }

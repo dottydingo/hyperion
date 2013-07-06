@@ -4,20 +4,7 @@
        ">
 
     <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler">
-        <property name="nextPhaseSelector">
-            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
-                <property name="nextPhase" ref="hyperionCompleteRequestExecutor"/>
-            </bean>
-        </property>
-    </bean>
-
-    <bean id="hyperionEndpointValidationPhase" class="com.dottydingo.hyperion.service.pipeline.EndpointValidationPhase">
-        <property name="serviceRegistry" ref="serviceRegistry"/>
-        <property name="hyperionEndpointConfiguration" ref="hyperionEndpointConfiguration"/>
-    </bean>
-    
-    <bean id="hyperionCompleteRequestPhase" class="com.dottydingo.hyperion.service.pipeline.CompleteRequestPhase">
-        <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
+        <property name="completionHandler" ref="hyperionCompletionHandler"/>
     </bean>
 
     <bean id="hyperionBaseExecutor" class="com.dottydingo.service.pipeline.SynchronousPhaseExecutor" abstract="true">
@@ -27,15 +14,48 @@
     <bean id="hyperionEndpointValidationExecutor" parent="hyperionBaseExecutor">
         <property name="phase" ref="hyperionEndpointValidationPhase"/>
         <property name="nextPhaseSelector">
-            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
-                <property name="nextPhase" ref="hyperionCompleteRequestExecutor"/>
+            <bean class="com.dottydingo.hyperion.service.pipeline.selector.CrudPhaseSelector">
+                <property name="queryPhaseExecutor" ref="hyperionQueryExecutor"/>
+                <property name="getPhaseExecutor" ref="hyperionGetExecutor"/>
+                <property name="postPhaseExecutor" ref="hyperionCreateExecutor"/>
+                <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
+                <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
             </bean>
         </property>
     </bean>
 
-    <bean id="hyperionCompleteRequestExecutor" parent="hyperionBaseExecutor">
-        <property name="phase" ref="hyperionCompleteRequestPhase"/>
+    <bean id="baseHyperionPersistenceExecutor" parent="hyperionBaseExecutor" abstract="true">
+        <property name="nextPhaseSelector">
+            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
+                <property name="nextPhase" ref="hyperionMarhallExecutor"/>
+            </bean>
+        </property>
     </bean>
+
+    <bean id="hyperionQueryExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionQueryPhase"/>
+    </bean>
+
+    <bean id="hyperionGetExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionGetPhase"/>
+    </bean>
+
+    <bean id="hyperionCreateExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionCreatePhase"/>
+    </bean>
+
+    <bean id="hyperionUpdateExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionUpdatePhase"/>
+    </bean>
+
+    <bean id="hyperionDeleteExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionDeletePhase"/>
+    </bean>
+
+    <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionResponseMarshallerPhase"/>
+    </bean>
+
     
 
 </beans>

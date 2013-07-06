@@ -11,12 +11,18 @@
                 <property name="nextPhase" ref="hyperionEndpointValidationExecutor"/>
             </bean>
         </property>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
     </bean>
 
     <bean id="hyperionContextBuilder" class="com.dottydingo.hyperion.service.pipeline.context.HyperionContextBuilder">
         <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="traceFactory" ref="traceFactory"/>
+        <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
     </bean>
+
+    <bean id="hyperionEndpointStatusBuilder" class="com.dottydingo.service.endpoint.status.DefaultContextStatusBuilder"/>
+
+    <bean id="hyperionEndpointStatusManager" class="com.dottydingo.service.endpoint.status.DefaultContextStatusManager"/>
 
     <bean id="hyperionEndpointConfiguration" class="com.dottydingo.hyperion.service.pipeline.configuration.HyperionEndpointConfiguration">
         <property name="allowTrace" value="${endpoint.allowTrace}"/>
@@ -31,5 +37,12 @@
         <property name="versionParameterName" value="${endpoint.versionParameterName}"/>
     </bean>
 
+
+    <bean id="hyperionCompletionHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionCompletionHandler">
+        <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
+        <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
+        <property name="traceManager" ref="traceManager"/>
+    </bean>
 
 </beans>

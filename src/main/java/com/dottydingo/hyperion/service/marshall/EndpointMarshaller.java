@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -37,6 +38,18 @@ public class EndpointMarshaller
         try
         {
             return objectMapper.readValue(httpServletRequest.getInputStream(),type);
+        }
+        catch (Exception e)
+        {
+            throw new BadRequestException("Error unmarshalling request.",e);
+        }
+    }
+
+    public <T> T unmarshall(InputStream inputStream, Class<T> type)
+    {
+        try
+        {
+            return objectMapper.readValue(inputStream,type);
         }
         catch (Exception e)
         {

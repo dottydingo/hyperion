@@ -30,9 +30,9 @@ public class DefaultRequestContextBuilder implements RequestContextBuilder
         RequestContext requestContext = new RequestContext();
         requestContext.setRequestedFields(buildFieldSet(fields));
         requestContext.setEntity(entityType);
-        requestContext.setUriInfo(uriInfo);
-        requestContext.setHttpServletRequest(httpServletRequest);
-        requestContext.setHttpServletResponse(httpServletResponse);
+        //requestContext.setUriInfo(uriInfo);
+        //requestContext.setHttpServletRequest(httpServletRequest);
+        //requestContext.setHttpServletResponse(httpServletResponse);
         requestContext.setApiVersionPlugin(apiVersionPlugin);
         requestContext.setEntityPlugin(entityPlugin);
         requestContext.setHttpMethod(httpMethod);

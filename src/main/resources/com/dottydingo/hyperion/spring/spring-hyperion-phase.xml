@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+
+    <bean id="baseHyperionPhase" class="com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase" abstract="true">
+        <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
+        <property name="traceManager" ref="traceManager"/>
+    </bean>
+
+    <bean id="hyperionEndpointValidationPhase" class="com.dottydingo.hyperion.service.pipeline.phase.EndpointValidationPhase"
+            parent="baseHyperionPhase">
+        <property name="serviceRegistry" ref="serviceRegistry"/>
+        <property name="hyperionEndpointConfiguration" ref="hyperionEndpointConfiguration"/>
+        <property name="name" value="RequestValidation"/>
+    </bean>
+
+    <bean id="hyperionQueryPhase" class="com.dottydingo.hyperion.service.pipeline.phase.QueryPhase" parent="baseHyperionPhase">
+        <property name="name" value="query"/>
+    </bean>
+
+    <bean id="hyperionGetPhase" class="com.dottydingo.hyperion.service.pipeline.phase.GetPhase" parent="baseHyperionPhase">
+        <property name="name" value="get"/>
+    </bean>
+
+    <bean id="hyperionCreatePhase" class="com.dottydingo.hyperion.service.pipeline.phase.CreatePhase" parent="baseHyperionPhase">
+        <property name="name" value="create"/>
+        <property name="marshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+    <bean id="hyperionUpdatePhase" class="com.dottydingo.hyperion.service.pipeline.phase.UpdatePhase" parent="baseHyperionPhase">
+        <property name="name" value="create"/>
+        <property name="marshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+    <bean id="hyperionDeletePhase" class="com.dottydingo.hyperion.service.pipeline.phase.DeletePhase" parent="baseHyperionPhase">
+        <property name="name" value="create"/>
+    </bean>
+
+    <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.service.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">
+        <property name="name" value="marshall"/>
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+        <property name="marshaller" ref="hyperionEndpointMarshaller"/>
+        <property name="completionHandler" ref="hyperionCompletionHandler"/>
+    </bean>
+
+
+</beans>

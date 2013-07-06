@@ -14,26 +14,13 @@ import java.util.Set;
  */
 public class RequestContext
 {
-    private UriInfo uriInfo;
     private String entity;
     private Set<String> requestedFields;
-    private HttpServletRequest httpServletRequest;
-    private HttpServletResponse httpServletResponse;
     private EntityPlugin entityPlugin;
     private ApiVersionPlugin apiVersionPlugin;
     private HttpMethod httpMethod;
     private UserContext userContext;
     private WriteContext writeContext;
-
-    public UriInfo getUriInfo()
-    {
-        return uriInfo;
-    }
-
-    public void setUriInfo(UriInfo uriInfo)
-    {
-        this.uriInfo = uriInfo;
-    }
 
     public String getEntity()
     {
@@ -53,26 +40,6 @@ public class RequestContext
     public void setRequestedFields(Set<String> requestedFields)
     {
         this.requestedFields = requestedFields;
-    }
-
-    public HttpServletRequest getHttpServletRequest()
-    {
-        return httpServletRequest;
-    }
-
-    public void setHttpServletRequest(HttpServletRequest httpServletRequest)
-    {
-        this.httpServletRequest = httpServletRequest;
-    }
-
-    public HttpServletResponse getHttpServletResponse()
-    {
-        return httpServletResponse;
-    }
-
-    public void setHttpServletResponse(HttpServletResponse httpServletResponse)
-    {
-        this.httpServletResponse = httpServletResponse;
     }
 
     public EntityPlugin getEntityPlugin()

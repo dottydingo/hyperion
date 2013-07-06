@@ -69,7 +69,7 @@
 
         <dependency>
             <groupId>com.dottydingo.service.endpoint</groupId>
-            <artifactId>endpoint</artifactId>
+            <artifactId>service-endpoint</artifactId>
             <version>${endpoint.version}</version>
         </dependency>
 
