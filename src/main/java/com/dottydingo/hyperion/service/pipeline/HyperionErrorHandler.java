@@ -1,9 +1,8 @@
 package com.dottydingo.hyperion.service.pipeline;
 
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.CompletionHandler;
 import com.dottydingo.service.pipeline.ErrorHandler;
-import com.dottydingo.service.pipeline.PhaseSelector;
 
 /**
  */

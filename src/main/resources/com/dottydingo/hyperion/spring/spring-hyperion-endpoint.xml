@@ -14,7 +14,7 @@
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
     </bean>
 
-    <bean id="hyperionContextBuilder" class="com.dottydingo.hyperion.service.pipeline.context.HyperionContextBuilder">
+    <bean id="hyperionContextBuilder" class="com.dottydingo.hyperion.service.context.HyperionContextBuilder">
         <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="traceFactory" ref="traceFactory"/>
         <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
@@ -24,7 +24,7 @@
 
     <bean id="hyperionEndpointStatusManager" class="com.dottydingo.service.endpoint.status.DefaultContextStatusManager"/>
 
-    <bean id="hyperionEndpointConfiguration" class="com.dottydingo.hyperion.service.pipeline.configuration.HyperionEndpointConfiguration">
+    <bean id="hyperionEndpointConfiguration" class="com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration">
         <property name="allowTrace" value="${endpoint.allowTrace}"/>
         <property name="correlationIdHeaderName" value="${endpoint.correlationIdHeaderName}"/>
         <property name="correlationIdParameterName" value="${endpoint.correlationIdParameterName}"/>

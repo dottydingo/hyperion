@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 
 import java.util.*;
@@ -28,10 +28,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
     }
 
     protected void beforeConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
-                                 RequestContext context){}
+                                 PersistenceContext context){}
 
     @Override
-    public P convertClient(C client, RequestContext context)
+    public P convertClient(C client, PersistenceContext context)
     {
         P persistentObject = createPersistentInstance();
         ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistentObject,context);
@@ -50,13 +50,13 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
     }
 
     protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
-                                RequestContext context){}
+                                PersistenceContext context){}
 
     protected void beforeCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
-                              RequestContext context){}
+                              PersistenceContext context){}
 
     @Override
-    public void copyClient(C client, P persistent, RequestContext context)
+    public void copyClient(C client, P persistent, PersistenceContext context)
     {
         ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistent,context);
         ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(client,context);
@@ -70,10 +70,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
     }
 
     protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
-                             RequestContext context){}
+                             PersistenceContext context){}
 
     @Override
-    public C convertPersistent(P persistent, RequestContext context)
+    public C convertPersistent(P persistent, PersistenceContext context)
     {
         C clientObject = createClientInstance();
 
@@ -95,10 +95,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         return clientObject;
     }
 
-    protected void convertPersistent(C client, P persistent, RequestContext context){}
+    protected void convertPersistent(C client, P persistent, PersistenceContext context){}
 
     @Override
-    public List<C> convertPersistent(List<P> persistent, RequestContext context)
+    public List<C> convertPersistent(List<P> persistent, PersistenceContext context)
     {
         List<C> list = new LinkedList<C>();
         for (P p : persistent)
@@ -138,12 +138,12 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         return new ArrayList<FieldMapper>();
     }
 
-    protected ObjectWrapper<C> createClientObjectWrapper(C client,  RequestContext context)
+    protected ObjectWrapper<C> createClientObjectWrapper(C client,  PersistenceContext context)
     {
         return new ObjectWrapper<C>(client, clientTypeMapper);
     }
 
-    protected ObjectWrapper<P> createPersistentObjectWrapper(P persistent, RequestContext context)
+    protected ObjectWrapper<P> createPersistentObjectWrapper(P persistent, PersistenceContext context)
     {
         return new ObjectWrapper<P>(persistent, persistentTypeMapper);
     }

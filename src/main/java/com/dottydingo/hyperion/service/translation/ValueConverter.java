@@ -1,12 +1,12 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 
 /**
  */
 public interface ValueConverter<C,P>
 {
-    public C convertToClientValue(P persistentValue, RequestContext context);
+    public C convertToClientValue(P persistentValue, PersistenceContext context);
 
-    public P convertToPersistentValue(C clientValue, RequestContext context);
+    public P convertToPersistentValue(C clientValue, PersistenceContext context);
 }

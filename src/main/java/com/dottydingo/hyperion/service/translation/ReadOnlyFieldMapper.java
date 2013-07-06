@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 
 /**
  * A field mapper that prevents writing to read only fields
@@ -18,7 +18,7 @@ public class ReadOnlyFieldMapper<C,P> extends DefaultFieldMapper<C,P>
     }
 
     @Override
-    public void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
+    public void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         // no op
     }

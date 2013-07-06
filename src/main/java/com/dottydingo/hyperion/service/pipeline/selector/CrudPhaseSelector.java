@@ -2,7 +2,7 @@ package com.dottydingo.hyperion.service.pipeline.selector;
 
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.pipeline.PhaseExecutor;
 import com.dottydingo.service.pipeline.PhaseSelector;
 

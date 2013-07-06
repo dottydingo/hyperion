@@ -3,15 +3,14 @@ package com.dottydingo.hyperion.service.pipeline.phase;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.context.WriteContext;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.PersistentObject;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
-import java.net.URI;
 import java.util.Set;
 
 /**
@@ -37,7 +36,7 @@ public class CreatePhase extends BasePersistencePhase<HyperionContext>
         ApiObject clientObject = marshaller.unmarshall(request.getInputStream(),apiVersionPlugin.getApiClass());
         clientObject.setId(null);
 
-        RequestContext persistenceContext = buildPersistenceContext(phaseContext);
+        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
         Set<String> fieldSet = persistenceContext.getRequestedFields();
         if(fieldSet != null)
             fieldSet.add("id");

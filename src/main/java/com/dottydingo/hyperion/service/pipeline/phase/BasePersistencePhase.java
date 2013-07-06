@@ -1,11 +1,9 @@
 package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
-import com.dottydingo.hyperion.service.context.RequestContext;
-import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
-import com.dottydingo.service.endpoint.context.EndpointResponse;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 
 import java.util.LinkedHashSet;
@@ -46,9 +44,9 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         }
     }
 
-    protected RequestContext buildPersistenceContext(C context)
+    protected PersistenceContext buildPersistenceContext(C context)
     {
-        RequestContext persistenceContext = new RequestContext();
+        PersistenceContext persistenceContext = new PersistenceContext();
         persistenceContext.setEntityPlugin(context.getEntityPlugin());
         persistenceContext.setEntity(context.getEntityPlugin().getEndpointName());
         persistenceContext.setHttpMethod(context.getHttpMethod());

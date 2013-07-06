@@ -2,8 +2,8 @@ package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
-import com.dottydingo.hyperion.service.pipeline.configuration.HyperionEndpointConfiguration;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.CompletionHandler;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;

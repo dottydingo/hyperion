@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.persistence;
 
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 
 /**
@@ -10,13 +10,13 @@ import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
  */
 public interface PersistenceFilter<P>
 {
-    PredicateBuilder<P> getFilterPredicateBuilder(RequestContext requestContext);
+    PredicateBuilder<P> getFilterPredicateBuilder(PersistenceContext persistenceContext);
 
-    boolean isVisible(P persistentObject,RequestContext requestContext);
+    boolean isVisible(P persistentObject,PersistenceContext persistenceContext);
 
-    boolean canCreate(P persistentObject, RequestContext requestContext);
+    boolean canCreate(P persistentObject, PersistenceContext persistenceContext);
 
-    boolean canUpdate(P persistentObject, RequestContext requestContext);
+    boolean canUpdate(P persistentObject, PersistenceContext persistenceContext);
 
-    boolean canDelete(P persistentObject, RequestContext requestContext);
+    boolean canDelete(P persistentObject, PersistenceContext persistenceContext);
 }

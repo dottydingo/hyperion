@@ -1,10 +1,10 @@
 package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.endpoint.EntityResponse;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
@@ -30,7 +30,7 @@ public class QueryPhase extends BasePersistencePhase<HyperionContext>
         if(limit != null && limit < 1)
             throw new BadRequestException("The limit parameter must be greater than zero.");
 
-        RequestContext persistenceContext = buildPersistenceContext(phaseContext);
+        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
         QueryResult queryResult = phaseContext.getEntityPlugin().getPersistenceOperations().query(query, start, limit, sort, persistenceContext);
 
         EntityResponse entityResponse = new EntityResponse();

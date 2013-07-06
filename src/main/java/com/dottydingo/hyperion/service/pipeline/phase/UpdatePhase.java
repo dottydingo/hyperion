@@ -4,10 +4,10 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.PersistentObject;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
@@ -34,7 +34,7 @@ public class UpdatePhase extends BasePersistencePhase<HyperionContext>
         ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
-        RequestContext persistenceContext = buildPersistenceContext(phaseContext);
+        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
         ApiObject clientObject = marshaller.unmarshall(request.getInputStream(), apiVersionPlugin.getApiClass());
 

@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.AuditableApiObject;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.model.AuditablePersistentObject;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
     }
 
     @Override
-    protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
+    protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         super.afterConvert(clientObjectWrapper, persistentObjectWrapper,context);
         Date now = new Date();
@@ -40,7 +40,7 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
     }
 
     @Override
-    protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
+    protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
         P persistent = persistentObjectWrapper.getWrappedObject();

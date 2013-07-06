@@ -1,7 +1,4 @@
-package com.dottydingo.hyperion.service.pipeline.context;
-
-import com.dottydingo.hyperion.service.context.NullUserContext;
-import com.dottydingo.hyperion.service.context.UserContext;
+package com.dottydingo.hyperion.service.context;
 
 /**
  */

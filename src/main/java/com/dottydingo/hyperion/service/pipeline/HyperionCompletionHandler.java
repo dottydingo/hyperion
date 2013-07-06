@@ -4,7 +4,7 @@ import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.InternalException;
 import com.dottydingo.hyperion.service.endpoint.ErrorResponse;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
-import com.dottydingo.hyperion.service.pipeline.context.HyperionContext;
+import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.DefaultCompletionHandler;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 

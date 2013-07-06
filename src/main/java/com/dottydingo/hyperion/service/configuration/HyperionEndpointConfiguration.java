@@ -1,4 +1,4 @@
-package com.dottydingo.hyperion.service.pipeline.configuration;
+package com.dottydingo.hyperion.service.configuration;
 
 import com.dottydingo.service.endpoint.configuration.EndpointConfiguration;
 

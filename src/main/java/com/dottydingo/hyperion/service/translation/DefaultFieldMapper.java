@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 
 /**
  */
@@ -35,7 +35,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
 
     @Override
     public void convertToClient(ObjectWrapper<P> persistentObjectWrapper,
-                                ObjectWrapper<C> clientObjectWrapper, RequestContext context)
+                                ObjectWrapper<C> clientObjectWrapper, PersistenceContext context)
     {
         Object persistentValue = persistentObjectWrapper.getValue(getPersistentFieldName());
 
@@ -49,7 +49,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
 
     @Override
     public void convertToPersistent(ObjectWrapper<C> clientObjectWrapper,
-                                    ObjectWrapper<P> persistentObjectWrapper, RequestContext context)
+                                    ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         Object clientValue = clientObjectWrapper.getValue(getClientFieldName());
         if(valueConverter != null)

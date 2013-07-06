@@ -4,15 +4,12 @@ import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.UriInfo;
 import java.util.Set;
 
 /**
- *  Request Context
+ *  Persistence Context
  */
-public class RequestContext
+public class PersistenceContext
 {
     private String entity;
     private Set<String> requestedFields;

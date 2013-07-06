@@ -1,4 +1,4 @@
-package com.dottydingo.hyperion.service.pipeline.context;
+package com.dottydingo.hyperion.service.context;
 
 import com.dottydingo.service.endpoint.context.ContextBuilder;
 import com.dottydingo.service.endpoint.context.EndpointRequest;

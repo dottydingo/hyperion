@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,13 +10,13 @@ import java.util.List;
  */
 public interface PersistenceOperations<C extends ApiObject, ID extends Serializable>
 {
-    List<C> findByIds(List<ID> ids, RequestContext context);
+    List<C> findByIds(List<ID> ids, PersistenceContext context);
 
-    QueryResult<C> query(String query, Integer start, Integer limit, String sort, RequestContext context);
+    QueryResult<C> query(String query, Integer start, Integer limit, String sort, PersistenceContext context);
 
-    C createOrUpdateItem(C item, RequestContext context);
+    C createOrUpdateItem(C item, PersistenceContext context);
 
-    C updateItem(List<ID> ids, C item, RequestContext context);
+    C updateItem(List<ID> ids, C item, PersistenceContext context);
 
-    int deleteItem(List<ID> ids, RequestContext context);
+    int deleteItem(List<ID> ids, PersistenceContext context);
 }

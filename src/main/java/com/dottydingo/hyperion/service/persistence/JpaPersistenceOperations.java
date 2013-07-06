@@ -4,7 +4,7 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.context.WriteContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  */
@@ -58,7 +57,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     @Override
     @Transactional(readOnly = true)
-    public List<C> findByIds(List<ID> ids, RequestContext context)
+    public List<C> findByIds(List<ID> ids, PersistenceContext context)
     {
 
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
@@ -78,7 +77,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     @Override
     @Transactional(readOnly = true)
-    public QueryResult<C> query(String query, Integer start, Integer limit, String sort, RequestContext context)
+    public QueryResult<C> query(String query, Integer start, Integer limit, String sort, PersistenceContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
@@ -120,7 +119,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     @Override
     @Transactional(readOnly = false)
-    public C createOrUpdateItem(C item, RequestContext context)
+    public C createOrUpdateItem(C item, PersistenceContext context)
     {
         CreateKeyProcessor<C,ID> createKeyProcessor = context.getEntityPlugin().getCreateKeyProcessor();
         if(createKeyProcessor != null)
@@ -150,7 +149,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     @Override
     @Transactional(readOnly = false)
-    public C updateItem(List<ID> ids, C item, RequestContext context)
+    public C updateItem(List<ID> ids, C item, PersistenceContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
@@ -184,7 +183,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     @Override
     @Transactional(readOnly = false)
-    public int deleteItem(List<ID> ids, RequestContext context)
+    public int deleteItem(List<ID> ids, PersistenceContext context)
     {
 
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();

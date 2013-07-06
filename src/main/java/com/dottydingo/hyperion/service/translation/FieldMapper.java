@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.service.context.RequestContext;
+import com.dottydingo.hyperion.service.context.PersistenceContext;
 
 /**
  */
@@ -8,7 +8,7 @@ public interface FieldMapper <C,P>
 {
     String getClientFieldName();
 
-    void convertToClient(ObjectWrapper<P> persistentObjectWrapper, ObjectWrapper<C> clientObjectWrapper, RequestContext context);
+    void convertToClient(ObjectWrapper<P> persistentObjectWrapper, ObjectWrapper<C> clientObjectWrapper, PersistenceContext context);
 
-    void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, RequestContext context);
+    void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context);
 }
