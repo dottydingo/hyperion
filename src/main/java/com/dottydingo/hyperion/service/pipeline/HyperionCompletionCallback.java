@@ -5,13 +5,17 @@ import com.dottydingo.hyperion.exception.InternalException;
 import com.dottydingo.hyperion.service.endpoint.ErrorResponse;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.context.HyperionContext;
+import com.dottydingo.service.endpoint.CompletionCallback;
 import com.dottydingo.service.endpoint.DefaultCompletionHandler;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
-public class HyperionCompletionHandler extends DefaultCompletionHandler<HyperionContext>
+public class HyperionCompletionCallback implements CompletionCallback<HyperionContext>
 {
+    private Logger logger = LoggerFactory.getLogger(HyperionCompletionCallback.class);
 
     private EndpointMarshaller endpointMarshaller;
 
@@ -21,11 +25,12 @@ public class HyperionCompletionHandler extends DefaultCompletionHandler<Hyperion
     }
 
     @Override
-    protected void finalizeResponse(HyperionContext phaseContext) throws Exception
+    public void onComplete(HyperionContext context)
     {
-        EndpointResponse response = phaseContext.getEndpointResponse();
 
-        Throwable error = phaseContext.getError();
+        EndpointResponse response = context.getEndpointResponse();
+
+        Throwable error = context.getError();
         if(error != null)
         {
             Throwable cause = getCause(error);

@@ -3,7 +3,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        ">
 
-    <bean id="hyperionEndpointHandler" class="com.dottydingo.service.endpoint.SynchronousEndpointHandler">
+    <bean id="hyperionEndpointHandler" class="com.dottydingo.service.endpoint.AsynchronousEndpointHandler">
         <property name="contextBuilder" ref="hyperionContextBuilder"/>
         <property name="errorHandler" ref="hyperionErrorHandler"/>
         <property name="initialPhaseSelector">
@@ -14,7 +14,7 @@
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
     </bean>
 
-    <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.DefaultCompletionHandler">
+    <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.AsynchronousCompletionHandler">
         <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
         <property name="traceManager" ref="traceManager"/>
@@ -27,14 +27,15 @@
         </property>
     </bean>
 
+
     <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler">
         <property name="completionHandler" ref="hyperionCompletionHandler"/>
     </bean>
 
-    <bean id="hyperionBaseExecutor" class="com.dottydingo.service.pipeline.SynchronousPhaseExecutor" abstract="true">
+    <bean id="hyperionBaseExecutor" class="com.dottydingo.service.endpoint.pipeline.EndpointAsynchronousExecutor" abstract="true">
         <property name="errorHandler" ref="hyperionErrorHandler"/>
     </bean>
-    
+
     <bean id="hyperionEndpointValidationExecutor" parent="hyperionBaseExecutor">
         <property name="phase" ref="hyperionEndpointValidationPhase"/>
         <property name="nextPhaseSelector">
@@ -44,6 +45,14 @@
                 <property name="postPhaseExecutor" ref="hyperionCreateExecutor"/>
                 <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
                 <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
+            </bean>
+        </property>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionEndpointValidationPhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
             </bean>
         </property>
     </bean>
@@ -58,28 +67,76 @@
 
     <bean id="hyperionQueryExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionQueryPhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionQueryPhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="hyperionGetExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionGetPhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionGetPhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="hyperionCreateExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionCreatePhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionCreatePhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="hyperionUpdateExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionUpdatePhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionUpdatePhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="hyperionDeleteExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionDeletePhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionDeletePhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">
         <property name="phase" ref="hyperionResponseMarshallerPhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionResponseMarshallerPhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
     </bean>
 
-    
+
 
 </beans>
