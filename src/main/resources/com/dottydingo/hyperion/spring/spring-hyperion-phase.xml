@@ -38,6 +38,10 @@
         <property name="name" value="create"/>
     </bean>
 
+    <bean id="hyperionAuditPhase" class="com.dottydingo.hyperion.service.pipeline.phase.AuditPhase" parent="baseHyperionPhase">
+        <property name="name" value="create"/>
+    </bean>
+
     <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.service.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">
         <property name="name" value="marshall"/>
         <property name="configuration" ref="hyperionEndpointConfiguration"/>
