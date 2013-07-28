@@ -9,6 +9,7 @@
         <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="traceFactory" ref="traceFactory"/>
         <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
+        <property name="completionHandler" ref="hyperionCompletionHandler"/>
     </bean>
 
     <bean id="hyperionEndpointStatusBuilder" class="com.dottydingo.service.endpoint.status.DefaultContextStatusBuilder"/>

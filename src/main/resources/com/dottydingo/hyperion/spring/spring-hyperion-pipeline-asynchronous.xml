@@ -29,9 +29,7 @@
     </bean>
 
 
-    <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler">
-        <property name="completionHandler" ref="hyperionCompletionHandler"/>
-    </bean>
+    <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler"/>
 
     <bean id="hyperionBaseExecutor" class="com.dottydingo.service.endpoint.pipeline.EndpointAsynchronousExecutor" abstract="true">
         <property name="errorHandler" ref="hyperionErrorHandler"/>

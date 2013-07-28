@@ -46,7 +46,6 @@
         <property name="name" value="marshall"/>
         <property name="configuration" ref="hyperionEndpointConfiguration"/>
         <property name="marshaller" ref="hyperionEndpointMarshaller"/>
-        <property name="completionHandler" ref="hyperionCompletionHandler"/>
     </bean>
 
 

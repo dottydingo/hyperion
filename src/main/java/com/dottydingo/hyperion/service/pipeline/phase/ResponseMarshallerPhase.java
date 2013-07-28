@@ -13,17 +13,11 @@ import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 public class ResponseMarshallerPhase extends AbstractEndpointPhase<HyperionContext>
 {
     private EndpointMarshaller marshaller;
-    private CompletionHandler completionHandler;
     private HyperionEndpointConfiguration configuration;
 
     public void setMarshaller(EndpointMarshaller marshaller)
     {
         this.marshaller = marshaller;
-    }
-
-    public void setCompletionHandler(CompletionHandler completionHandler)
-    {
-        this.completionHandler = completionHandler;
     }
 
     public void setConfiguration(HyperionEndpointConfiguration configuration)
@@ -47,6 +41,6 @@ public class ResponseMarshallerPhase extends AbstractEndpointPhase<HyperionConte
             marshaller.marshall(phaseContext.getEndpointResponse().getOutputStream(),result);
         }
 
-        completionHandler.completeRequest(phaseContext);
+        phaseContext.requestComplete();
     }
 }
