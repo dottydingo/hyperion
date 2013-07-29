@@ -12,7 +12,7 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
 {
     private PhaseExecutor<HyperionContext> queryPhaseExecutor;
     private PhaseExecutor<HyperionContext> getPhaseExecutor;
-    private PhaseExecutor<HyperionContext> auditPhaseExecutor;
+    private PhaseExecutor<HyperionContext> historyPhaseExecutor;
     private PhaseExecutor<HyperionContext> postPhaseExecutor;
     private PhaseExecutor<HyperionContext> putPhaseExecutor;
     private PhaseExecutor<HyperionContext> deletePhaseExecutor;
@@ -68,9 +68,9 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
     }
 
 
-    public void setAuditPhaseExecutor(PhaseExecutor<HyperionContext> auditPhaseExecutor)
+    public void setHistoryPhaseExecutor(PhaseExecutor<HyperionContext> historyPhaseExecutor)
     {
-        this.auditPhaseExecutor = auditPhaseExecutor;
+        this.historyPhaseExecutor = historyPhaseExecutor;
     }
 
     @Override
@@ -92,8 +92,8 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
                 break;
             case GET:
             {
-                if(context.isAudit())
-                    executor = auditPhaseExecutor;
+                if(context.isHistory())
+                    executor = historyPhaseExecutor;
                 else if (context.getId() != null)
                     executor = getPhaseExecutor;
                 else

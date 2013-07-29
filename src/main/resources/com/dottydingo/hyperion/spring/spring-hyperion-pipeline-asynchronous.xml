@@ -44,7 +44,7 @@
                 <property name="postPhaseExecutor" ref="hyperionCreateExecutor"/>
                 <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
                 <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
-                <property name="auditPhaseExecutor" ref="hyperionAuditExecutor"/>
+                <property name="historyPhaseExecutor" ref="hyperionHistoryExecutor"/>
             </bean>
         </property>
         <property name="executor">
@@ -125,8 +125,8 @@
         </property>
     </bean>
 
-    <bean id="hyperionAuditExecutor" parent="baseHyperionPersistenceExecutor">
-        <property name="phase" ref="hyperionAuditPhase"/>
+    <bean id="hyperionHistoryExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionHistoryPhase"/>
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionAuditPhase"/>

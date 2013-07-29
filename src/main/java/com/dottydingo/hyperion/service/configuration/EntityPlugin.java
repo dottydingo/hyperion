@@ -2,6 +2,8 @@ package com.dottydingo.hyperion.service.configuration;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
+import com.dottydingo.hyperion.service.model.DefaultPersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.CreateKeyProcessor;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
@@ -27,6 +29,8 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private Class<P> entityClass;
     private Map<String,QueryBuilder> queryBuilders;
     private CreateKeyProcessor<C,ID> createKeyProcessor;
+    private boolean historyEnabled = false;
+    private Class<? extends BasePersistentHistoryEntry> historyType;
 
     public String getEndpointName()
     {
@@ -117,5 +121,25 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setCreateKeyProcessor(CreateKeyProcessor<C, ID> createKeyProcessor)
     {
         this.createKeyProcessor = createKeyProcessor;
+    }
+
+    public boolean isHistoryEnabled()
+    {
+        return historyEnabled;
+    }
+
+    public void setHistoryEnabled(boolean historyEnabled)
+    {
+        this.historyEnabled = historyEnabled;
+    }
+
+    public Class<? extends BasePersistentHistoryEntry> getHistoryType()
+    {
+        return historyType;
+    }
+
+    public void setHistoryType(Class<? extends BasePersistentHistoryEntry> historyType)
+    {
+        this.historyType = historyType;
     }
 }

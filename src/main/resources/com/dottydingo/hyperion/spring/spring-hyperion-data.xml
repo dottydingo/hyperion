@@ -3,23 +3,34 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        ">
 
-    <bean id="dao" class="com.dottydingo.hyperion.service.persistence.dao.JpaDao"/>
-    <bean id="persistenceOperations" class="com.dottydingo.hyperion.service.persistence.JpaPersistenceOperations">
-        <property name="dao" ref="dao"/>
-        <property name="orderBuilderFactory">
-            <bean class="com.dottydingo.hyperion.service.persistence.sort.HyperionOrderBuilderFactory"/>
-        </property>
-        <property name="predicateBuilderFactory">
-            <bean class="com.dottydingo.hyperion.service.persistence.query.RsqlPredicateBuilderFactory"/>
-        </property>
+    <bean id="hyperionDao" class="com.dottydingo.hyperion.service.persistence.dao.JpaDao"/>
+
+    <bean id="hyperionHistoryEntryFactory" class="com.dottydingo.hyperion.service.persistence.HistoryEntryFactory">
+        <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
     </bean>
 
-    <bean id="defaultArgumentParser" class="com.dottydingo.hyperion.service.persistence.query.DefaultArgumentParser"/>
+    <bean id="hyperionPredicateBuilderFactory"
+          class="com.dottydingo.hyperion.service.persistence.query.RsqlPredicateBuilderFactory"/>
+
+    <bean id="hyperionOrderBuilderFactory"
+          class="com.dottydingo.hyperion.service.persistence.sort.HyperionOrderBuilderFactory"/>
+
+    <bean id="hyperionPersistenceFilter" class="com.dottydingo.hyperion.service.persistence.EmptyPersistenceFilter"/>
+    <bean id="hyperionPersistenceOperations"
+          class="com.dottydingo.hyperion.service.persistence.JpaPersistenceOperations">
+        <property name="dao" ref="hyperionDao"/>
+        <property name="orderBuilderFactory" ref="hyperionOrderBuilderFactory"/>
+        <property name="predicateBuilderFactory" ref="hyperionPredicateBuilderFactory"/>
+        <property name="historyEntryFactory" ref="hyperionHistoryEntryFactory"/>
+        <property name="persistenceFilter" ref="hyperionPersistenceFilter"/>
+    </bean>
+
+    <bean id="hyperionDefaultArgumentParser" class="com.dottydingo.hyperion.service.persistence.query.DefaultArgumentParser"/>
 
     <bean id="hyperionEndpointMarshaller" class="com.dottydingo.hyperion.service.marshall.EndpointMarshaller">
-        <property name="objectMapper" ref="objectMapper"/>
+        <property name="objectMapper" ref="hyperionObjectMapper"/>
     </bean>
 
-    <bean id="objectMapper" class="com.dottydingo.hyperion.service.marshall.ObjectMapperBuilder"/>
+    <bean id="hyperionObjectMapper" class="com.dottydingo.hyperion.service.marshall.ObjectMapperBuilder"/>
 
 </beans>

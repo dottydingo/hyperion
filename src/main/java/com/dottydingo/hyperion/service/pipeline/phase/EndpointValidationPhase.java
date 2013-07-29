@@ -105,7 +105,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
             throw new HyperionException(405,"Not allowed.");
 
         phaseContext.setId(uriRequestResult.getId());
-        phaseContext.setAudit(uriRequestResult.isAudit());
+        phaseContext.setHistory(uriRequestResult.isHistory());
 
         ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());
         phaseContext.setVersionPlugin(versionPlugin);
@@ -137,7 +137,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         logger.debug("ContentType: {}",request.getContentType());
         logger.debug("User Identifier: {}",context.getUserContext().getUserIdentifier());
         logger.debug("Id: {}",context.getId());
-        logger.debug("Audit: {}",context.isAudit());
+        logger.debug("Audit: {}",context.isHistory());
 
         for (String name : request.getHeaderNames())
         {
@@ -168,13 +168,13 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         switch (method)
         {
             case DELETE:
-                return (requestResult.getId() != null && !requestResult.isAudit());
+                return (requestResult.getId() != null && !requestResult.isHistory());
             case POST:
-                return (requestResult.getId() == null && !requestResult.isAudit());
+                return (requestResult.getId() == null && !requestResult.isHistory());
             case PUT:
-                return (!requestResult.isAudit());
+                return (!requestResult.isHistory());
             case GET:
-                return (requestResult.isAudit() && requestResult.getId() != null) || !requestResult.isAudit();
+                return (requestResult.isHistory() && requestResult.getId() != null) || !requestResult.isHistory();
             default:
                 return false;
         }

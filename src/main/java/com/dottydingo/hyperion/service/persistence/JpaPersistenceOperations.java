@@ -1,11 +1,14 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.exception.InternalException;
 import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.context.WriteContext;
+import com.dottydingo.hyperion.service.endpoint.HistoryAction;
+import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
 import com.dottydingo.hyperion.service.persistence.dao.PersistentQueryResult;
@@ -33,6 +36,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     protected PredicateBuilderFactory predicateBuilderFactory;
     protected OrderBuilderFactory<P> orderBuilderFactory;
     protected PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
+    protected HistoryEntryFactory historyEntryFactory;
     protected Dao<P,ID> dao;
 
     public void setPredicateBuilderFactory(RsqlPredicateBuilderFactory predicateBuilderFactory)
@@ -48,6 +52,11 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
     {
         this.persistenceFilter = persistenceFilter;
+    }
+
+    public void setHistoryEntryFactory(HistoryEntryFactory historyEntryFactory)
+    {
+        this.historyEntryFactory = historyEntryFactory;
     }
 
     public void setDao(Dao<P,ID> dao)
@@ -140,6 +149,10 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             return null;
 
         P saved = dao.create(persistent);
+
+        if(context.getEntityPlugin().isHistoryEnabled())
+            saveHistory(context,saved,HistoryAction.create);
+
         C toReturn = translator.convertPersistent(saved,context);
         context.setWriteContext(WriteContext.create);
 
@@ -177,7 +190,12 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             throw new ValidationException("Id in URI does not match the Id in the payload.");
 
         context.setWriteContext(WriteContext.update);
-        return translator.convertPersistent(dao.update(existing), context);
+        P persistent = dao.update(existing);
+
+        if(context.getEntityPlugin().isHistoryEnabled())
+            saveHistory(context,persistent,HistoryAction.modify);
+
+        return translator.convertPersistent(persistent, context);
 
     }
 
@@ -195,6 +213,8 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             {
                 apiVersionPlugin.getValidator().validateDelete(item);
                 dao.delete(item);
+                if(context.getEntityPlugin().isHistoryEnabled())
+                    saveHistory(context,item,HistoryAction.delete);
                 deleted++;
             }
         }
@@ -202,4 +222,17 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         return deleted;
     }
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
+    {
+        return dao.getHistory(context.getEntityPlugin().getHistoryType(),context.getEntity(),id,start,limit);
+    }
+
+    protected void saveHistory(PersistenceContext context, P entity,HistoryAction historyAction)
+    {
+        BasePersistentHistoryEntry entry = historyEntryFactory.generateHistory(context,entity,historyAction);
+        dao.saveHistory(entry);
+    }
 }

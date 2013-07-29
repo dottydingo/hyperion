@@ -16,22 +16,22 @@ public class UriParserTest
         assertResult("foo",false,null,uriParser.parseRequestUri("/foo/"));
         assertResult("foo",false,"123",uriParser.parseRequestUri("/foo/123"));
 
-        assertResult("foo",true,"123",uriParser.parseRequestUri("/foo/audit/123"));
+        assertResult("foo",true,"123",uriParser.parseRequestUri("/foo/history/123"));
 
         Assert.assertNull(uriParser.parseRequestUri(""));
         Assert.assertNull(uriParser.parseRequestUri("/"));
         Assert.assertNull(uriParser.parseRequestUri("//"));
         Assert.assertNull(uriParser.parseRequestUri("//123"));
         Assert.assertNull(uriParser.parseRequestUri("/foo/123/"));
-        Assert.assertNull(uriParser.parseRequestUri("/foo/audit/"));
-        Assert.assertNull(uriParser.parseRequestUri("/foo/audit/12345/"));
+        Assert.assertNull(uriParser.parseRequestUri("/foo/history/"));
+        Assert.assertNull(uriParser.parseRequestUri("/foo/history/12345/"));
     }
 
     private void assertResult(String endpoint,boolean audit,String id,UriRequestResult result)
     {
         Assert.assertNotNull(result);
         Assert.assertEquals(endpoint,result.getEndpoint());
-        Assert.assertEquals(audit,result.isAudit());
+        Assert.assertEquals(audit,result.isHistory());
         Assert.assertEquals(id,result.getId());
     }
 }

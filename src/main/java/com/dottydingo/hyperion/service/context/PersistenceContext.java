@@ -88,4 +88,19 @@ public class PersistenceContext
     {
         this.writeContext = writeContext;
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException
+    {
+        PersistenceContext ctx = new PersistenceContext();
+        ctx.setApiVersionPlugin(apiVersionPlugin);
+        ctx.setEntity(entity);
+        ctx.setEntityPlugin(entityPlugin);
+        ctx.setHttpMethod(httpMethod);
+        ctx.setRequestedFields(requestedFields);
+        ctx.setUserContext(userContext);
+        ctx.setWriteContext(writeContext);
+
+        return ctx;
+    }
 }

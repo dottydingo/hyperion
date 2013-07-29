@@ -2,7 +2,6 @@ package com.dottydingo.hyperion.service.context;
 
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
-import com.dottydingo.hyperion.service.context.UserContext;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.service.endpoint.context.EndpointContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
@@ -19,7 +18,7 @@ public class HyperionContext extends EndpointContext<EndpointRequest,EndpointRes
     private ApiVersionPlugin versionPlugin;
     private UserContext userContext;
     private String id;
-    private boolean audit;
+    private boolean history;
     private Object result;
 
     public EntityPlugin getEntityPlugin()
@@ -82,14 +81,14 @@ public class HyperionContext extends EndpointContext<EndpointRequest,EndpointRes
         this.id = id;
     }
 
-    public boolean isAudit()
+    public boolean isHistory()
     {
-        return audit;
+        return history;
     }
 
-    public void setAudit(boolean audit)
+    public void setHistory(boolean history)
     {
-        this.audit = audit;
+        this.history = history;
     }
 
     public Object getResult()

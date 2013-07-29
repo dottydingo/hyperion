@@ -42,7 +42,7 @@
                 <property name="postPhaseExecutor" ref="hyperionCreateExecutor"/>
                 <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
                 <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
-                <property name="auditPhaseExecutor" ref="hyperionAuditExecutor"/>
+                <property name="historyPhaseExecutor" ref="hyperionHistoryExecutor"/>
             </bean>
         </property>
     </bean>
@@ -79,8 +79,8 @@
         <property name="phase" ref="hyperionResponseMarshallerPhase"/>
     </bean>
 
-    <bean id="hyperionAuditExecutor" parent="hyperionBaseExecutor">
-        <property name="phase" ref="hyperionAuditPhase"/>
+    <bean id="hyperionHistoryExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionHistoryPhase"/>
     </bean>
     
 

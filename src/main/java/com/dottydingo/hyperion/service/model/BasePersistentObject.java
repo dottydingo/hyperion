@@ -11,14 +11,6 @@ import java.io.Serializable;
 @MappedSuperclass
 public abstract class BasePersistentObject<ID extends Serializable> implements PersistentObject<ID>
 {
-    /**
-     * A flag indicating if an id has been set (for compatibility with Spring JPA Persistable)
-     * @return true if the ID has been set, false otherwise.
-     */
-    public boolean isNew()
-    {
-        return getId() == null;
-    }
 
     public String toString() {
 

@@ -30,16 +30,17 @@
     </bean>
 
     <bean id="hyperionUpdatePhase" class="com.dottydingo.hyperion.service.pipeline.phase.UpdatePhase" parent="baseHyperionPhase">
-        <property name="name" value="create"/>
+        <property name="name" value="update"/>
         <property name="marshaller" ref="hyperionEndpointMarshaller"/>
     </bean>
 
     <bean id="hyperionDeletePhase" class="com.dottydingo.hyperion.service.pipeline.phase.DeletePhase" parent="baseHyperionPhase">
-        <property name="name" value="create"/>
+        <property name="name" value="delete"/>
     </bean>
 
-    <bean id="hyperionAuditPhase" class="com.dottydingo.hyperion.service.pipeline.phase.AuditPhase" parent="baseHyperionPhase">
-        <property name="name" value="create"/>
+    <bean id="hyperionHistoryPhase" class="com.dottydingo.hyperion.service.pipeline.phase.HistoryPhase" parent="baseHyperionPhase">
+        <property name="name" value="history"/>
+        <property name="historyEntryFactory" ref="hyperionHistoryEntryFactory"/>
     </bean>
 
     <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.service.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">

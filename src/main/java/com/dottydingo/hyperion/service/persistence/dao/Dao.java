@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.service.persistence.dao;
 
+import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.persistence.sort.OrderBuilder;
 
@@ -25,4 +26,9 @@ public interface Dao<P,ID extends Serializable>
     P update(P entity);
 
     void delete(P entity);
+
+    <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(Class<H> historyType, String entityType, ID entityId, Integer start,
+                                                                  Integer limit);
+
+    <H extends BasePersistentHistoryEntry<ID>> void saveHistory(H entry);
 }

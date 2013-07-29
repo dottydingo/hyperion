@@ -5,7 +5,7 @@ package com.dottydingo.hyperion.service.pipeline;
 public class UriRequestResult
 {
     private String endpoint;
-    private boolean audit;
+    private boolean history;
     private String id;
 
     public String getEndpoint()
@@ -18,14 +18,14 @@ public class UriRequestResult
         this.endpoint = endpoint;
     }
 
-    public boolean isAudit()
+    public boolean isHistory()
     {
-        return audit;
+        return history;
     }
 
-    public void setAudit(boolean audit)
+    public void setHistory(boolean history)
     {
-        this.audit = audit;
+        this.history = history;
     }
 
     public String getId()

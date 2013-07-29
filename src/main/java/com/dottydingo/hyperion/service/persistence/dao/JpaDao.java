@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.service.persistence.dao;
 
+import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.persistence.sort.OrderBuilder;
@@ -120,6 +121,8 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     public P create(P entity)
     {
         em.persist(entity);
+        em.flush();
+        em.refresh(entity);
         return entity;
     }
 
@@ -127,6 +130,8 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     public P update(P entity)
     {
         em.merge(entity);
+        em.flush();
+        em.refresh(entity);
         return entity;
     }
 
@@ -134,5 +139,33 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     public void delete(P entity)
     {
         em.remove(entity);
+    }
+
+    @Override
+    public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(Class<H> historyType, String entityType,
+                                                                         ID entityId, Integer start, Integer limit)
+    {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<H> criteriaQuery = cb.createQuery(historyType);
+        Root<H> root = criteriaQuery.from(historyType);
+
+        criteriaQuery.where(cb.equal(root.get("entityType"),entityType),
+                cb.equal(root.get("entityId"),entityId));
+
+        criteriaQuery.orderBy(cb.asc(root.get("id")));
+
+        TypedQuery<H> query = em.createQuery(criteriaQuery);
+        if(start != null)
+            query.setFirstResult(start - 1);
+        if(limit != null)
+            query.setMaxResults(limit);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public <H extends BasePersistentHistoryEntry<ID>> void saveHistory(H entry)
+    {
+        em.persist(entry);
     }
 }
