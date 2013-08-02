@@ -1,11 +1,13 @@
 package com.dottydingo.hyperion.service.endpoint;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.List;
 
 /**
  */
+@JsonPropertyOrder({"start","responseCount","totalCount","entries"})
 public class EntityResponse<T extends ApiObject>
 {
     private Integer start;
