@@ -42,6 +42,11 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         this.hyperionEndpointConfiguration = hyperionEndpointConfiguration;
     }
 
+    public void setUserContextBuilder(UserContextBuilder<HyperionContext> userContextBuilder)
+    {
+        this.userContextBuilder = userContextBuilder;
+    }
+
     public void setAuthorizationChecker(AuthorizationChecker<HyperionContext> authorizationChecker)
     {
         this.authorizationChecker = authorizationChecker;
