@@ -75,12 +75,12 @@
         <property name="phase" ref="hyperionDeletePhase"/>
     </bean>
 
-    <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">
-        <property name="phase" ref="hyperionResponseMarshallerPhase"/>
+    <bean id="hyperionHistoryExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionHistoryPhase"/>
     </bean>
 
-    <bean id="hyperionHistoryExecutor" parent="hyperionBaseExecutor">
-        <property name="phase" ref="hyperionHistoryPhase"/>
+    <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionResponseMarshallerPhase"/>
     </bean>
     
 
