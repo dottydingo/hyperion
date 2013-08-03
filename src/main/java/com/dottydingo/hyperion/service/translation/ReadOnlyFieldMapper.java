@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.translation;
 
-import com.dottydingo.hyperion.service.context.PersistenceContext;
+import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 
 /**
  * A field mapper that prevents writing to read only fields

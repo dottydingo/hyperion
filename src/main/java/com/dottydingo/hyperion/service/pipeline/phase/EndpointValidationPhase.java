@@ -7,13 +7,12 @@ import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
-import com.dottydingo.hyperion.service.pipeline.AuthorizationChecker;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationChecker;
 import com.dottydingo.hyperion.service.pipeline.UriParser;
 import com.dottydingo.hyperion.service.pipeline.UriRequestResult;
 import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.service.context.HyperionContext;
-import com.dottydingo.hyperion.service.context.NullUserContextBuilder;
-import com.dottydingo.hyperion.service.context.UserContextBuilder;
+import com.dottydingo.hyperion.service.pipeline.auth.UserContextBuilder;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 import org.slf4j.Logger;
@@ -28,8 +27,8 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
     private ServiceRegistry serviceRegistry;
     private HyperionEndpointConfiguration hyperionEndpointConfiguration;
-    private AuthorizationChecker<HyperionContext> authorizationChecker;
-    private UserContextBuilder<HyperionContext> userContextBuilder = new NullUserContextBuilder();
+    private AuthorizationChecker authorizationChecker;
+    private UserContextBuilder userContextBuilder;
     private UriParser uriParser = new UriParser();
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
@@ -42,12 +41,12 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         this.hyperionEndpointConfiguration = hyperionEndpointConfiguration;
     }
 
-    public void setUserContextBuilder(UserContextBuilder<HyperionContext> userContextBuilder)
+    public void setUserContextBuilder(UserContextBuilder userContextBuilder)
     {
         this.userContextBuilder = userContextBuilder;
     }
 
-    public void setAuthorizationChecker(AuthorizationChecker<HyperionContext> authorizationChecker)
+    public void setAuthorizationChecker(AuthorizationChecker authorizationChecker)
     {
         this.authorizationChecker = authorizationChecker;
     }
@@ -115,12 +114,13 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());
         phaseContext.setVersionPlugin(versionPlugin);
 
-        if(authorizationChecker != null)
-            authorizationChecker.checkAuthorization(phaseContext);
-
         phaseContext.setUserContext(userContextBuilder.buildUserContext(phaseContext));
 
         logRequestInformation(phaseContext);
+
+        if(authorizationChecker != null)
+            authorizationChecker.checkAuthorization(phaseContext);
+
 
     }
 

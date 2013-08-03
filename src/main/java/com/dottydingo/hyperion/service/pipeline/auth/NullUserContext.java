@@ -1,4 +1,6 @@
-package com.dottydingo.hyperion.service.context;
+package com.dottydingo.hyperion.service.pipeline.auth;
+
+import com.dottydingo.hyperion.service.pipeline.auth.UserContext;
 
 import java.security.Principal;
 

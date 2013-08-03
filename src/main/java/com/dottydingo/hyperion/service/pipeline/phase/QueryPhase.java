@@ -1,8 +1,8 @@
 package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
-import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.endpoint.EntityResponse;
+import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;

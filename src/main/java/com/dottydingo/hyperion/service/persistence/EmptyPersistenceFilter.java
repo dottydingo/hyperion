@@ -1,6 +1,5 @@
 package com.dottydingo.hyperion.service.persistence;
 
-import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 
 /**

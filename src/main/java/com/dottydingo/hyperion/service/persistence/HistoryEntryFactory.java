@@ -3,7 +3,6 @@ package com.dottydingo.hyperion.service.persistence;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.InternalException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
-import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.endpoint.HistoryAction;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;

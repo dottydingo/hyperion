@@ -1,14 +1,13 @@
 package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
-import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.HyperionContext;
-import com.dottydingo.hyperion.service.context.PersistenceContext;
 import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
 import com.dottydingo.hyperion.service.endpoint.HistoryResponse;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.persistence.HistoryEntryFactory;
+import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;

@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.api.AuditableApiObject;
-import com.dottydingo.hyperion.service.context.PersistenceContext;
+import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.model.AuditablePersistentObject;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.dottydingo.hyperion.service.context;
+package com.dottydingo.hyperion.service.pipeline.auth;
 
 import java.security.Principal;
 
