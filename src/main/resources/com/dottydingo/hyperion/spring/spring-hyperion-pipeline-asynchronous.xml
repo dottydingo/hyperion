@@ -18,6 +18,7 @@
     <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.AsynchronousCompletionHandler">
         <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
+        <property name="requestLogHandler" ref="hyperionRequestLogHandler"/>
         <property name="traceManager" ref="traceManager"/>
         <property name="completionCallbacks">
             <list>

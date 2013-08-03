@@ -29,7 +29,7 @@
         <property name="versionParameterName" value="${endpoint.versionParameterName}"/>
     </bean>
 
-
+    <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.service.pipeline.NoOpRequestLogHandler"/>
 
 
 </beans>
