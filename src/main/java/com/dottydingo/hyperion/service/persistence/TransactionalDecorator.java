@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -114,7 +115,7 @@ public class TransactionalDecorator<C extends ApiObject, ID extends Serializable
     }
 
     @Override
-    public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
+    public QueryResult<HistoryEntry> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
     {
         TransactionStatus status = transactionManager.getTransaction(getReadOnlyTransaction());
         try

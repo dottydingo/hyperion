@@ -45,7 +45,6 @@
 
     <bean id="hyperionHistoryPhase" class="com.dottydingo.hyperion.service.pipeline.phase.HistoryPhase" parent="baseHyperionPhase">
         <property name="name" value="history"/>
-        <property name="historyEntryFactory" ref="hyperionHistoryEntryFactory"/>
     </bean>
 
     <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.service.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">

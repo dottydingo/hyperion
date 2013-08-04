@@ -5,28 +5,19 @@ import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
 import com.dottydingo.hyperion.service.endpoint.HistoryResponse;
-import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
-import com.dottydingo.hyperion.service.persistence.HistoryEntryFactory;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
+import com.dottydingo.hyperion.service.persistence.QueryResult;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  */
 public class HistoryPhase extends BasePersistencePhase<HyperionContext>
 {
-    private HistoryEntryFactory historyEntryFactory;
-
-    public void setHistoryEntryFactory(HistoryEntryFactory historyEntryFactory)
-    {
-        this.historyEntryFactory = historyEntryFactory;
-    }
-
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
@@ -50,22 +41,13 @@ public class HistoryPhase extends BasePersistencePhase<HyperionContext>
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
         PersistenceOperations operations = persistenceContext.getEntityPlugin().getPersistenceOperations();
-        List<BasePersistentHistoryEntry> entries = operations.getHistory(ids.get(0),start,limit,persistenceContext);
+        QueryResult<HistoryEntry> entries = operations.getHistory(ids.get(0),start,limit,persistenceContext);
 
         HistoryResponse historyResponse = new HistoryResponse();
-        List<HistoryEntry> historyEntries = new LinkedList<HistoryEntry>();
-        historyResponse.setEntries(historyEntries);
-
-        for (BasePersistentHistoryEntry entry : entries)
-        {
-            HistoryEntry historyEntry = new HistoryEntry();
-            historyEntry.setId(entry.getEntityId());
-            historyEntry.setHistoryAction(entry.getHistoryAction());
-            historyEntry.setTimestamp(entry.getTimestamp());
-            historyEntry.setUser(entry.getUser());
-            historyEntry.setEntry(historyEntryFactory.readEntry(entry,persistenceContext));
-            historyEntries.add(historyEntry);
-        }
+        historyResponse.setEntries(entries.getItems());
+        historyResponse.setTotalCount(entries.getTotalCount());
+        historyResponse.setStart(entries.getStart());
+        historyResponse.setResponseCount(entries.getResponseCount());
 
         phaseContext.setResult(historyResponse);
 

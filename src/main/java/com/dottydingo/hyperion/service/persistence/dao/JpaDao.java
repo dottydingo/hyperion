@@ -142,25 +142,40 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     }
 
     @Override
-    public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(Class<H> historyType, String entityType,
+    public <H extends BasePersistentHistoryEntry<ID>> PersistentQueryResult<H> getHistory(Class<H> historyType, String entityType,
                                                                          ID entityId, Integer start, Integer limit)
     {
+        PersistentQueryResult<H> result = new PersistentQueryResult<H>();
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<H> criteriaQuery = cb.createQuery(historyType);
-        Root<H> root = criteriaQuery.from(historyType);
 
-        criteriaQuery.where(cb.equal(root.get("entityType"),entityType),
-                cb.equal(root.get("entityId"),entityId));
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<H> countRoot = countQuery.from(historyType);
 
-        criteriaQuery.orderBy(cb.asc(root.get("id")));
+        countQuery.select(cb.count(countRoot));
+        countQuery.where(cb.equal(countRoot.get("entityType"),entityType),
+                cb.equal(countRoot.get("entityId"),entityId));
 
-        TypedQuery<H> query = em.createQuery(criteriaQuery);
-        if(start != null)
-            query.setFirstResult(start - 1);
-        if(limit != null)
-            query.setMaxResults(limit);
+        Long total = em.createQuery(countQuery).getSingleResult();
+        result.setTotalCount(total);
+        if(total > 0)
+        {
+            CriteriaQuery<H> criteriaQuery = cb.createQuery(historyType);
+            Root<H> root = criteriaQuery.from(historyType);
 
-        return query.getResultList();
+            criteriaQuery.where(cb.equal(root.get("entityType"),entityType),
+                    cb.equal(root.get("entityId"),entityId));
+
+            criteriaQuery.orderBy(cb.asc(root.get("id")));
+
+            TypedQuery<H> query = em.createQuery(criteriaQuery);
+            if(start != null)
+                query.setFirstResult(start - 1);
+            if(limit != null)
+                query.setMaxResults(limit);
+
+            result.setResults(query.getResultList());
+        }
+        return result;
     }
 
     @Override

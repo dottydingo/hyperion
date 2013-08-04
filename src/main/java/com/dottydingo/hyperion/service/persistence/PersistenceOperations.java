@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 
 import java.io.Serializable;
@@ -20,5 +21,5 @@ public interface PersistenceOperations<C extends ApiObject, ID extends Serializa
 
     int deleteItem(List<ID> ids, PersistenceContext context);
 
-    <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(ID id,Integer start, Integer limit,PersistenceContext context);
+    QueryResult<HistoryEntry> getHistory(ID id,Integer start, Integer limit,PersistenceContext context);
 }

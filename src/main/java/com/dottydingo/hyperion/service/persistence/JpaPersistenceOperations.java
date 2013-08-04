@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.endpoint.HistoryAction;
+import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
@@ -19,6 +20,7 @@ import com.dottydingo.hyperion.service.translation.Translator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -213,9 +215,35 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
 
     @Override
-    public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
+    public QueryResult<HistoryEntry> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
     {
-        return dao.getHistory(context.getEntityPlugin().getHistoryType(),context.getEntity(),id,start,limit);
+        QueryResult<HistoryEntry> result = new QueryResult<HistoryEntry>();
+        PersistentQueryResult<BasePersistentHistoryEntry> history = dao.getHistory(context.getEntityPlugin().getHistoryType(),
+                context.getEntity(), id, start, limit);
+
+        result.setTotalCount(history.getTotalCount());
+        result.setStart(start == null ? 1 : start);
+        if(history.getResults() != null)
+        {
+            List<HistoryEntry> historyEntries = new LinkedList<HistoryEntry>();
+            result.setItems(historyEntries);
+            for (BasePersistentHistoryEntry entry : history.getResults())
+            {
+                HistoryEntry historyEntry = new HistoryEntry();
+                historyEntry.setId(entry.getEntityId());
+                historyEntry.setHistoryAction(entry.getHistoryAction());
+                historyEntry.setTimestamp(entry.getTimestamp());
+                historyEntry.setUser(entry.getUser());
+                historyEntry.setEntry(historyEntryFactory.readEntry(entry,context));
+                historyEntries.add(historyEntry);
+            }
+        }
+        else
+            result.setItems(Collections.EMPTY_LIST);
+
+        result.setResponseCount(result.getItems().size());
+
+        return result;
     }
 
     protected void saveHistory(PersistenceContext context, P entity,HistoryAction historyAction)

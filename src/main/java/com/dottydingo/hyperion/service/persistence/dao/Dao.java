@@ -27,7 +27,7 @@ public interface Dao<P,ID extends Serializable>
 
     void delete(P entity);
 
-    <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(Class<H> historyType, String entityType, ID entityId, Integer start,
+    <H extends BasePersistentHistoryEntry<ID>> PersistentQueryResult<H> getHistory(Class<H> historyType, String entityType, ID entityId, Integer start,
                                                                   Integer limit);
 
     <H extends BasePersistentHistoryEntry<ID>> void saveHistory(H entry);

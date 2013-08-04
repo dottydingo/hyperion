@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.HyperionException;
+import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import org.springframework.dao.OptimisticLockingFailureException;
 
@@ -92,7 +93,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
     }
 
     @Override
-    public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
+    public QueryResult<HistoryEntry> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
     {
         try
         {
