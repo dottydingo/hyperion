@@ -16,9 +16,6 @@ import com.dottydingo.hyperion.service.persistence.sort.OrderBuilder;
 import com.dottydingo.hyperion.service.persistence.sort.OrderBuilderFactory;
 import com.dottydingo.hyperion.service.translation.Translator;
 
-import org.springframework.transaction.annotation.Transactional;
-
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +59,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<C> findByIds(List<ID> ids, PersistenceContext context)
     {
 
@@ -82,7 +78,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     }
 
     @Override
-    @Transactional(readOnly = true)
     public QueryResult<C> query(String query, Integer start, Integer limit, String sort, PersistenceContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
@@ -124,7 +119,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     }
 
     @Override
-    @Transactional(readOnly = false)
     public C createOrUpdateItem(C item, PersistenceContext context)
     {
         CreateKeyProcessor<C,ID> createKeyProcessor = context.getEntityPlugin().getCreateKeyProcessor();
@@ -158,7 +152,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
 
     @Override
-    @Transactional(readOnly = false)
     public C updateItem(List<ID> ids, C item, PersistenceContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
@@ -197,7 +190,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     }
 
     @Override
-    @Transactional(readOnly = false)
     public int deleteItem(List<ID> ids, PersistenceContext context)
     {
 
@@ -221,7 +213,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
 
     @Override
-    @Transactional(readOnly = true)
     public <H extends BasePersistentHistoryEntry<ID>> List<H> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
     {
         return dao.getHistory(context.getEntityPlugin().getHistoryType(),context.getEntity(),id,start,limit);

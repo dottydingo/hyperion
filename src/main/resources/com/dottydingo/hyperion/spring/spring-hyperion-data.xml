@@ -16,7 +16,8 @@
           class="com.dottydingo.hyperion.service.persistence.sort.HyperionOrderBuilderFactory"/>
 
     <bean id="hyperionPersistenceFilter" class="com.dottydingo.hyperion.service.persistence.EmptyPersistenceFilter"/>
-    <bean id="hyperionPersistenceOperations"
+
+    <bean id="hyperionBasePersistenceOperations"
           class="com.dottydingo.hyperion.service.persistence.JpaPersistenceOperations">
         <property name="dao" ref="hyperionDao"/>
         <property name="orderBuilderFactory" ref="hyperionOrderBuilderFactory"/>
@@ -24,6 +25,17 @@
         <property name="historyEntryFactory" ref="hyperionHistoryEntryFactory"/>
         <property name="persistenceFilter" ref="hyperionPersistenceFilter"/>
     </bean>
+
+    <bean id="hyperionTransactionDecorator" class="com.dottydingo.hyperion.service.persistence.TransactionalDecorator">
+        <property name="delegate" ref="hyperionBasePersistenceOperations"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <bean id="hyperionExceptionMappingDecorator" class="com.dottydingo.hyperion.service.persistence.ExceptionMappingDecorator">
+        <property name="delegate" ref="hyperionTransactionDecorator"/>
+    </bean>
+
+    <alias name="hyperionExceptionMappingDecorator" alias="hyperionPersistenceOperations"/>
 
     <bean id="hyperionDefaultArgumentParser" class="com.dottydingo.hyperion.service.persistence.query.DefaultArgumentParser"/>
 
