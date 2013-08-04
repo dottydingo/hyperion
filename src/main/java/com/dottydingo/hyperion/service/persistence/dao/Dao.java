@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.service.persistence.query.PredicateBuilder;
 import com.dottydingo.hyperion.service.persistence.sort.OrderBuilder;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,4 +32,6 @@ public interface Dao<P,ID extends Serializable>
                                                                   Integer limit);
 
     <H extends BasePersistentHistoryEntry<ID>> void saveHistory(H entry);
+
+    Date getCurrentTimestamp();
 }

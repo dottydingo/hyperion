@@ -41,7 +41,7 @@ public class HistoryEntryFactory
             entry.setApiVersion(apiVersionPlugin.getVersion());
             entry.setHistoryAction(historyAction);
             entry.setUser(context.getUserContext().getUserIdentifier());
-            entry.setTimestamp(new Date());
+            entry.setTimestamp(context.getCurrentTimestamp());
 
 
             PersistenceContext ctx = (PersistenceContext) context.clone();

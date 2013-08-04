@@ -7,10 +7,12 @@ import com.dottydingo.hyperion.service.persistence.sort.OrderBuilder;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -182,5 +184,12 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     public <H extends BasePersistentHistoryEntry<ID>> void saveHistory(H entry)
     {
         em.persist(entry);
+    }
+
+    @Override
+    public Date getCurrentTimestamp()
+    {
+        Query query = em.createNativeQuery("select CURRENT_TIMESTAMP");
+        return (Date) query.getSingleResult();
     }
 }

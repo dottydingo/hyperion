@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.pipeline.auth.UserContext;
 
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -20,6 +21,7 @@ public class PersistenceContext
     private UserContext userContext;
     private WriteContext writeContext;
     private boolean dirty = false;
+    private Date currentTimestamp;
 
     public String getEntity()
     {
@@ -101,6 +103,16 @@ public class PersistenceContext
         return dirty;
     }
 
+    public void setCurrentTimestamp(Date currentTimestamp)
+    {
+        this.currentTimestamp = currentTimestamp;
+    }
+
+    public Date getCurrentTimestamp()
+    {
+        return currentTimestamp;
+    }
+
     @Override
     public Object clone() throws CloneNotSupportedException
     {
@@ -113,7 +125,10 @@ public class PersistenceContext
         ctx.userContext = this.userContext;
         ctx.writeContext = this.writeContext;
         ctx.dirty = this.dirty;
+        ctx.currentTimestamp = this.currentTimestamp;
 
         return ctx;
     }
+
+
 }

@@ -18,10 +18,7 @@ import com.dottydingo.hyperion.service.persistence.sort.OrderBuilderFactory;
 import com.dottydingo.hyperion.service.translation.Translator;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  */
@@ -135,6 +132,8 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         apiVersionPlugin.getValidator().validateCreate(item);
 
+        context.setCurrentTimestamp(dao.getCurrentTimestamp());
+
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         P persistent = translator.convertClient(item, context);
 
@@ -172,6 +171,8 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         {
             return null;
         }
+
+        context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
         // todo this needs a better implementation...
         ID oldId = existing.getId();

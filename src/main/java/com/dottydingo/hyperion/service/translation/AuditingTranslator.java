@@ -31,11 +31,10 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
     protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         super.afterConvert(clientObjectWrapper, persistentObjectWrapper,context);
-        Date now = new Date();
         P persistent = persistentObjectWrapper.getWrappedObject();
-        persistent.setCreated(now);
+        persistent.setCreated(context.getCurrentTimestamp());
         persistent.setCreatedBy(context.getUserContext().getUserIdentifier());
-        persistent.setModified(now);
+        persistent.setModified(context.getCurrentTimestamp());
         persistent.setModifiedBy(context.getUserContext().getUserIdentifier());
     }
 
@@ -47,7 +46,7 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
         if(context.isDirty())
         {
             P persistent = persistentObjectWrapper.getWrappedObject();
-            persistent.setModified(new Date());
+            persistent.setModified(context.getCurrentTimestamp());
             persistent.setModifiedBy(context.getUserContext().getUserIdentifier()) ;
         }
     }
