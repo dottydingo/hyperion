@@ -19,6 +19,7 @@ public class PersistenceContext
     private HttpMethod httpMethod;
     private UserContext userContext;
     private WriteContext writeContext;
+    private boolean dirty = false;
 
     public String getEntity()
     {
@@ -90,17 +91,28 @@ public class PersistenceContext
         this.writeContext = writeContext;
     }
 
+    public void setDirty()
+    {
+        this.dirty = true;
+    }
+
+    public boolean isDirty()
+    {
+        return dirty;
+    }
+
     @Override
     public Object clone() throws CloneNotSupportedException
     {
         PersistenceContext ctx = new PersistenceContext();
-        ctx.setApiVersionPlugin(apiVersionPlugin);
-        ctx.setEntity(entity);
-        ctx.setEntityPlugin(entityPlugin);
-        ctx.setHttpMethod(httpMethod);
-        ctx.setRequestedFields(requestedFields);
-        ctx.setUserContext(userContext);
-        ctx.setWriteContext(writeContext);
+        ctx.apiVersionPlugin = this.apiVersionPlugin;
+        ctx.entity = this.entity;
+        ctx.entityPlugin = this.entityPlugin;
+        ctx.httpMethod = this.httpMethod;
+        ctx.requestedFields = this.requestedFields;
+        ctx.userContext = this.userContext;
+        ctx.writeContext = this.writeContext;
+        ctx.dirty = this.dirty;
 
         return ctx;
     }

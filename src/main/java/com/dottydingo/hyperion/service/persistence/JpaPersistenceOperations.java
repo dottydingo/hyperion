@@ -176,18 +176,22 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         // todo this needs a better implementation...
         ID oldId = existing.getId();
 
-        translator.copyClient(item, existing,context);
+        boolean dirty = translator.copyClient(item, existing,context);
 
         if(oldId != null && !oldId.equals(existing.getId()))
             throw new ValidationException("Id in URI does not match the Id in the payload.");
 
         context.setWriteContext(WriteContext.update);
-        P persistent = dao.update(existing);
+        if(dirty)
+        {
+            P persistent = dao.update(existing);
+            if(context.getEntityPlugin().isHistoryEnabled())
+                saveHistory(context,persistent,HistoryAction.modify);
 
-        if(context.getEntityPlugin().isHistoryEnabled())
-            saveHistory(context,persistent,HistoryAction.modify);
-
-        return translator.convertPersistent(persistent, context);
+            return translator.convertPersistent(persistent, context);
+        }
+        else
+            return translator.convertPersistent(existing, context);
 
     }
 

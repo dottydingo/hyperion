@@ -13,7 +13,7 @@ public interface Translator<C extends ApiObject, P extends PersistentObject>
 {
     P convertClient(C client, PersistenceContext context);
 
-    void copyClient(C client, P persistent, PersistenceContext context);
+    boolean copyClient(C client, P persistent, PersistenceContext context);
 
     C convertPersistent(P persistent, PersistenceContext context);
 

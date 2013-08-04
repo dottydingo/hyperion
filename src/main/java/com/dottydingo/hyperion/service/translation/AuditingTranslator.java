@@ -43,9 +43,13 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
     protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
-        P persistent = persistentObjectWrapper.getWrappedObject();
-        persistent.setModified(new Date());
-        persistent.setModifiedBy(context.getUserContext().getUserIdentifier()) ;
+
+        if(context.isDirty())
+        {
+            P persistent = persistentObjectWrapper.getWrappedObject();
+            persistent.setModified(new Date());
+            persistent.setModifiedBy(context.getUserContext().getUserIdentifier()) ;
+        }
     }
 
 }

@@ -9,6 +9,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
     private String clientFieldName;
     private String persistentFieldName;
     protected ValueConverter valueConverter;
+    protected PropertyChangeEvaluator propertyChangeEvaluator = new DefaultPropertyChangeEvaluator();
 
     public DefaultFieldMapper(String name)
     {
@@ -33,6 +34,11 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
         return persistentFieldName;
     }
 
+    public void setPropertyChangeEvaluator(PropertyChangeEvaluator propertyChangeEvaluator)
+    {
+        this.propertyChangeEvaluator = propertyChangeEvaluator;
+    }
+
     @Override
     public void convertToClient(ObjectWrapper<P> persistentObjectWrapper,
                                 ObjectWrapper<C> clientObjectWrapper, PersistenceContext context)
@@ -48,7 +54,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
     }
 
     @Override
-    public void convertToPersistent(ObjectWrapper<C> clientObjectWrapper,
+    public boolean convertToPersistent(ObjectWrapper<C> clientObjectWrapper,
                                     ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
         Object clientValue = clientObjectWrapper.getValue(getClientFieldName());
@@ -57,7 +63,16 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
             clientValue = valueConverter.convertToPersistentValue(clientValue,context);
         }
 
+        boolean dirty = false;
+
         if(clientValue != null)
-            persistentObjectWrapper.setValue(getPersistentFieldName(), clientValue);
+        {
+            dirty = propertyChangeEvaluator.hasChanged(persistentObjectWrapper.getValue(persistentFieldName),
+                    clientValue);
+            if(dirty)
+                persistentObjectWrapper.setValue(getPersistentFieldName(), clientValue);
+        }
+
+        return dirty;
     }
 }

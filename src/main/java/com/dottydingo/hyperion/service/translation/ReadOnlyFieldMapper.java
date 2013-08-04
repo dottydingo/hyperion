@@ -18,8 +18,8 @@ public class ReadOnlyFieldMapper<C,P> extends DefaultFieldMapper<C,P>
     }
 
     @Override
-    public void convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
+    public boolean convertToPersistent(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
-        // no op
+        return false;
     }
 }

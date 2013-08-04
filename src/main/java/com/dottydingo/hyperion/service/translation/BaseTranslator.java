@@ -56,17 +56,25 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
                               PersistenceContext context){}
 
     @Override
-    public void copyClient(C client, P persistent, PersistenceContext context)
+    public boolean copyClient(C client, P persistent, PersistenceContext context)
     {
+        boolean dirty = false;
         ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistent,context);
         ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(client,context);
 
         beforeCopy(clientObjectWrapper,persistentObjectWrapper,context);
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
+            if(mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context))
+                dirty = true;
         }
+
+        if(dirty)
+            context.setDirty();
+
         afterCopy(clientObjectWrapper,persistentObjectWrapper,context);
+
+        return dirty;
     }
 
     protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
