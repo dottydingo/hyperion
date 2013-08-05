@@ -28,7 +28,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     protected PredicateBuilderFactory predicateBuilderFactory;
     protected OrderBuilderFactory<P> orderBuilderFactory;
-    protected PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
     protected HistoryEntryFactory historyEntryFactory;
     protected Dao<P,ID> dao;
 
@@ -40,11 +39,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     public void setOrderBuilderFactory(OrderBuilderFactory<P> orderBuilderFactory)
     {
         this.orderBuilderFactory = orderBuilderFactory;
-    }
-
-    public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
-    {
-        this.persistenceFilter = persistenceFilter;
     }
 
     public void setHistoryEntryFactory(HistoryEntryFactory historyEntryFactory)
@@ -69,7 +63,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         List<P> result = new ArrayList<P>();
         for (P p : iterable)
         {
-            if(persistenceFilter.isVisible(p,context))
+            if(context.getEntityPlugin().getPersistenceFilter().isVisible(p,context))
                 result.add(p);
         }
 
@@ -91,7 +85,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             predicateBuilders.add(predicateBuilderFactory.createPredicateBuilder(query,context.getEntityPlugin()));
         }
 
-        PredicateBuilder<P> filter = persistenceFilter.getFilterPredicateBuilder(context);
+        PredicateBuilder<P> filter = context.getEntityPlugin().getPersistenceFilter().getFilterPredicateBuilder(context);
         if(filter != null)
             predicateBuilders.add(filter);
 
@@ -137,7 +131,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         P persistent = translator.convertClient(item, context);
 
-        if(!persistenceFilter.canCreate(persistent,context))
+        if(!context.getEntityPlugin().getPersistenceFilter().canCreate(persistent,context))
             return null;
 
         P saved = dao.create(persistent);
@@ -167,7 +161,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         apiVersionPlugin.getValidator().validateUpdate(item,existing);
 
-        if(!persistenceFilter.canUpdate(existing,context))
+        if(!context.getEntityPlugin().getPersistenceFilter().canUpdate(existing,context))
         {
             return null;
         }
@@ -205,7 +199,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         int deleted = 0;
         for (P item : persistentItems)
         {
-            if(persistenceFilter.canDelete(item,context))
+            if(context.getEntityPlugin().getPersistenceFilter().canDelete(item,context))
             {
                 apiVersionPlugin.getValidator().validateDelete(item);
                 dao.delete(item);

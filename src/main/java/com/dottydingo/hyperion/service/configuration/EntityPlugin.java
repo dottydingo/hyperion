@@ -6,6 +6,8 @@ import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.DefaultPersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.CreateKeyProcessor;
+import com.dottydingo.hyperion.service.persistence.EmptyPersistenceFilter;
+import com.dottydingo.hyperion.service.persistence.PersistenceFilter;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
 import com.dottydingo.hyperion.service.persistence.query.QueryBuilder;
@@ -31,6 +33,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private CreateKeyProcessor<C,ID> createKeyProcessor;
     private boolean historyEnabled = false;
     private Class<? extends BasePersistentHistoryEntry> historyType;
+    private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
 
     public String getEndpointName()
     {
@@ -141,5 +144,15 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setHistoryType(Class<? extends BasePersistentHistoryEntry> historyType)
     {
         this.historyType = historyType;
+    }
+
+    public PersistenceFilter<P> getPersistenceFilter()
+    {
+        return persistenceFilter;
+    }
+
+    public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
+    {
+        this.persistenceFilter = persistenceFilter;
     }
 }
