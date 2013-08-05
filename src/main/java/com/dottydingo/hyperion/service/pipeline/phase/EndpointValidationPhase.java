@@ -6,13 +6,13 @@ import com.dottydingo.hyperion.exception.NotFoundException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
+import com.dottydingo.hyperion.service.context.HyperionRequest;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationChecker;
 import com.dottydingo.hyperion.service.pipeline.UriParser;
 import com.dottydingo.hyperion.service.pipeline.UriRequestResult;
 import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.service.context.HyperionContext;
-import com.dottydingo.hyperion.service.pipeline.auth.UserContextBuilder;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 import org.slf4j.Logger;
@@ -28,7 +28,6 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     private ServiceRegistry serviceRegistry;
     private HyperionEndpointConfiguration hyperionEndpointConfiguration;
     private AuthorizationChecker authorizationChecker;
-    private UserContextBuilder userContextBuilder;
     private UriParser uriParser = new UriParser();
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
@@ -41,11 +40,6 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         this.hyperionEndpointConfiguration = hyperionEndpointConfiguration;
     }
 
-    public void setUserContextBuilder(UserContextBuilder userContextBuilder)
-    {
-        this.userContextBuilder = userContextBuilder;
-    }
-
     public void setAuthorizationChecker(AuthorizationChecker authorizationChecker)
     {
         this.authorizationChecker = authorizationChecker;
@@ -54,12 +48,12 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
-        EndpointRequest request = phaseContext.getEndpointRequest();
+        HyperionRequest request = phaseContext.getEndpointRequest();
 
-        UriRequestResult uriRequestResult = uriParser.parseRequestUri(request.getRequestUri());
+        UriRequestResult uriRequestResult = uriParser.parseRequestUri(request.getResourceUri());
 
         if(uriRequestResult == null)
-            throw new NotFoundException(String.format("%s is not recognized.",request.getRequestUri()));
+            throw new NotFoundException(String.format("%s is not recognized.",request.getResourceUri()));
 
         String entityName = uriRequestResult.getEndpoint();
 
@@ -114,7 +108,6 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());
         phaseContext.setVersionPlugin(versionPlugin);
 
-        phaseContext.setUserContext(userContextBuilder.buildUserContext(phaseContext));
 
         logRequestInformation(phaseContext);
 
@@ -129,20 +122,22 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         if(!logger.isDebugEnabled())
             return;
 
-        EndpointRequest request = context.getEndpointRequest();
+        HyperionRequest request = context.getEndpointRequest();
 
         logger.debug("Correlation ID: {}",context.getCorrelationId());
         logger.debug("Request URL: {}",request.getRequestUrl());
         logger.debug("Base URL: {}",request.getBaseUrl());
         logger.debug("Request URI: {}",request.getRequestUri());
+        logger.debug("Resource URI: {}",request.getResourceUri());
         logger.debug("Request Query String: {}",request.getQueryString());
         logger.debug("Request Method: {}",request.getRequestMethod());
         logger.debug("Effective Method: {}",context.getHttpMethod());
         logger.debug("Endpoint Name: {}",context.getEntityPlugin().getEndpointName());
         logger.debug("ContentType: {}",request.getContentType());
-        logger.debug("User Identifier: {}",context.getUserContext().getUserIdentifier());
+        logger.debug("User ID: {}",context.getUserContext().getUserId());
+        logger.debug("User Name: {}",context.getUserContext().getUserName());
         logger.debug("Id: {}",context.getId());
-        logger.debug("Audit: {}",context.isHistory());
+        logger.debug("History: {}",context.isHistory());
 
         for (String name : request.getHeaderNames())
         {

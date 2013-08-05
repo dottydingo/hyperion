@@ -3,21 +3,20 @@ package com.dottydingo.hyperion.service.context;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
-import com.dottydingo.hyperion.service.pipeline.auth.UserContext;
 import com.dottydingo.service.endpoint.context.EndpointContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
+import com.dottydingo.service.endpoint.context.UserContext;
 import com.dottydingo.service.endpoint.status.ContextStatus;
 
 /**
  */
-public class HyperionContext extends EndpointContext<EndpointRequest,EndpointResponse,ContextStatus>
+public class HyperionContext extends EndpointContext<HyperionRequest,HyperionResponse,ContextStatus,UserContext>
 {
     private EntityPlugin entityPlugin;
     private Integer version;
     private HttpMethod httpMethod;
     private ApiVersionPlugin versionPlugin;
-    private UserContext userContext;
     private String id;
     private boolean history;
     private Object result;

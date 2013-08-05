@@ -8,9 +8,11 @@
     <bean id="hyperionContextBuilder" class="com.dottydingo.hyperion.service.context.HyperionContextBuilder">
         <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="traceFactory" ref="traceFactory"/>
-        <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
         <property name="completionHandler" ref="hyperionCompletionHandler"/>
+        <property name="userContextBuilder" ref="hyperionUserContextBuilder"/>
     </bean>
+
+    <bean id="hyperionUserContextBuilder" class="com.dottydingo.service.endpoint.context.EmptyUserContextBuilder"/>
 
     <bean id="hyperionEndpointStatusBuilder" class="com.dottydingo.service.endpoint.status.DefaultContextStatusBuilder"/>
 

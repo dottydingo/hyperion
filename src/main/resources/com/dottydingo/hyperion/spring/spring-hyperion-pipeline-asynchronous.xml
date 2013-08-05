@@ -13,6 +13,7 @@
         </property>
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
         <property name="timeout" value="${endpoint.asynchronousTimeout}"/>
+        <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
     </bean>
 
     <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.AsynchronousCompletionHandler">

@@ -40,7 +40,7 @@ public class HistoryEntryFactory
 
             entry.setApiVersion(apiVersionPlugin.getVersion());
             entry.setHistoryAction(historyAction);
-            entry.setUser(context.getUserContext().getUserIdentifier());
+            entry.setUser(context.getUserContext().getUserId());
             entry.setTimestamp(context.getCurrentTimestamp());
 
 

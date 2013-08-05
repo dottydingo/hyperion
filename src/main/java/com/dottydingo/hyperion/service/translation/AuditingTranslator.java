@@ -33,9 +33,9 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
         super.afterConvert(clientObjectWrapper, persistentObjectWrapper,context);
         P persistent = persistentObjectWrapper.getWrappedObject();
         persistent.setCreated(context.getCurrentTimestamp());
-        persistent.setCreatedBy(context.getUserContext().getUserIdentifier());
+        persistent.setCreatedBy(context.getUserContext().getUserId());
         persistent.setModified(context.getCurrentTimestamp());
-        persistent.setModifiedBy(context.getUserContext().getUserIdentifier());
+        persistent.setModifiedBy(context.getUserContext().getUserId());
     }
 
     @Override
@@ -47,7 +47,7 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
         {
             P persistent = persistentObjectWrapper.getWrappedObject();
             persistent.setModified(context.getCurrentTimestamp());
-            persistent.setModifiedBy(context.getUserContext().getUserIdentifier()) ;
+            persistent.setModifiedBy(context.getUserContext().getUserId()) ;
         }
     }
 

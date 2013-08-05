@@ -3,7 +3,7 @@ package com.dottydingo.hyperion.service.persistence;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
-import com.dottydingo.hyperion.service.pipeline.auth.UserContext;
+import com.dottydingo.service.endpoint.context.UserContext;
 
 import java.util.Date;
 import java.util.Set;
