@@ -42,4 +42,18 @@
     </bean>
 
 
+    <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.DefaultCompletionHandler">
+        <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
+        <property name="traceManager" ref="traceManager"/>
+        <property name="requestLogHandler" ref="hyperionRequestLogHandler"/>
+        <property name="completionCallbacks">
+            <list>
+                <bean  class="com.dottydingo.hyperion.service.pipeline.HyperionCompletionCallback">
+                    <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
 </beans>

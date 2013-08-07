@@ -12,23 +12,6 @@
         <property name="timeout" value="${endpoint.asynchronousTimeout}"/>
     </bean>
 
-    <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.AsynchronousCompletionHandler">
-        <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
-        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
-        <property name="requestLogHandler" ref="hyperionRequestLogHandler"/>
-        <property name="traceManager" ref="traceManager"/>
-        <property name="completionCallbacks">
-            <list>
-                <bean  class="com.dottydingo.hyperion.service.pipeline.HyperionCompletionCallback">
-                    <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
-                </bean>
-            </list>
-        </property>
-    </bean>
-
-
-    <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler"/>
-
     <bean id="hyperionBaseExecutor" class="com.dottydingo.service.endpoint.pipeline.EndpointAsynchronousExecutor" abstract="true">
         <property name="errorHandler" ref="hyperionErrorHandler"/>
     </bean>
