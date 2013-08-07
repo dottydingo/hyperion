@@ -33,5 +33,13 @@
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.service.pipeline.NoOpRequestLogHandler"/>
 
+    <bean id="hyperionEndpointHandler" class="com.dottydingo.service.endpoint.DefaultEndpointHandler">
+        <property name="contextBuilder" ref="hyperionContextBuilder"/>
+        <property name="errorHandler" ref="hyperionErrorHandler"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
+        <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
+        <property name="pipelineInitiator" ref="hyperionPipelineInitiator"/>
+    </bean>
+
 
 </beans>

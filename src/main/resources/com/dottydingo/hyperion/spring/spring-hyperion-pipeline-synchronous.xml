@@ -3,16 +3,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        ">
 
-    <bean id="hyperionEndpointHandler" class="com.dottydingo.service.endpoint.SynchronousEndpointHandler">
-        <property name="contextBuilder" ref="hyperionContextBuilder"/>
-        <property name="errorHandler" ref="hyperionErrorHandler"/>
+    <bean id="hyperionPipelineInitiator" class="com.dottydingo.service.endpoint.SynchronousPipelineInitiator">
         <property name="initialPhaseSelector">
             <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
                 <property name="nextPhase" ref="hyperionEndpointValidationExecutor"/>
             </bean>
         </property>
-        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
-        <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
     </bean>
 
     <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.DefaultCompletionHandler">
