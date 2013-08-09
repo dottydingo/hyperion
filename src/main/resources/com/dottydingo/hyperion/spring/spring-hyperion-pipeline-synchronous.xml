@@ -9,7 +9,7 @@
                 <property name="nextPhase" ref="hyperionEndpointValidationExecutor"/>
             </bean>
         </property>
-    </bean>    x
+    </bean>
 
     <bean id="hyperionBaseExecutor" class="com.dottydingo.service.pipeline.SynchronousPhaseExecutor" abstract="true">
         <property name="errorHandler" ref="hyperionErrorHandler"/>
