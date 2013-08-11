@@ -9,14 +9,13 @@
         <property name="endpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="traceFactory" ref="traceFactory"/>
         <property name="completionHandler" ref="hyperionCompletionHandler"/>
-        <property name="userContextBuilder" ref="hyperionUserContextBuilder"/>
     </bean>
 
     <bean id="hyperionUserContextBuilder" class="com.dottydingo.service.endpoint.context.EmptyUserContextBuilder"/>
 
     <bean id="hyperionEndpointStatusBuilder" class="com.dottydingo.service.endpoint.status.DefaultContextStatusBuilder"/>
 
-    <bean id="hyperionEndpointStatusManager" class="com.dottydingo.service.endpoint.status.DefaultContextStatusManager"/>
+    <bean id="hyperionEndpointStatusRegistry" class="com.dottydingo.service.endpoint.status.DefaultContextStatusRegistry"/>
 
     <bean id="hyperionEndpointConfiguration" class="com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration">
         <property name="allowTrace" value="${endpoint.allowTrace}"/>
@@ -36,15 +35,15 @@
     <bean id="hyperionEndpointHandler" class="com.dottydingo.service.endpoint.DefaultEndpointHandler">
         <property name="contextBuilder" ref="hyperionContextBuilder"/>
         <property name="errorHandler" ref="hyperionErrorHandler"/>
-        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
         <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
         <property name="pipelineInitiator" ref="hyperionPipelineInitiator"/>
+        <property name="userContextBuilder" ref="hyperionUserContextBuilder"/>
     </bean>
 
 
     <bean id="hyperionCompletionHandler" class="com.dottydingo.service.endpoint.DefaultCompletionHandler">
-        <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
-        <property name="contextStatusRegistry" ref="hyperionEndpointStatusManager"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
         <property name="traceManager" ref="traceManager"/>
         <property name="requestLogHandler" ref="hyperionRequestLogHandler"/>
         <property name="completionCallbacks">

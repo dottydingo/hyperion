@@ -14,6 +14,7 @@
 
     <bean id="hyperionBaseExecutor" class="com.dottydingo.service.endpoint.pipeline.EndpointAsynchronousExecutor" abstract="true">
         <property name="errorHandler" ref="hyperionErrorHandler"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
     </bean>
 
     <bean id="hyperionEndpointValidationExecutor" parent="hyperionBaseExecutor">

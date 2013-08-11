@@ -7,7 +7,7 @@
     <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.service.pipeline.HyperionErrorHandler"/>
 
     <bean id="baseHyperionPhase" class="com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase" abstract="true">
-        <property name="contextStatusManager" ref="hyperionEndpointStatusManager"/>
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
         <property name="traceManager" ref="traceManager"/>
     </bean>
 

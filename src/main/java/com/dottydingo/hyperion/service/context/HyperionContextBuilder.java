@@ -1,14 +1,13 @@
 package com.dottydingo.hyperion.service.context;
 
-import com.dottydingo.service.endpoint.context.ContextBuilder;
-import com.dottydingo.service.endpoint.context.UserContext;
+import com.dottydingo.service.endpoint.context.AbstractContextBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 
 /**
  */
-public class HyperionContextBuilder extends ContextBuilder<HyperionContext,HyperionRequest,HyperionResponse,UserContext>
+public class HyperionContextBuilder extends AbstractContextBuilder<HyperionContext,HyperionRequest,HyperionResponse>
 {
 
     @Override
@@ -20,7 +19,7 @@ public class HyperionContextBuilder extends ContextBuilder<HyperionContext,Hyper
     }
 
     @Override
-    protected HyperionContext createContextInstance(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+    protected HyperionContext createContextInstance()
     {
         return new HyperionContext();
     }

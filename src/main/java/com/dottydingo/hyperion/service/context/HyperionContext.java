@@ -11,7 +11,7 @@ import com.dottydingo.service.endpoint.status.ContextStatus;
 
 /**
  */
-public class HyperionContext extends EndpointContext<HyperionRequest,HyperionResponse,ContextStatus,UserContext>
+public class HyperionContext extends EndpointContext<HyperionRequest,HyperionResponse,UserContext>
 {
     private EntityPlugin entityPlugin;
     private Integer version;
@@ -59,16 +59,6 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     public ApiVersionPlugin getVersionPlugin()
     {
         return versionPlugin;
-    }
-
-    public UserContext getUserContext()
-    {
-        return userContext;
-    }
-
-    public void setUserContext(UserContext userContext)
-    {
-        this.userContext = userContext;
     }
 
     public String getId()
