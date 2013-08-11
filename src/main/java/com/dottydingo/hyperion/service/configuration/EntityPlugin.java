@@ -34,6 +34,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private boolean historyEnabled = false;
     private Class<? extends BasePersistentHistoryEntry> historyType;
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
+    private int cacheMaxAge = 0;
 
     public String getEndpointName()
     {
@@ -154,5 +155,15 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
     {
         this.persistenceFilter = persistenceFilter;
+    }
+
+    public int getCacheMaxAge()
+    {
+        return cacheMaxAge;
+    }
+
+    public void setCacheMaxAge(int cacheMaxAge)
+    {
+        this.cacheMaxAge = cacheMaxAge;
     }
 }

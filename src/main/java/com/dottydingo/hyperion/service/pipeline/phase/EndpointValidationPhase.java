@@ -7,6 +7,7 @@ import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.context.HyperionRequest;
+import com.dottydingo.hyperion.service.context.HyperionResponse;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationChecker;
 import com.dottydingo.hyperion.service.pipeline.UriParser;
@@ -51,6 +52,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
         HyperionRequest request = phaseContext.getEndpointRequest();
+        HyperionResponse response = phaseContext.getEndpointResponse();
 
         UriRequestResult uriRequestResult = uriParser.parseRequestUri(request.getResourceUri());
 
@@ -97,14 +99,19 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         if(!validateMethod(httpMethod,uriRequestResult))
             throw new HyperionException(405,"Not allowed.");
 
-        phaseContext.setId(URLDecoder.decode(uriRequestResult.getId()));
+        if(uriRequestResult.getId() != null)
+            phaseContext.setId(URLDecoder.decode(uriRequestResult.getId()));
         phaseContext.setHistory(uriRequestResult.isHistory());
 
         ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());
         phaseContext.setVersionPlugin(versionPlugin);
 
-
         logRequestInformation(phaseContext);
+
+        if(phaseContext.getEffectiveMethod() == HttpMethod.GET)
+        {
+            response.setCacheMaxAge(plugin.getCacheMaxAge());
+        }
 
         if(authorizationChecker != null)
             authorizationChecker.checkAuthorization(phaseContext);

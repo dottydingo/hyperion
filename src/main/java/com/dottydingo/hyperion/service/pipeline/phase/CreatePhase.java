@@ -48,7 +48,7 @@ public class CreatePhase extends BasePersistencePhase<HyperionContext>
             if(persistenceContext.getWriteContext() == WriteContext.create)
             {
                 response.setResponseCode(201);
-                String location = String.format("%s/%s/%s",request.getBaseUrl(),phaseContext.getEntityPlugin().getEndpointName(),saved.getId());
+                String location = String.format("%s%s/%s",request.getBaseUrl(),request.getRequestUri(),saved.getId());
                 response.setHeader("Location", location);
             }
             else
