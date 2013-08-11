@@ -15,16 +15,17 @@ public class UriParserTest
         assertResult("foo",false,null,uriParser.parseRequestUri("/foo"));
         assertResult("foo",false,null,uriParser.parseRequestUri("/foo/"));
         assertResult("foo",false,"123",uriParser.parseRequestUri("/foo/123"));
+        assertResult("foo",false,"123",uriParser.parseRequestUri("/foo/123/"));
+        assertResult("foo",false,"123,222",uriParser.parseRequestUri("/foo/123,222"));
 
         assertResult("foo",true,"123",uriParser.parseRequestUri("/foo/history/123"));
+        assertResult("foo",true,"12345",uriParser.parseRequestUri("/foo/history/12345/"));
 
         Assert.assertNull(uriParser.parseRequestUri(""));
         Assert.assertNull(uriParser.parseRequestUri("/"));
         Assert.assertNull(uriParser.parseRequestUri("//"));
         Assert.assertNull(uriParser.parseRequestUri("//123"));
-        Assert.assertNull(uriParser.parseRequestUri("/foo/123/"));
         Assert.assertNull(uriParser.parseRequestUri("/foo/history/"));
-        Assert.assertNull(uriParser.parseRequestUri("/foo/history/12345/"));
     }
 
     private void assertResult(String endpoint,boolean audit,String id,UriRequestResult result)

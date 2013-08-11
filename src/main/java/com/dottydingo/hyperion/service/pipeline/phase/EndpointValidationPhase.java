@@ -18,6 +18,8 @@ import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLDecoder;
+
 
 /**
  */
@@ -95,7 +97,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         if(!validateMethod(httpMethod,uriRequestResult))
             throw new HyperionException(405,"Not allowed.");
 
-        phaseContext.setId(uriRequestResult.getId());
+        phaseContext.setId(URLDecoder.decode(uriRequestResult.getId()));
         phaseContext.setHistory(uriRequestResult.isHistory());
 
         ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());

@@ -1,40 +1,53 @@
 package com.dottydingo.hyperion.service.pipeline;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  */
 public class UriParser
 {
-    private Pattern queryPattern = Pattern.compile("^/([a-zA-Z]+)/?$");
-    private Pattern idPattern = Pattern.compile("^/([a-zA-Z]+)(/history)?/(\\p{Alnum}+)$");
-
     public UriRequestResult parseRequestUri(String uri)
     {
-        // most explicit first
-        Matcher matcher = idPattern.matcher(uri);
-        if(matcher.find())
+        // entity format  /<endpoint>(/)
+        // id format /<endpoint>/<ids>
+        // history format /<endpoint>/history/<id>
+
+        String[] split = uri.split("/");
+        if(split.length < 2)
+            return null;
+
+        String endpoint = null;
+        String id = null;
+        boolean history = false;
+        if(split.length < 3)
         {
-            UriRequestResult result = new UriRequestResult();
-            result.setEndpoint(matcher.group(1));
-            result.setHistory(matcher.group(2) != null);
-            result.setId(matcher.group(3));
-
-            return result;
+            endpoint = split[1];
         }
-
-        matcher = queryPattern.matcher(uri);
-        if(matcher.find())
+        else if(split.length == 3)
         {
-            UriRequestResult result = new UriRequestResult();
-            result.setEndpoint(matcher.group(1));
-            result.setHistory(false);
-            result.setId(null);
-
-            return result;
+            endpoint = split[1];
+            id = split[2].trim();
+            if(id.length() == 0 || id.equals("history"))
+                return null;
         }
+        else if(split.length == 4 && split[2].equals("history"))
+        {
+            endpoint = split[1];
+            history = true;
+            id = split[3].trim();
+            if(id.length() == 0)
+                return null;
+        }
+        else
+            return null;
 
-        return null;
+        if(endpoint.length() == 0)
+            return null;
+
+        UriRequestResult result = new UriRequestResult();
+        result.setEndpoint(endpoint);
+        result.setHistory(history);
+        result.setId(id);
+
+        return result;
+
     }
 }
