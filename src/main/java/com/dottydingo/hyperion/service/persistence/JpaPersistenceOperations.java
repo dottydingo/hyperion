@@ -124,7 +124,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
-        apiVersionPlugin.getValidator().validateCreate(item);
+        apiVersionPlugin.getValidator().validateCreate(item, context);
 
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
@@ -159,7 +159,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             throw new NotFoundException(
                     String.format("%s with id %s was not found.",context.getEntity(),ids.get(0)));
 
-        apiVersionPlugin.getValidator().validateUpdate(item,existing);
+        apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
 
         if(!context.getEntityPlugin().getPersistenceFilter().canUpdate(existing,context))
         {
@@ -201,7 +201,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         {
             if(context.getEntityPlugin().getPersistenceFilter().canDelete(item,context))
             {
-                apiVersionPlugin.getValidator().validateDelete(item);
+                apiVersionPlugin.getValidator().validateDelete(item, context);
                 dao.delete(item);
                 if(context.getEntityPlugin().isHistoryEnabled())
                     saveHistory(context,item,HistoryAction.delete);

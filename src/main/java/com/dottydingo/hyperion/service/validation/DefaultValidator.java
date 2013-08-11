@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.service.validation;
 
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.ValidationException;
+import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import org.springframework.context.MessageSource;
 
 
@@ -22,28 +23,28 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     }
 
     @Override
-    public void validateCreate(C clientObject)
+    public void validateCreate(C clientObject, PersistenceContext persistenceContext)
     {
         ValidationErrorContext errorContext = new ValidationErrorContext();
-        validateCreate(clientObject,errorContext);
+        validateCreate(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
             throw new ValidationException(buildValidationErrorMessage(errorContext));
     }
 
     @Override
-    public void validateUpdate(C clientObject, P persistentObject)
+    public void validateUpdate(C clientObject, P persistentObject, PersistenceContext persistenceContext)
     {
         ValidationErrorContext errorContext = new ValidationErrorContext();
-        validateUpdate(clientObject,persistentObject,errorContext);
+        validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
             throw new ValidationException(buildValidationErrorMessage(errorContext));
     }
 
     @Override
-    public void validateDelete(P persistentObject)
+    public void validateDelete(P persistentObject, PersistenceContext persistenceContext)
     {
         ValidationErrorContext errorContext = new ValidationErrorContext();
-        validateDelete(persistentObject, errorContext);
+        validateDelete(persistentObject, errorContext,persistenceContext);
         if(errorContext.hasErrors())
             throw new ValidationException(buildValidationErrorMessage(errorContext));
     }
@@ -99,17 +100,17 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     }
 
 
-    protected void validateCreate(C clientObject,ValidationErrorContext errorContext)
+    protected void validateCreate(C clientObject,ValidationErrorContext errorContext,PersistenceContext persistenceContext)
     {
 
     }
 
-    protected void validateUpdate(C clientObject, P persistentObject,ValidationErrorContext errorContext)
+    protected void validateUpdate(C clientObject, P persistentObject,ValidationErrorContext errorContext,PersistenceContext persistenceContext)
     {
 
     }
 
-    protected void validateDelete(P persistentObject,ValidationErrorContext errorContext)
+    protected void validateDelete(P persistentObject,ValidationErrorContext errorContext,PersistenceContext persistenceContext)
     {
 
     }
