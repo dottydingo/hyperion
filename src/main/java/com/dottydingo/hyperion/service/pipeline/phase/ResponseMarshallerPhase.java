@@ -4,7 +4,6 @@ import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.service.context.HyperionContext;
-import com.dottydingo.service.endpoint.CompletionHandler;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 
@@ -35,10 +34,11 @@ public class ResponseMarshallerPhase extends AbstractEndpointPhase<HyperionConte
             response.setContentType("application/json");
             response.setContentEncoding("UTF-8");
 
-            if(phaseContext.getHttpMethod() != HttpMethod.DELETE)
+            if(phaseContext.getEffectiveMethod() != HttpMethod.DELETE)
                 response.setHeader(configuration.getVersionHeaderName(),phaseContext.getVersionPlugin().getVersion().toString());
 
-            marshaller.marshall(phaseContext.getEndpointResponse().getOutputStream(),result);
+            if(phaseContext.getRequestMethod() != HttpMethod.HEAD)
+                marshaller.marshall(phaseContext.getEndpointResponse().getOutputStream(),result);
         }
 
         phaseContext.requestComplete();

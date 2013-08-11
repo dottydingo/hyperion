@@ -27,6 +27,7 @@
                 <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
                 <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
                 <property name="historyPhaseExecutor" ref="hyperionHistoryExecutor"/>
+                <property name="optionsPhaseExecutor" ref="hyperionOptionsExecutor"/>
             </bean>
         </property>
         <property name="executor">
@@ -112,6 +113,18 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionAuditPhase"/>
+                <property name="corePoolSize" value="5"/>
+                <property name="maxPoolSize" value="5"/>
+                <property name="queueCapacity" value="1024"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="hyperionOptionsExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionOptionsPhase"/>
+        <property name="executor">
+            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+                <property name="threadNamePrefix" value="hyperionOptionsPhase"/>
                 <property name="corePoolSize" value="5"/>
                 <property name="maxPoolSize" value="5"/>
                 <property name="queueCapacity" value="1024"/>

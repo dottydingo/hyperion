@@ -16,20 +16,11 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
     private PhaseExecutor<HyperionContext> postPhaseExecutor;
     private PhaseExecutor<HyperionContext> putPhaseExecutor;
     private PhaseExecutor<HyperionContext> deletePhaseExecutor;
-
-    public PhaseExecutor<HyperionContext> getQueryPhaseExecutor()
-    {
-        return queryPhaseExecutor;
-    }
+    private PhaseExecutor<HyperionContext> optionsPhaseExecutor;
 
     public void setQueryPhaseExecutor(PhaseExecutor<HyperionContext> queryPhaseExecutor)
     {
         this.queryPhaseExecutor = queryPhaseExecutor;
-    }
-
-    public PhaseExecutor<HyperionContext> getGetPhaseExecutor()
-    {
-        return getPhaseExecutor;
     }
 
     public void setGetPhaseExecutor(PhaseExecutor<HyperionContext> getPhaseExecutor)
@@ -37,19 +28,9 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
         this.getPhaseExecutor = getPhaseExecutor;
     }
 
-    public PhaseExecutor<HyperionContext> getPostPhaseExecutor()
-    {
-        return postPhaseExecutor;
-    }
-
     public void setPostPhaseExecutor(PhaseExecutor<HyperionContext> postPhaseExecutor)
     {
         this.postPhaseExecutor = postPhaseExecutor;
-    }
-
-    public PhaseExecutor<HyperionContext> getPutPhaseExecutor()
-    {
-        return putPhaseExecutor;
     }
 
     public void setPutPhaseExecutor(PhaseExecutor<HyperionContext> putPhaseExecutor)
@@ -57,26 +38,25 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
         this.putPhaseExecutor = putPhaseExecutor;
     }
 
-    public PhaseExecutor<HyperionContext> getDeletePhaseExecutor()
-    {
-        return deletePhaseExecutor;
-    }
-
     public void setDeletePhaseExecutor(PhaseExecutor<HyperionContext> deletePhaseExecutor)
     {
         this.deletePhaseExecutor = deletePhaseExecutor;
     }
-
 
     public void setHistoryPhaseExecutor(PhaseExecutor<HyperionContext> historyPhaseExecutor)
     {
         this.historyPhaseExecutor = historyPhaseExecutor;
     }
 
+    public void setOptionsPhaseExecutor(PhaseExecutor<HyperionContext> optionsPhaseExecutor)
+    {
+        this.optionsPhaseExecutor = optionsPhaseExecutor;
+    }
+
     @Override
     public PhaseExecutor<HyperionContext> getNextPhase(HyperionContext context)
     {
-        HttpMethod method = context.getHttpMethod();
+        HttpMethod method = context.getEffectiveMethod();
 
         PhaseExecutor<HyperionContext> executor = null;
         switch (method)
@@ -100,7 +80,11 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
                     executor = queryPhaseExecutor;
 
                 break;
+
             }
+            case OPTIONS:
+                executor = optionsPhaseExecutor;
+                break;
         }
 
         if(executor == null)

@@ -49,7 +49,7 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         PersistenceContext persistenceContext = new PersistenceContext();
         persistenceContext.setEntityPlugin(context.getEntityPlugin());
         persistenceContext.setEntity(context.getEntityPlugin().getEndpointName());
-        persistenceContext.setHttpMethod(context.getHttpMethod());
+        persistenceContext.setHttpMethod(context.getEffectiveMethod());
         persistenceContext.setApiVersionPlugin(context.getVersionPlugin());
         persistenceContext.setUserContext(context.getUserContext());
         persistenceContext.setRequestedFields(buildFieldSet(context.getEndpointRequest().getFirstParameter("fields")));

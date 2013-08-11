@@ -25,6 +25,7 @@
                 <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
                 <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
                 <property name="historyPhaseExecutor" ref="hyperionHistoryExecutor"/>
+                <property name="optionsPhaseExecutor" ref="hyperionOptionsExecutor"/>
             </bean>
         </property>
     </bean>
@@ -59,6 +60,10 @@
 
     <bean id="hyperionHistoryExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionHistoryPhase"/>
+    </bean>
+
+    <bean id="hyperionOptionsExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionOptionsPhase"/>
     </bean>
 
     <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">

@@ -47,6 +47,11 @@
         <property name="name" value="history"/>
     </bean>
 
+    <bean id="hyperionOptionsPhase" class="com.dottydingo.hyperion.service.pipeline.phase.OptionsPhase" parent="baseHyperionPhase">
+        <property name="name" value="options"/>
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+    </bean>
+
     <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.service.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">
         <property name="name" value="marshall"/>
         <property name="configuration" ref="hyperionEndpointConfiguration"/>

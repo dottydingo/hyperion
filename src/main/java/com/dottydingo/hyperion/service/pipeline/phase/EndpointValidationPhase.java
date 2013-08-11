@@ -63,21 +63,14 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
         phaseContext.setEntityPlugin(plugin);
 
-        HttpMethod httpMethod = null;
+        phaseContext.setRequestMethod(getHttpMethod(request.getRequestMethod()));
         String requestMethod = getEffectiveMethod(request);
-        try
-        {
-            httpMethod = HttpMethod.valueOf(requestMethod);
-        }
-        catch (IllegalArgumentException e)
-        {
-            throw new HyperionException(405,String.format("%s is not allowed.", requestMethod));
-        }
+        HttpMethod httpMethod = getHttpMethod(requestMethod);
 
         if(!plugin.isMethodAllowed(httpMethod))
             throw new HyperionException(405,String.format("%s is not allowed.",httpMethod));
 
-        phaseContext.setHttpMethod(httpMethod);
+        phaseContext.setEffectiveMethod(httpMethod);
 
         String version = request.getFirstParameter(hyperionEndpointConfiguration.getVersionParameterName());
         if(version == null || version.length() == 0)
@@ -117,6 +110,20 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
     }
 
+    protected HttpMethod getHttpMethod(String methodName)
+    {
+        HttpMethod httpMethod;
+        try
+        {
+            httpMethod = HttpMethod.valueOf(methodName);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new HyperionException(405,String.format("%s is not allowed.", methodName));
+        }
+        return httpMethod;
+    }
+
     protected void logRequestInformation(HyperionContext context)
     {
         if(!logger.isDebugEnabled())
@@ -131,7 +138,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         logger.debug("Resource URI: {}",request.getResourceUri());
         logger.debug("Request Query String: {}",request.getQueryString());
         logger.debug("Request Method: {}",request.getRequestMethod());
-        logger.debug("Effective Method: {}",context.getHttpMethod());
+        logger.debug("Effective Method: {}",context.getEffectiveMethod());
         logger.debug("Endpoint Name: {}",context.getEntityPlugin().getEndpointName());
         logger.debug("ContentType: {}",request.getContentType());
         logger.debug("User ID: {}",context.getUserContext().getUserId());
@@ -159,6 +166,8 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         {
             return "GET";
         }
+        else if(request.getRequestMethod().equalsIgnoreCase("HEAD"))
+            return "GET";
 
         return request.getRequestMethod();
     }
@@ -175,6 +184,8 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
                 return (!requestResult.isHistory());
             case GET:
                 return (requestResult.isHistory() && requestResult.getId() != null) || !requestResult.isHistory();
+            case OPTIONS:
+                return true;
             default:
                 return false;
         }

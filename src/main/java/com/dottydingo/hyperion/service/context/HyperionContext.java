@@ -4,10 +4,7 @@ import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.service.endpoint.context.EndpointContext;
-import com.dottydingo.service.endpoint.context.EndpointRequest;
-import com.dottydingo.service.endpoint.context.EndpointResponse;
 import com.dottydingo.service.endpoint.context.UserContext;
-import com.dottydingo.service.endpoint.status.ContextStatus;
 
 /**
  */
@@ -15,7 +12,8 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
 {
     private EntityPlugin entityPlugin;
     private Integer version;
-    private HttpMethod httpMethod;
+    private HttpMethod effectiveMethod;
+    private HttpMethod requestMethod;
     private ApiVersionPlugin versionPlugin;
     private String id;
     private boolean history;
@@ -41,14 +39,24 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
         this.version = version;
     }
 
-    public HttpMethod getHttpMethod()
+    public HttpMethod getEffectiveMethod()
     {
-        return httpMethod;
+        return effectiveMethod;
     }
 
-    public void setHttpMethod(HttpMethod httpMethod)
+    public void setEffectiveMethod(HttpMethod effectiveMethod)
     {
-        this.httpMethod = httpMethod;
+        this.effectiveMethod = effectiveMethod;
+    }
+
+    public HttpMethod getRequestMethod()
+    {
+        return requestMethod;
+    }
+
+    public void setRequestMethod(HttpMethod requestMethod)
+    {
+        this.requestMethod = requestMethod;
     }
 
     public void setVersionPlugin(ApiVersionPlugin versionPlugin)
