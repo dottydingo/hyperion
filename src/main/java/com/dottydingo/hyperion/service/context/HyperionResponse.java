@@ -14,12 +14,12 @@ public class HyperionResponse extends EndpointResponse
 
         if(cacheMaxAge == 0)
         {
-            setHeader("cache-control","max-age=0, no-cache");
-            setHeader("pragma","no-cache");
+            setHeader("Cache-Control","max-age=0, no-cache");
+            setHeader("Pragma","no-cache");
         }
         else
         {
-            setHeader("cache-control",String.format("max-age=%d",cacheMaxAge));
+            setHeader("Cache-Control",String.format("max-age=%d",cacheMaxAge));
         }
     }
 

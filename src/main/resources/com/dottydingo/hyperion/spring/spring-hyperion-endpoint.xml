@@ -28,6 +28,7 @@
         <property name="requireVersion" value="${endpoint.requireVersion}"/>
         <property name="versionHeaderName" value="${endpoint.versionHeaderName}"/>
         <property name="versionParameterName" value="${endpoint.versionParameterName}"/>
+        <property name="forceConnectionClose" value="${endpoint.forceConnectionClose}"/>
     </bean>
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.service.pipeline.NoOpRequestLogHandler"/>

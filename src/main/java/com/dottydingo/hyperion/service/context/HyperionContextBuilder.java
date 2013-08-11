@@ -11,11 +11,10 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
 {
 
     @Override
-    protected HyperionRequest createRequest(HttpServletRequest httpServletRequest)
+    protected void setupRequest(HttpServletRequest httpServletRequest, HyperionRequest request)
     {
-        HyperionRequest request = super.createRequest(httpServletRequest);
+        super.setupRequest(httpServletRequest,request);
         request.setResourceUri(getResourceUri(httpServletRequest));
-        return request;
     }
 
     @Override
