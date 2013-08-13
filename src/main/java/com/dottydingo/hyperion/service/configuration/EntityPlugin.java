@@ -80,11 +80,19 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setLimitMethods(Set<HttpMethod> limitMethods)
     {
         this.limitMethods = limitMethods;
+        if(!limitMethods.isEmpty()) // always allow OPTIONS
+            limitMethods.add(HttpMethod.OPTIONS);
     }
 
     public boolean isMethodAllowed(HttpMethod method)
     {
         return limitMethods.isEmpty() || limitMethods.contains(method);
+    }
+
+    public void filterAllowedMethods(Set<HttpMethod> methods)
+    {
+        if(!limitMethods.isEmpty())
+            methods.retainAll(limitMethods);
     }
 
     public Map<String, SortBuilder> getSortBuilders()
