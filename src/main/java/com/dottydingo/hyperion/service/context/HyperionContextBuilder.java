@@ -1,8 +1,10 @@
 package com.dottydingo.hyperion.service.context;
 
+import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.service.endpoint.context.AbstractContextBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -15,6 +17,14 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
     {
         super.setupRequest(httpServletRequest,request);
         request.setResourceUri(getResourceUri(httpServletRequest));
+    }
+
+    @Override
+    protected void setupResponse(HttpServletResponse httpServletResponse, HyperionResponse response)
+    {
+        super.setupResponse(httpServletResponse, response);
+        response.setHeader("Access-Control-Allow-Origin",
+                ((HyperionEndpointConfiguration)endpointConfiguration).getAllowedOrigins());
     }
 
     @Override

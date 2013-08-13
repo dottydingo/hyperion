@@ -9,6 +9,8 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     protected String versionParameterName = "version";
     protected String versionHeaderName = "DottyDingo-Hyperion-Version";
     protected boolean requireVersion = false;
+    protected String allowedOrigins = "*";
+    protected int accessControlMaxAge = 0;
 
     public String getVersionParameterName()
     {
@@ -38,5 +40,25 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     public void setRequireVersion(boolean requireVersion)
     {
         this.requireVersion = requireVersion;
+    }
+
+    public String getAllowedOrigins()
+    {
+        return allowedOrigins;
+    }
+
+    public void setAllowedOrigins(String allowedOrigins)
+    {
+        this.allowedOrigins = allowedOrigins;
+    }
+
+    public int getAccessControlMaxAge()
+    {
+        return accessControlMaxAge;
+    }
+
+    public void setAccessControlMaxAge(int accessControlMaxAge)
+    {
+        this.accessControlMaxAge = accessControlMaxAge;
     }
 }

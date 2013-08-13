@@ -29,6 +29,8 @@
         <property name="versionHeaderName" value="${endpoint.versionHeaderName}"/>
         <property name="versionParameterName" value="${endpoint.versionParameterName}"/>
         <property name="forceConnectionClose" value="${endpoint.forceConnectionClose}"/>
+        <property name="allowedOrigins" value="${endpoint.allowedOrigins}"/>
+        <property name="accessControlMaxAge" value="${endpoint.accessControlMaxAge}"/>
     </bean>
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.service.pipeline.NoOpRequestLogHandler"/>

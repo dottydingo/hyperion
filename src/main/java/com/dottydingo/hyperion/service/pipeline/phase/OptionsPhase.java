@@ -26,9 +26,6 @@ public class OptionsPhase extends AbstractEndpointPhase<HyperionContext>
         HyperionRequest request = phaseContext.getEndpointRequest();
         HyperionResponse response = phaseContext.getEndpointResponse();
 
-        // todo make this configurable
-        response.setHeader("Access-Control-Allow-Origin", "*");
-
         Set<HttpMethod> allowedMethods = getAllowedMethods(phaseContext);
 
         StringBuilder sb = new StringBuilder();
@@ -47,7 +44,9 @@ public class OptionsPhase extends AbstractEndpointPhase<HyperionContext>
 
         //response.setHeader("Access-Control-Expose-Headers",""); todo
         //response.setHeader("Control-Allow-Credentials",""); todo
-        response.setHeader("Access-Control-Max-Age","300");
+
+        if(configuration.getAccessControlMaxAge() > 0)
+            response.setHeader("Access-Control-Max-Age", Integer.toString(configuration.getAccessControlMaxAge()));
 
         response.setContentType("application/json");
         response.setContentEncoding("UTF-8");
@@ -77,6 +76,8 @@ public class OptionsPhase extends AbstractEndpointPhase<HyperionContext>
             methods.add(HttpMethod.HEAD);
         }
 
+        context.getEntityPlugin().filterAllowedMethods(methods);
         return methods;
     }
+
 }
