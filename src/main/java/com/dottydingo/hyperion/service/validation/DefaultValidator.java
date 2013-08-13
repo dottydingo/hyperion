@@ -11,9 +11,9 @@ import org.springframework.context.MessageSource;
  */
 public class DefaultValidator<C,P> implements Validator<C, P>
 {
-    protected static final String REQUIRED_FIELD = "validation_required_field";
-    protected static final String FIELD_LENGTH = "validation_field_length";
-    protected static final String CHANGE_NOT_ALLOWED = "validation_change_not_allowed";
+    public static final String REQUIRED_FIELD = "validation_required_field";
+    public static final String FIELD_LENGTH = "validation_field_length";
+    public static final String CHANGE_NOT_ALLOWED = "validation_change_not_allowed";
 
     private MessageSource messageSource;
 
