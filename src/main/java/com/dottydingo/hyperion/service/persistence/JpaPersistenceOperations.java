@@ -29,7 +29,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     protected PredicateBuilderFactory predicateBuilderFactory;
     protected OrderBuilderFactory<P> orderBuilderFactory;
     protected HistoryEntryFactory historyEntryFactory;
-    protected Dao<P,ID> dao;
 
     public void setPredicateBuilderFactory(RsqlPredicateBuilderFactory predicateBuilderFactory)
     {
@@ -46,10 +45,6 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         this.historyEntryFactory = historyEntryFactory;
     }
 
-    public void setDao(Dao<P,ID> dao)
-    {
-        this.dao = dao;
-    }
 
     @Override
     public List<C> findByIds(List<ID> ids, PersistenceContext context)
@@ -58,7 +53,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
 
-        List<P> iterable = dao.findAll(context.getEntityPlugin().getEntityClass(),ids);
+        List<P> iterable = context.getEntityPlugin().getDao().findAll(context.getEntityPlugin().getEntityClass(),ids);
 
         List<P> result = new ArrayList<P>();
         for (P p : iterable)
@@ -91,6 +86,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         OrderBuilder<P> orderBuilder = orderBuilderFactory.createOrderBuilder(sort,context.getEntityPlugin());
 
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
         PersistentQueryResult<P> all = dao.query(context.getEntityPlugin().getEntityClass(),pageStart,size,orderBuilder,predicateBuilders);
 
         List<C> converted;
@@ -126,6 +122,8 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         apiVersionPlugin.getValidator().validateCreate(item, context);
 
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
+
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
@@ -153,6 +151,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
         P existing = dao.find(context.getEntityPlugin().getEntityClass(),ids.get(0));
 
         if(existing == null)
@@ -194,6 +193,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     public int deleteItem(List<ID> ids, PersistenceContext context)
     {
 
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
         Iterable<P> persistentItems = dao.findAll(context.getEntityPlugin().getEntityClass(),ids);
         int deleted = 0;
@@ -217,6 +217,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     public QueryResult<HistoryEntry> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
     {
         QueryResult<HistoryEntry> result = new QueryResult<HistoryEntry>();
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
         PersistentQueryResult<BasePersistentHistoryEntry> history = dao.getHistory(context.getEntityPlugin().getHistoryType(),
                 context.getEntity(), id, start, limit);
 
@@ -248,6 +249,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     protected void saveHistory(PersistenceContext context, P entity,HistoryAction historyAction)
     {
         BasePersistentHistoryEntry entry = historyEntryFactory.generateHistory(context,entity,historyAction);
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
         dao.saveHistory(entry);
     }
 }

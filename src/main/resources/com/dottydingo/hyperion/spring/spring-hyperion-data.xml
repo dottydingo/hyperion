@@ -17,7 +17,6 @@
 
     <bean id="hyperionBasePersistenceOperations"
           class="com.dottydingo.hyperion.service.persistence.JpaPersistenceOperations">
-        <property name="dao" ref="hyperionDao"/>
         <property name="orderBuilderFactory" ref="hyperionOrderBuilderFactory"/>
         <property name="predicateBuilderFactory" ref="hyperionPredicateBuilderFactory"/>
         <property name="historyEntryFactory" ref="hyperionHistoryEntryFactory"/>
@@ -41,5 +40,10 @@
     </bean>
 
     <bean id="hyperionObjectMapper" class="com.dottydingo.hyperion.service.marshall.ObjectMapperBuilder"/>
+
+    <bean id="hyperionBaseEntityPlugin" class="com.dottydingo.hyperion.service.configuration.EntityPlugin" abstract="true">
+        <property name="dao" ref="hyperionDao"/>
+        <property name="persistenceOperations" ref="hyperionPersistenceOperations"/>
+    </bean>
 
 </beans>

@@ -10,6 +10,7 @@ import com.dottydingo.hyperion.service.persistence.EmptyPersistenceFilter;
 import com.dottydingo.hyperion.service.persistence.PersistenceFilter;
 import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.service.key.KeyConverter;
+import com.dottydingo.hyperion.service.persistence.dao.Dao;
 import com.dottydingo.hyperion.service.persistence.query.QueryBuilder;
 import com.dottydingo.hyperion.service.persistence.sort.SortBuilder;
 
@@ -35,6 +36,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private Class<? extends BasePersistentHistoryEntry> historyType;
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
     private int cacheMaxAge = 0;
+    private Dao<P,ID> dao;
 
     public String getEndpointName()
     {
@@ -173,5 +175,15 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setCacheMaxAge(int cacheMaxAge)
     {
         this.cacheMaxAge = cacheMaxAge;
+    }
+
+    public Dao<P, ID> getDao()
+    {
+        return dao;
+    }
+
+    public void setDao(Dao<P, ID> dao)
+    {
+        this.dao = dao;
     }
 }
