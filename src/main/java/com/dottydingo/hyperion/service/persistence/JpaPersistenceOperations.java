@@ -234,6 +234,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
                 historyEntry.setHistoryAction(entry.getHistoryAction());
                 historyEntry.setTimestamp(entry.getTimestamp());
                 historyEntry.setUser(entry.getUser());
+                historyEntry.setApiVersion(entry.getApiVersion());
                 historyEntry.setEntry(historyEntryFactory.readEntry(entry,context));
                 historyEntries.add(historyEntry);
             }

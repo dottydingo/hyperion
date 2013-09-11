@@ -66,13 +66,6 @@ public class HistoryEntryFactory
         ByteArrayInputStream inputStream = new ByteArrayInputStream(entry.getSerializedEntry().getBytes());
         ApiVersionPlugin savedVersion = context.getEntityPlugin().getApiVersionRegistry().getPluginForVersion(entry.getApiVersion());
         C apiEntry = (C) endpointMarshaller.unmarshall(inputStream,savedVersion.getApiClass());
-        if(entry.getApiVersion().equals(context.getApiVersionPlugin().getVersion()))
-        {
-            return apiEntry;
-        }
-
-        // we need to convert versions
-        PersistentObject persistentObject = savedVersion.getTranslator().convertClient(apiEntry,context);
-        return (C) context.getApiVersionPlugin().getTranslator().convertPersistent(persistentObject,context);
+        return apiEntry;
     }
 }

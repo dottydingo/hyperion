@@ -8,10 +8,11 @@ import java.util.Date;
 
 /**
  */
-@JsonPropertyOrder({"id","historyAction","entry","user","timestamp"})
+@JsonPropertyOrder({"id","apiVersion","historyAction","entry","user","timestamp"})
 public class HistoryEntry<ID extends Serializable, T extends ApiObject<ID>>
 {
     private ID id;
+    private Integer apiVersion;
     private T entry;
     private HistoryAction historyAction;
     private String user;
@@ -25,6 +26,16 @@ public class HistoryEntry<ID extends Serializable, T extends ApiObject<ID>>
     public void setId(ID id)
     {
         this.id = id;
+    }
+
+    public Integer getApiVersion()
+    {
+        return apiVersion;
+    }
+
+    public void setApiVersion(Integer apiVersion)
+    {
+        this.apiVersion = apiVersion;
     }
 
     public T getEntry()
