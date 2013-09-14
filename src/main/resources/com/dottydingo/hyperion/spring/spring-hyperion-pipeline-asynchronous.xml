@@ -33,9 +33,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionEndpointValidationPhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.endpointValidationPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.endpointValidationPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.endpointValidationPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -53,9 +53,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionQueryPhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.queryPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.queryPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.queryPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -65,9 +65,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionGetPhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.getPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.getPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.getPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -77,9 +77,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionCreatePhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.createPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.createPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.createPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -89,9 +89,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionUpdatePhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.updatePhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.updatePhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.updatePhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -101,9 +101,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionDeletePhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.deletePhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.deletePhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.deletePhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -112,10 +112,10 @@
         <property name="phase" ref="hyperionHistoryPhase"/>
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionAuditPhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="threadNamePrefix" value="hyperionHistoryPhase"/>
+                <property name="corePoolSize" value="${pipeline.historyPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.historyPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.historyPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -125,9 +125,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionOptionsPhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.optionsPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.optionsPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.optionsPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
@@ -137,9 +137,9 @@
         <property name="executor">
             <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
                 <property name="threadNamePrefix" value="hyperionResponseMarshallerPhase"/>
-                <property name="corePoolSize" value="5"/>
-                <property name="maxPoolSize" value="5"/>
-                <property name="queueCapacity" value="1024"/>
+                <property name="corePoolSize" value="${pipeline.responseMarshallerPhase.minThreads}"/>
+                <property name="maxPoolSize" value="${pipeline.responseMarshallerPhase.maxThreads}"/>
+                <property name="queueCapacity" value="${pipeline.responseMarshallerPhase.maxQueueSize}"/>
             </bean>
         </property>
     </bean>
