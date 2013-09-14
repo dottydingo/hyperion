@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
+import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.service.endpoint.EntityResponse;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.QueryResult;
@@ -12,6 +13,13 @@ import com.dottydingo.service.endpoint.context.EndpointResponse;
  */
 public class QueryPhase extends BasePersistencePhase<HyperionContext>
 {
+    private HyperionEndpointConfiguration configuration;
+
+    public void setConfiguration(HyperionEndpointConfiguration configuration)
+    {
+        this.configuration = configuration;
+    }
+
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
@@ -29,6 +37,12 @@ public class QueryPhase extends BasePersistencePhase<HyperionContext>
 
         if(limit != null && limit < 1)
             throw new BadRequestException("The limit parameter must be greater than zero.");
+
+        if(limit == null)
+            limit = configuration.getDefaultLimit();
+
+        if(limit > configuration.getMaxLimit())
+            throw new BadRequestException(String.format("The limit parameter can not be greater than %d.",configuration.getMaxLimit()));
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
         QueryResult queryResult = phaseContext.getEntityPlugin().getPersistenceOperations().query(query, start, limit, sort, persistenceContext);

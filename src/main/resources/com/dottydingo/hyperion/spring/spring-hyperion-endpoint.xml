@@ -31,6 +31,8 @@
         <property name="forceConnectionClose" value="${endpoint.forceConnectionClose}"/>
         <property name="allowedOrigins" value="${endpoint.allowedOrigins}"/>
         <property name="accessControlMaxAge" value="${endpoint.accessControlMaxAge}"/>
+        <property name="defaultLimit" value="${endpoint.defaultLimit}"/>
+        <property name="maxLimit" value="${endpoint.maxLimit}"/>
     </bean>
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.service.pipeline.NoOpRequestLogHandler"/>

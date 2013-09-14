@@ -23,6 +23,7 @@
 
     <bean id="hyperionQueryPhase" class="com.dottydingo.hyperion.service.pipeline.phase.QueryPhase" parent="baseHyperionPhase">
         <property name="name" value="query"/>
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
     </bean>
 
     <bean id="hyperionGetPhase" class="com.dottydingo.hyperion.service.pipeline.phase.GetPhase" parent="baseHyperionPhase">

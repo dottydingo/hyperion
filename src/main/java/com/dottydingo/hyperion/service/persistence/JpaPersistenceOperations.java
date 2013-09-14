@@ -70,7 +70,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
-        int size = limit == null ? 500 : limit;
+        int size = limit;
         int pageStart = start == null ? 0 : start - 1;
 
 
