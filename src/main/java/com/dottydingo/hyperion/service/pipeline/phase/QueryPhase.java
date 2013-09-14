@@ -50,7 +50,7 @@ public class QueryPhase extends BasePersistencePhase<HyperionContext>
         EntityResponse entityResponse = new EntityResponse();
         entityResponse.setEntries(queryResult.getItems());
         entityResponse.setResponseCount(queryResult.getResponseCount());
-        entityResponse.setStart(start);
+        entityResponse.setStart(queryResult.getStart());
         entityResponse.setTotalCount(queryResult.getTotalCount());
 
         phaseContext.setResult(entityResponse);
