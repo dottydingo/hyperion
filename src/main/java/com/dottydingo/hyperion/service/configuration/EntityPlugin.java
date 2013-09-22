@@ -5,10 +5,7 @@ import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.DefaultPersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
-import com.dottydingo.hyperion.service.persistence.CreateKeyProcessor;
-import com.dottydingo.hyperion.service.persistence.EmptyPersistenceFilter;
-import com.dottydingo.hyperion.service.persistence.PersistenceFilter;
-import com.dottydingo.hyperion.service.persistence.PersistenceOperations;
+import com.dottydingo.hyperion.service.persistence.*;
 import com.dottydingo.hyperion.service.key.KeyConverter;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
 import com.dottydingo.hyperion.service.persistence.query.QueryBuilder;
@@ -37,6 +34,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
     private int cacheMaxAge = 0;
     private Dao<P,ID> dao;
+    private EntityChangeListener<C> entityChangeListener;
 
     public String getEndpointName()
     {
@@ -185,5 +183,20 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public void setDao(Dao<P, ID> dao)
     {
         this.dao = dao;
+    }
+
+    public Set<HttpMethod> getLimitMethods()
+    {
+        return limitMethods;
+    }
+
+    public EntityChangeListener<C> getEntityChangeListener()
+    {
+        return entityChangeListener;
+    }
+
+    public void setEntityChangeListener(EntityChangeListener<C> entityChangeListener)
+    {
+        this.entityChangeListener = entityChangeListener;
     }
 }

@@ -6,6 +6,7 @@ import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.endpoint.HistoryAction;
 import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
+import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
@@ -140,6 +141,14 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         C toReturn = translator.convertPersistent(saved,context);
         context.setWriteContext(WriteContext.create);
 
+        EntityChangeListener entityChangeListener = context.getEntityPlugin().getEntityChangeListener();
+        if(entityChangeListener != null)
+        {
+            EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), null,toReturn,null,
+                    HttpMethod.POST);
+            context.addEntityChangeEvent(entityChangeEvent);
+        }
+
         return toReturn;
     }
 
@@ -165,6 +174,14 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             return null;
         }
 
+        EntityChangeListener entityChangeListener = context.getEntityPlugin().getEntityChangeListener();
+
+        // only capture the original if there is a listener
+        C originalItem = null;
+        if(entityChangeListener != null)
+        {
+            originalItem = translator.convertPersistent(existing,context);
+        }
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
         // todo this needs a better implementation...
@@ -182,7 +199,16 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             if(context.getEntityPlugin().isHistoryEnabled())
                 saveHistory(context,persistent,HistoryAction.modify);
 
-            return translator.convertPersistent(persistent, context);
+            C toReturn = translator.convertPersistent(persistent, context);
+
+            if(entityChangeListener != null)
+            {
+                EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
+                        toReturn, context.getChangedFields(), HttpMethod.PUT);
+                context.addEntityChangeEvent(entityChangeEvent);
+            }
+
+            return toReturn;
         }
         else
             return translator.convertPersistent(existing, context);
@@ -195,6 +221,8 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         Dao<P,ID> dao = context.getEntityPlugin().getDao();
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        EntityChangeListener entityChangeListener = context.getEntityPlugin().getEntityChangeListener();
+        Translator<C,P> translator = apiVersionPlugin.getTranslator();
         Iterable<P> persistentItems = dao.findAll(context.getEntityPlugin().getEntityClass(),ids);
         int deleted = 0;
         for (P item : persistentItems)
@@ -205,6 +233,14 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
                 dao.delete(item);
                 if(context.getEntityPlugin().isHistoryEnabled())
                     saveHistory(context,item,HistoryAction.delete);
+
+                if(entityChangeListener != null)
+                {
+                    C originalItem = translator.convertPersistent(item, context);
+                    EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
+                            null, null, HttpMethod.DELETE);
+                    context.addEntityChangeEvent(entityChangeEvent);
+                }
                 deleted++;
             }
         }

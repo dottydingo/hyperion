@@ -6,6 +6,8 @@ import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.context.HyperionContext;
+import com.dottydingo.hyperion.service.persistence.EntityChangeEvent;
+import com.dottydingo.hyperion.service.persistence.EntityChangeListener;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.persistence.WriteContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
@@ -45,6 +47,7 @@ public class CreatePhase extends BasePersistencePhase<HyperionContext>
         ApiObject saved = plugin.getPersistenceOperations().createOrUpdateItem(clientObject, persistenceContext);
         if(saved != null)
         {
+            processChangeEvents(phaseContext,persistenceContext);
             if(persistenceContext.getWriteContext() == WriteContext.create)
             {
                 response.setResponseCode(201);

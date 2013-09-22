@@ -5,8 +5,7 @@ import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
 import com.dottydingo.service.endpoint.context.UserContext;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 /**
  *  Persistence Context
@@ -22,6 +21,8 @@ public class PersistenceContext
     private WriteContext writeContext;
     private boolean dirty = false;
     private Date currentTimestamp;
+    private Set<String> changedFields = new HashSet<String>();
+    private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
 
     public String getEntity()
     {
@@ -103,6 +104,16 @@ public class PersistenceContext
         return dirty;
     }
 
+    public void addChangedField(String fieldName)
+    {
+        changedFields.add(fieldName);
+    }
+
+    public Set<String> getChangedFields()
+    {
+        return changedFields;
+    }
+
     public void setCurrentTimestamp(Date currentTimestamp)
     {
         this.currentTimestamp = currentTimestamp;
@@ -111,6 +122,16 @@ public class PersistenceContext
     public Date getCurrentTimestamp()
     {
         return currentTimestamp;
+    }
+
+    public void addEntityChangeEvent(EntityChangeEvent entityChangeEvent)
+    {
+        entityChangeEvents.add(entityChangeEvent);
+    }
+
+    public List<EntityChangeEvent> getEntityChangeEvents()
+    {
+        return entityChangeEvents;
     }
 
     @Override
@@ -126,6 +147,8 @@ public class PersistenceContext
         ctx.writeContext = this.writeContext;
         ctx.dirty = this.dirty;
         ctx.currentTimestamp = this.currentTimestamp;
+        ctx.changedFields = this.changedFields;
+        ctx.entityChangeEvents = this.entityChangeEvents;
 
         return ctx;
     }

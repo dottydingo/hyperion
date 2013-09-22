@@ -30,6 +30,7 @@ public class DeletePhase extends BasePersistencePhase<HyperionContext>
         List ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
         int deleted = plugin.getPersistenceOperations().deleteItem(ids, persistenceContext);
 
+        processChangeEvents(phaseContext,persistenceContext);
         DeleteResponse deleteResponse = new DeleteResponse();
         deleteResponse.setCount(deleted);
         phaseContext.setResult(deleteResponse);

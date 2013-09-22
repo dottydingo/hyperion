@@ -48,6 +48,8 @@ public class UpdatePhase extends BasePersistencePhase<HyperionContext>
 
         ApiObject saved = plugin.getPersistenceOperations().updateItem(ids, clientObject, persistenceContext);
 
+        processChangeEvents(phaseContext,persistenceContext);
+
         if(saved != null)
         {
             response.setResponseCode(200);

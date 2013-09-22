@@ -66,7 +66,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         for (FieldMapper mapper : fieldMapperMap.values())
         {
             if(mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context))
+            {
                 dirty = true;
+                context.addChangedField(mapper.getClientFieldName());
+            }
         }
 
         if(dirty)

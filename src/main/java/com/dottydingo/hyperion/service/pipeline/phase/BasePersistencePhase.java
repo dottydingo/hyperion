@@ -2,6 +2,8 @@ package com.dottydingo.hyperion.service.pipeline.phase;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.service.context.HyperionContext;
+import com.dottydingo.hyperion.service.persistence.EntityChangeEvent;
+import com.dottydingo.hyperion.service.persistence.EntityChangeListener;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
@@ -41,6 +43,18 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         catch (NumberFormatException e)
         {
             throw new BadRequestException(String.format("%s must be an integer.",name));
+        }
+    }
+
+    protected void processChangeEvents(C phaseContext,PersistenceContext persistenceContext)
+    {
+        EntityChangeListener entityChangeListener = phaseContext.getEntityPlugin().getEntityChangeListener();
+        if(entityChangeListener != null)
+        {
+            for (EntityChangeEvent event : persistenceContext.getEntityChangeEvents())
+            {
+                entityChangeListener.processEntityChange(event);
+            }
         }
     }
 
