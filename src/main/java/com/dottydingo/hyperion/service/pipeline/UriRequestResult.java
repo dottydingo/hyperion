@@ -7,6 +7,7 @@ public class UriRequestResult
     private String endpoint;
     private boolean history;
     private String id;
+    private String version;
 
     public String getEndpoint()
     {
@@ -36,5 +37,15 @@ public class UriRequestResult
     public void setId(String id)
     {
         this.id = id;
+    }
+
+    public String getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(String version)
+    {
+        this.version = version;
     }
 }

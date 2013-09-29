@@ -5,9 +5,9 @@ import org.junit.Test;
 
 /**
  */
-public class UriParserTest
+public class DefaultUriParserTest
 {
-    private UriParser uriParser = new UriParser();
+    private DefaultUriParser uriParser = new DefaultUriParser();
 
     @Test
     public void testParseRequestUri() throws Exception

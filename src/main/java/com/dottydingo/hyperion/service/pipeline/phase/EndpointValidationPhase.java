@@ -31,7 +31,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     private ServiceRegistry serviceRegistry;
     private HyperionEndpointConfiguration hyperionEndpointConfiguration;
     private AuthorizationChecker authorizationChecker;
-    private UriParser uriParser = new UriParser();
+    private UriParser uriParser ;
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
     {
@@ -46,6 +46,11 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     public void setAuthorizationChecker(AuthorizationChecker authorizationChecker)
     {
         this.authorizationChecker = authorizationChecker;
+    }
+
+    public void setUriParser(UriParser uriParser)
+    {
+        this.uriParser = uriParser;
     }
 
     @Override
@@ -76,13 +81,20 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
         phaseContext.setEffectiveMethod(httpMethod);
 
-        String version = request.getFirstParameter(hyperionEndpointConfiguration.getVersionParameterName());
-        if(version == null || version.length() == 0)
-            version = request.getFirstHeader(hyperionEndpointConfiguration.getVersionHeaderName());
+        // special case where version is in the URI
+        String version = uriRequestResult.getVersion();
 
-        if(hyperionEndpointConfiguration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
-                (version == null || version.length()==0))
-            throw new BadRequestException(String.format("The %s parameter must be specified",hyperionEndpointConfiguration.getVersionParameterName()));
+        if(version == null || version.length() == 0)
+        {
+            version = request.getFirstParameter(hyperionEndpointConfiguration.getVersionParameterName());
+            if(version == null || version.length() == 0)
+                version = request.getFirstHeader(hyperionEndpointConfiguration.getVersionHeaderName());
+
+            if(hyperionEndpointConfiguration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
+                    (version == null || version.length()==0))
+                throw new BadRequestException(String.format("The %s parameter must be specified",hyperionEndpointConfiguration.getVersionParameterName()));
+        }
+
 
         if(version != null)
         {
