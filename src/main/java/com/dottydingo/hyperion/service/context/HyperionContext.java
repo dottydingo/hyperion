@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.context;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 import com.dottydingo.service.endpoint.context.EndpointContext;
 import com.dottydingo.service.endpoint.context.UserContext;
 
@@ -18,6 +19,7 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     private String id;
     private boolean history;
     private Object result;
+    private AuthorizationContext authorizationContext;
 
     public EntityPlugin getEntityPlugin()
     {
@@ -97,5 +99,15 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     public void setResult(Object result)
     {
         this.result = result;
+    }
+
+    public AuthorizationContext getAuthorizationContext()
+    {
+        return authorizationContext;
+    }
+
+    public void setAuthorizationContext(AuthorizationContext authorizationContext)
+    {
+        this.authorizationContext = authorizationContext;
     }
 }

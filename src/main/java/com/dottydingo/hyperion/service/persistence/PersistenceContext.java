@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.persistence;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 import com.dottydingo.service.endpoint.context.UserContext;
 
 import java.util.*;
@@ -23,6 +24,7 @@ public class PersistenceContext
     private Date currentTimestamp;
     private Set<String> changedFields = new HashSet<String>();
     private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
+    private AuthorizationContext authorizationContext;
 
     public String getEntity()
     {
@@ -134,6 +136,16 @@ public class PersistenceContext
         return entityChangeEvents;
     }
 
+    public AuthorizationContext getAuthorizationContext()
+    {
+        return authorizationContext;
+    }
+
+    public void setAuthorizationContext(AuthorizationContext authorizationContext)
+    {
+        this.authorizationContext = authorizationContext;
+    }
+
     @Override
     public Object clone() throws CloneNotSupportedException
     {
@@ -149,6 +161,7 @@ public class PersistenceContext
         ctx.currentTimestamp = this.currentTimestamp;
         ctx.changedFields = this.changedFields;
         ctx.entityChangeEvents = this.entityChangeEvents;
+        ctx.authorizationContext = this.authorizationContext;
 
         return ctx;
     }

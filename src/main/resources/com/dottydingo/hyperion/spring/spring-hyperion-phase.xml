@@ -11,14 +11,14 @@
         <property name="traceManager" ref="traceManager"/>
     </bean>
 
-    <bean id="hyperionAuthorizationChecker" class="com.dottydingo.hyperion.service.pipeline.auth.NoOpAuthorizationChecker"/>
+    <bean id="hyperionAuthorizationChecker" class="com.dottydingo.hyperion.service.pipeline.auth.NoOpAuthorizationProvider"/>
 
     <bean id="hyperionUriParser" class="com.dottydingo.hyperion.service.pipeline.DefaultUriParser"/>
 
     <bean id="hyperionEndpointValidationPhase" class="com.dottydingo.hyperion.service.pipeline.phase.EndpointValidationPhase"
             parent="baseHyperionPhase">
         <property name="serviceRegistry" ref="hyperionServiceRegistry"/>
-        <property name="authorizationChecker" ref="hyperionAuthorizationChecker"/>
+        <property name="authorizationProvider" ref="hyperionAuthorizationChecker"/>
         <property name="hyperionEndpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="name" value="RequestValidation"/>
         <property name="uriParser" ref="hyperionUriParser"/>

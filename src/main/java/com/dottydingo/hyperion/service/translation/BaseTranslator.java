@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.service.translation;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 
 import java.util.*;
 
@@ -39,9 +40,11 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
 
         beforeConvert(clientObjectWrapper,persistentObjectWrapper,context);
 
+        AuthorizationContext authorizationContext = context.getAuthorizationContext();
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
+            if(authorizationContext.isWritable(mapper.getClientFieldName()))
+                mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         }
 
         afterConvert(clientObjectWrapper,persistentObjectWrapper,context);
@@ -63,9 +66,12 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(client,context);
 
         beforeCopy(clientObjectWrapper,persistentObjectWrapper,context);
+
+        AuthorizationContext authorizationContext = context.getAuthorizationContext();
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            if(mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context))
+            if(authorizationContext.isWritable(mapper.getClientFieldName())
+                    && mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context))
             {
                 dirty = true;
                 context.addChangedField(mapper.getClientFieldName());
@@ -92,11 +98,14 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(clientObject,context);
 
         Set<String> requestedFields = context.getRequestedFields();
+        AuthorizationContext authorizationContext = context.getAuthorizationContext();
 
         for (Map.Entry<String, FieldMapper> entry : fieldMapperMap.entrySet())
         {
-            if(requestedFields == null || requestedFields.contains(entry.getKey()))
+            if((requestedFields == null || requestedFields.contains(entry.getKey()))
+                    && authorizationContext.isWritable(entry.getKey()))
             {
+
                 entry.getValue().convertToClient(persistentObjectWrapper,clientObjectWrapper,context);
             }
         }

@@ -67,6 +67,7 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         persistenceContext.setApiVersionPlugin(context.getVersionPlugin());
         persistenceContext.setUserContext(context.getUserContext());
         persistenceContext.setRequestedFields(buildFieldSet(context.getEndpointRequest().getFirstParameter("fields")));
+        persistenceContext.setAuthorizationContext(context.getAuthorizationContext());
 
         return persistenceContext;
     }

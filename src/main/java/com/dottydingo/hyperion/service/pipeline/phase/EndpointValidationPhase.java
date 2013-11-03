@@ -9,7 +9,8 @@ import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.context.HyperionRequest;
 import com.dottydingo.hyperion.service.context.HyperionResponse;
 import com.dottydingo.hyperion.service.endpoint.HttpMethod;
-import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationChecker;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationProvider;
 import com.dottydingo.hyperion.service.pipeline.UriParser;
 import com.dottydingo.hyperion.service.pipeline.UriRequestResult;
 import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
@@ -30,7 +31,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
     private ServiceRegistry serviceRegistry;
     private HyperionEndpointConfiguration hyperionEndpointConfiguration;
-    private AuthorizationChecker authorizationChecker;
+    private AuthorizationProvider authorizationProvider;
     private UriParser uriParser ;
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
@@ -43,9 +44,9 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         this.hyperionEndpointConfiguration = hyperionEndpointConfiguration;
     }
 
-    public void setAuthorizationChecker(AuthorizationChecker authorizationChecker)
+    public void setAuthorizationProvider(AuthorizationProvider authorizationProvider)
     {
-        this.authorizationChecker = authorizationChecker;
+        this.authorizationProvider = authorizationProvider;
     }
 
     public void setUriParser(UriParser uriParser)
@@ -125,9 +126,11 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
             response.setCacheMaxAge(plugin.getCacheMaxAge());
         }
 
-        if(authorizationChecker != null)
-            authorizationChecker.checkAuthorization(phaseContext);
+        AuthorizationContext authorizationContext = authorizationProvider.authorize(phaseContext);
+        phaseContext.setAuthorizationContext(authorizationContext);
 
+        if(!authorizationContext.isAuthorized())
+            throw new HyperionException(403,"Not Authorized");
 
     }
 

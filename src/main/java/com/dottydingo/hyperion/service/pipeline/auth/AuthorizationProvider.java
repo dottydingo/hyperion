@@ -6,7 +6,7 @@ import com.dottydingo.service.endpoint.context.EndpointContext;
 
 /**
  */
-public interface AuthorizationChecker
+public interface AuthorizationProvider
 {
-    void checkAuthorization(HyperionContext context) throws AuthorizationException;
+    AuthorizationContext authorize(HyperionContext context) throws AuthorizationException;
 }

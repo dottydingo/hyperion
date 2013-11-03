@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.translation;
 
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,7 @@ import org.junit.Test;
 public class TranslatorTest
 {
     private BaseTranslator<SimpleClientObject,SimplePersistentObject> translator;
-
+    private PersistenceContext context;
 
     @Before
     public void setup()
@@ -21,6 +22,8 @@ public class TranslatorTest
         translator = new DefaultTranslator<SimpleClientObject,SimplePersistentObject>(SimpleClientObject.class,
                 SimplePersistentObject.class);
         translator.init();
+        context = new PersistenceContext();
+        context.setAuthorizationContext(new TestAuthContext());
     }
 
     @Test
@@ -32,8 +35,6 @@ public class TranslatorTest
         clientObject.setNumber(100);
         clientObject.setDifferentType("Should not get copied by default");
         clientObject.setClientOnly("No field");
-
-        PersistenceContext context = new PersistenceContext();
 
         SimplePersistentObject persistentObject = translator.convertClient(clientObject,context);
 
@@ -62,8 +63,6 @@ public class TranslatorTest
         persistentObject.setDifferentType(88);
         persistentObject.setPersistentOnly("Should not be touched");
 
-        PersistenceContext context = new PersistenceContext();
-
         translator.copyClient(clientObject, persistentObject, context);
 
         Assert.assertNotNull(persistentObject);
@@ -88,8 +87,6 @@ public class TranslatorTest
         persistentObject.setDifferentType(88);
         persistentObject.setPersistentOnly("Should not be touched");
 
-        PersistenceContext context = new PersistenceContext();
-
         translator.copyClient(clientObject, persistentObject, context);
 
         Assert.assertNotNull(persistentObject);
@@ -112,8 +109,6 @@ public class TranslatorTest
         persistentObject.setDifferentType(88);
         persistentObject.setPersistentOnly("Should not be copied");
 
-        PersistenceContext context = new PersistenceContext();
-
         SimpleClientObject clientObject = translator.convertPersistent(persistentObject, context);
 
         Assert.assertNotNull(clientObject);
@@ -122,5 +117,26 @@ public class TranslatorTest
         Assert.assertEquals(new Integer(5),clientObject.getNumber());
         Assert.assertNull(clientObject.getDifferentType());
         Assert.assertNull(clientObject.getClientOnly());
+    }
+
+    private class TestAuthContext implements AuthorizationContext
+    {
+        @Override
+        public boolean isAuthorized()
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isReadable(String propertyName)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isWritable(String propertyName)
+        {
+            return true;
+        }
     }
 }
