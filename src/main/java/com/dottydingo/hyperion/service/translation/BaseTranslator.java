@@ -103,7 +103,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         for (Map.Entry<String, FieldMapper> entry : fieldMapperMap.entrySet())
         {
             if((requestedFields == null || requestedFields.contains(entry.getKey()))
-                    && authorizationContext.isWritable(entry.getKey()))
+                    && authorizationContext.isReadable(entry.getKey()))
             {
 
                 entry.getValue().convertToClient(persistentObjectWrapper,clientObjectWrapper,context);
