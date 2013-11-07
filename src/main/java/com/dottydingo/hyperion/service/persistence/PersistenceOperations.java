@@ -1,8 +1,7 @@
 package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
-import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
+import com.dottydingo.hyperion.api.HistoryEntry;
 
 import java.io.Serializable;
 import java.util.List;

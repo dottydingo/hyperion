@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.service.model;
 
-import com.dottydingo.hyperion.service.endpoint.HistoryAction;
+import com.dottydingo.hyperion.api.HistoryAction;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;

@@ -8,7 +8,7 @@ import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
 import com.dottydingo.hyperion.service.context.HyperionRequest;
 import com.dottydingo.hyperion.service.context.HyperionResponse;
-import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.context.HttpMethod;
 import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationProvider;
 import com.dottydingo.hyperion.service.pipeline.UriParser;

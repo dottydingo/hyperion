@@ -3,14 +3,13 @@ package com.dottydingo.hyperion.service.persistence;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.InternalException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
-import com.dottydingo.hyperion.service.endpoint.HistoryAction;
+import com.dottydingo.hyperion.api.HistoryAction;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
 
 /**
  */

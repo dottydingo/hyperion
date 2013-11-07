@@ -1,9 +1,8 @@
 package com.dottydingo.hyperion.service.configuration;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.context.HttpMethod;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
-import com.dottydingo.hyperion.service.model.DefaultPersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.*;
 import com.dottydingo.hyperion.service.key.KeyConverter;

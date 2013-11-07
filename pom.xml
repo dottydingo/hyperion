@@ -39,7 +39,7 @@
 
     <properties>
         <spring.version>3.2.3.RELEASE</spring.version>
-        <jackson.version>2.1.0</jackson.version>
+        <jackson.version>2.2.3</jackson.version>
         <hibernate.version>4.1.7.Final</hibernate.version>
         <endpoint.version>1.0.0</endpoint.version>
     </properties>
@@ -80,6 +80,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+            <version>${jackson.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>cz.jirutka.rsql</groupId>
             <artifactId>rsql-parser</artifactId>
             <version>1.0</version>
@@ -89,7 +96,7 @@
         <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
-            <version>0.8.0</version>
+            <version>1.0.0</version>
             <optional>true</optional>
         </dependency>
 

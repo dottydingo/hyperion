@@ -1,19 +1,19 @@
-package com.dottydingo.hyperion.service.endpoint;
+package com.dottydingo.hyperion.api;
 
-import com.dottydingo.hyperion.api.ApiObject;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  */
 @JsonPropertyOrder({"start","responseCount","totalCount","entries"})
-public class EntityResponse<T extends ApiObject>
+public class HistoryResponse<ID extends Serializable,T extends ApiObject<ID>>
 {
     private Integer start;
     private Integer responseCount;
     private Long totalCount;
-    private List<T> entries;
+    private List<HistoryEntry<ID,T>> entries;
 
     public Integer getStart()
     {
@@ -45,12 +45,12 @@ public class EntityResponse<T extends ApiObject>
         this.totalCount = totalCount;
     }
 
-    public List<T> getEntries()
+    public List<HistoryEntry<ID, T>> getEntries()
     {
         return entries;
     }
 
-    public void setEntries(List<T> entries)
+    public void setEntries(List<HistoryEntry<ID, T>> entries)
     {
         this.entries = entries;
     }

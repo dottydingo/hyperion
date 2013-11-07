@@ -2,8 +2,7 @@ package com.dottydingo.hyperion.service.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.exception.HyperionException;
-import com.dottydingo.hyperion.service.endpoint.HistoryEntry;
-import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
+import com.dottydingo.hyperion.api.HistoryEntry;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.io.Serializable;

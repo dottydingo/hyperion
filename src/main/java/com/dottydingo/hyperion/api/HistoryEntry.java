@@ -1,6 +1,5 @@
-package com.dottydingo.hyperion.service.endpoint;
+package com.dottydingo.hyperion.api;
 
-import com.dottydingo.hyperion.api.ApiObject;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.io.Serializable;

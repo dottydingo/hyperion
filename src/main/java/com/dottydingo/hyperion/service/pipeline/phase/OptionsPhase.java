@@ -4,7 +4,7 @@ import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfigurati
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.hyperion.service.context.HyperionRequest;
 import com.dottydingo.hyperion.service.context.HyperionResponse;
-import com.dottydingo.hyperion.service.endpoint.HttpMethod;
+import com.dottydingo.hyperion.service.context.HttpMethod;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 
 import java.util.*;

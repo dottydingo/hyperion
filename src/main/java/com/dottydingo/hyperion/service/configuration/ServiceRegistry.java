@@ -6,19 +6,24 @@ import java.util.*;
  */
 public class ServiceRegistry
 {
-    private Map<String,EntityPlugin> endpointMap = new HashMap<String, EntityPlugin>();
+    private Map<String,EntityPlugin> entityPluginMap = new TreeMap<String, EntityPlugin>();
 
     public void setEntityPlugins(List<EntityPlugin> entityPlugins)
     {
         for (EntityPlugin plugin : entityPlugins)
         {
-            endpointMap.put(plugin.getEndpointName(),plugin);
+            this.entityPluginMap.put(plugin.getEndpointName(), plugin);
         }
+    }
+
+    public List<EntityPlugin> getEntityPlugins()
+    {
+        return new ArrayList<EntityPlugin>(entityPluginMap.values());
     }
 
     public EntityPlugin getPluginForName(String name)
     {
-        return endpointMap.get(name);
+        return entityPluginMap.get(name);
     }
 
 }

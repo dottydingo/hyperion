@@ -2,11 +2,10 @@ package com.dottydingo.hyperion.service.pipeline;
 
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.InternalException;
-import com.dottydingo.hyperion.service.endpoint.ErrorResponse;
+import com.dottydingo.hyperion.api.ErrorResponse;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.service.endpoint.CompletionCallback;
-import com.dottydingo.service.endpoint.DefaultCompletionHandler;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

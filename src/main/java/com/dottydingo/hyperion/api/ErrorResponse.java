@@ -1,4 +1,4 @@
-package com.dottydingo.hyperion.service.endpoint;
+package com.dottydingo.hyperion.api;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 

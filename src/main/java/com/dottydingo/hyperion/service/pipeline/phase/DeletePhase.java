@@ -3,7 +3,7 @@ package com.dottydingo.hyperion.service.pipeline.phase;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
-import com.dottydingo.hyperion.service.endpoint.DeleteResponse;
+import com.dottydingo.hyperion.api.DeleteResponse;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
