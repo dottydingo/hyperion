@@ -7,6 +7,7 @@ import com.dottydingo.hyperion.api.HistoryAction;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
+import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,6 +16,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class HistoryEntryFactory
 {
+    private final AuthorizationContext historyAuthContext = new NoOpAuthContext();
     private EndpointMarshaller endpointMarshaller;
 
     public void setEndpointMarshaller(EndpointMarshaller endpointMarshaller)
@@ -45,6 +47,7 @@ public class HistoryEntryFactory
 
             PersistenceContext ctx = (PersistenceContext) context.clone();
             ctx.setRequestedFields(null);
+            ctx.setAuthorizationContext(historyAuthContext);
             C apiInstance = apiVersionPlugin.getTranslator().convertPersistent(entity,ctx);
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -66,5 +69,26 @@ public class HistoryEntryFactory
         ApiVersionPlugin savedVersion = context.getEntityPlugin().getApiVersionRegistry().getPluginForVersion(entry.getApiVersion());
         C apiEntry = (C) endpointMarshaller.unmarshall(inputStream,savedVersion.getApiClass());
         return apiEntry;
+    }
+
+    private class NoOpAuthContext implements AuthorizationContext
+    {
+        @Override
+        public boolean isAuthorized()
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isReadable(String propertyName)
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isWritable(String propertyName)
+        {
+            return true;
+        }
     }
 }
