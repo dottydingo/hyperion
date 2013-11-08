@@ -17,6 +17,8 @@ import java.io.ByteArrayOutputStream;
 public class HistoryEntryFactory
 {
     private final AuthorizationContext historyAuthContext = new NoOpAuthContext();
+    private final SimpleBeanFilter beanFilter = new SimpleBeanFilter();
+
     private EndpointMarshaller endpointMarshaller;
 
     public void setEndpointMarshaller(EndpointMarshaller endpointMarshaller)
@@ -68,7 +70,9 @@ public class HistoryEntryFactory
         ByteArrayInputStream inputStream = new ByteArrayInputStream(entry.getSerializedEntry().getBytes());
         ApiVersionPlugin savedVersion = context.getEntityPlugin().getApiVersionRegistry().getPluginForVersion(entry.getApiVersion());
         C apiEntry = (C) endpointMarshaller.unmarshall(inputStream,savedVersion.getApiClass());
-        return apiEntry;
+
+        C copy = beanFilter.copy(apiEntry,context.getAuthorizationContext());
+        return copy;
     }
 
     private class NoOpAuthContext implements AuthorizationContext
