@@ -35,7 +35,7 @@ public class EndpointMarshaller
         }
         catch (Exception e)
         {
-            throw new BadRequestException("Error unmarshalling request.",e);
+            throw new BadRequestException(String.format("Error unmarshalling request: %s",e.getMessage()),e);
         }
     }
 
