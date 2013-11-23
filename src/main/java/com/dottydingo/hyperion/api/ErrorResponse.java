@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  *
  */
-@JsonPropertyOrder({"statusCode","type","message"})
+@JsonPropertyOrder({"statusCode","type","message","errorDetail"})
 public class ErrorResponse
 {
     private int statusCode;
     private String message;
     private String type;
+    private String errorDetail;
 
     public int getStatusCode()
     {
@@ -40,5 +41,15 @@ public class ErrorResponse
     public void setType(String type)
     {
         this.type = type;
+    }
+
+    public String getErrorDetail()
+    {
+        return errorDetail;
+    }
+
+    public void setErrorDetail(String errorDetail)
+    {
+        this.errorDetail = errorDetail;
     }
 }

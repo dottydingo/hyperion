@@ -10,6 +10,9 @@ import com.dottydingo.service.endpoint.context.EndpointResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  */
 public class HyperionCompletionCallback implements CompletionCallback<HyperionContext>
@@ -54,6 +57,8 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
             ErrorResponse errorResponse = new ErrorResponse();
             errorResponse.setStatusCode(response.getResponseCode());
             errorResponse.setMessage(error.getMessage());
+            if(status == 500 || context.getShowErrorDetail())
+                errorResponse.setErrorDetail(buildErrorDetail(cause));
 
             String exceptionType = error.getClass().getName();
             if(!(error instanceof HyperionException))
@@ -75,6 +80,14 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
         }
 
         return cause;
+    }
 
+    private String buildErrorDetail(Throwable t)
+    {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        t.printStackTrace(printWriter);
+        printWriter.flush();
+        return stringWriter.toString();
     }
 }

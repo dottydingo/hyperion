@@ -5,6 +5,7 @@ import com.dottydingo.service.endpoint.context.AbstractContextBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 
 /**
@@ -25,6 +26,15 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
         super.setupResponse(httpServletResponse, response);
         response.setHeader("Access-Control-Allow-Origin",
                 ((HyperionEndpointConfiguration)endpointConfiguration).getAllowedOrigins());
+    }
+
+    @Override
+    public HyperionContext buildContext(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+            throws IOException
+    {
+        HyperionContext hyperionContext = super.buildContext(httpServletRequest, httpServletResponse);
+        hyperionContext.setShowErrorDetail(shouldIncludeErrorDetail(hyperionContext.getEndpointRequest()));
+        return hyperionContext;
     }
 
     @Override
@@ -55,5 +65,13 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
             return "";
 
         return requestUri.substring(context.length() + servlet.length());
+    }
+
+    protected boolean shouldIncludeErrorDetail(HyperionRequest request)
+    {
+        boolean includeErrorDetail = ((HyperionEndpointConfiguration)endpointConfiguration).getIncludeErrorDetail();
+        if(!includeErrorDetail)
+            includeErrorDetail = request.getParameter("errorDetail") != null;
+        return includeErrorDetail;
     }
 }

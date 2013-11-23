@@ -19,6 +19,7 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     private boolean history;
     private Object result;
     private AuthorizationContext authorizationContext;
+    private boolean showErrorDetail;
 
     public EntityPlugin getEntityPlugin()
     {
@@ -108,5 +109,16 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     public void setAuthorizationContext(AuthorizationContext authorizationContext)
     {
         this.authorizationContext = authorizationContext;
+    }
+
+
+    public void setShowErrorDetail(boolean showErrorDetail)
+    {
+        this.showErrorDetail = showErrorDetail;
+    }
+
+    public boolean getShowErrorDetail()
+    {
+        return showErrorDetail;
     }
 }

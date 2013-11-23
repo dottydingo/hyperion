@@ -33,6 +33,7 @@
         <property name="accessControlMaxAge" value="${endpoint.accessControlMaxAge}"/>
         <property name="defaultLimit" value="${endpoint.defaultLimit}"/>
         <property name="maxLimit" value="${endpoint.maxLimit}"/>
+        <property name="includeErrorDetail" value="${endpoint.includeErrorDetail}"/>
     </bean>
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.service.pipeline.NoOpRequestLogHandler"/>

@@ -13,6 +13,7 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     protected int accessControlMaxAge = 0;
     protected int defaultLimit = 500;
     protected int maxLimit = 1000;
+    protected boolean includeErrorDetail = false;
 
     public String getVersionParameterName()
     {
@@ -82,5 +83,15 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     public void setMaxLimit(int maxLimit)
     {
         this.maxLimit = maxLimit;
+    }
+
+    public boolean getIncludeErrorDetail()
+    {
+        return includeErrorDetail;
+    }
+
+    public void setIncludeErrorDetail(boolean includeErrorDetail)
+    {
+        this.includeErrorDetail = includeErrorDetail;
     }
 }
