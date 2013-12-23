@@ -53,7 +53,7 @@ enforce any necessary validation rules for a specific version of an entity.
 
 Translation uses a convention over configuration design principle. If a field on the API object has the same name and type
 as the field on the persistent object then translation happens automatically. Otherwise some level of configuration needs to
-be done to enable translation. Configuring fields that can be sorted and queried is similar, the assumption is that all fields
+be done to enable translation for that field. Configuring fields that can be sorted and queried is similar, the assumption is that all fields
 are supported unless excluded.
 
 # Using Hyperion
