@@ -33,7 +33,7 @@ public class RsqlPredicateBuilderFactory implements PredicateBuilderFactory
         Expression queryTree;
         try
         {
-            logger.info("Parsing query: {}", query);
+            logger.debug("Parsing query: {}", query);
             queryTree = RSQLParser.parse(query);
 
         }
