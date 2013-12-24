@@ -60,7 +60,7 @@
 
     <groupId>com.dottydingo.hyperion</groupId>
     <artifactId>hyperion</artifactId>
-    <version>0.20.0-SNAPSHOT</version>
+    <version>0.20.0</version>
 
     <name>Hyperion</name>
     <description>
