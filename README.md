@@ -3,10 +3,10 @@
 A framework for creating data services in Java.
 
 ## Features
-* Built in versioning support
+* Built-in versioning support
 * Sparse retrieves/updates
-* Built in paging support
-* Built in validation support
+* Built-in paging support
+* Built-in validation support
 * Configurable ad-hoc queries
 * Configurable ad-hoc sorting
 * Optional history support
