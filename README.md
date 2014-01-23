@@ -14,7 +14,7 @@ A framework for creating data services in Java.
 * Built using a SEDA pipeline, supports either synchronous and asynchronous execution
 
 Hyperion was designed to allow developers to quickly implement standardized data services without worrying about
-the underlying service plumbing. It is based on experience implementing standard data service in several different organizations.
+the underlying service plumbing. It is based on experience implementing standard data services in several different organizations.
 I've taken the lessons learned from implementing several different frameworks through the years and boiled it down to a framework that
 supports quickly creating data services. I classify this as a "Simple Service Framework" to avoid the religious war behind the REST and Restful
 service monikers. This framework supports most general use cases for data services but may not be a good fit for complex use cases, so caveat emptor.
@@ -37,11 +37,11 @@ This had several problems for the types of use cases I needed to support:
 
 Hyperion was designed to separate the external API representation of a data object from the underlying persistence model used to store the data. This
 has several advantages:
-* The data model can change over time. Since the API model is independent from the persistence model different versions of the API model can be supported. The persistent
-API models can also evolve independently.
+* The data model can change over time. Since the API model is independent from the persistence model different versions of the API model can be supported. The persistent and 
+API models can evolve independently.
 * The persistence mechanism can be changed without impacting the callers.
 * The caller can specify the fields to return. The framework will populate only the API fields being requested.
-* The caller can specify only changed fields om a write operation. The framework will only populate the persistent fields that were sent in the API model.
+* The caller can specify only changed fields on a write operation. The framework will only populate the persistent fields that were sent in the API model.
 
 
 # Underlying Architecture
