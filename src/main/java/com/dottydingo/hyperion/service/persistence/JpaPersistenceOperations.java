@@ -6,7 +6,6 @@ import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.api.HistoryAction;
 import com.dottydingo.hyperion.api.HistoryEntry;
-import com.dottydingo.hyperion.service.context.HttpMethod;
 import com.dottydingo.hyperion.service.model.BasePersistentHistoryEntry;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.persistence.dao.Dao;
@@ -145,7 +144,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         if(entityChangeListener != null)
         {
             EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), null,toReturn,null,
-                    HttpMethod.POST);
+                    context);
             context.addEntityChangeEvent(entityChangeEvent);
         }
 
@@ -204,7 +203,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             if(entityChangeListener != null)
             {
                 EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
-                        toReturn, context.getChangedFields(), HttpMethod.PUT);
+                        toReturn, context.getChangedFields(), context);
                 context.addEntityChangeEvent(entityChangeEvent);
             }
 
@@ -238,7 +237,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
                 {
                     C originalItem = translator.convertPersistent(item, context);
                     EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
-                            null, null, HttpMethod.DELETE);
+                            null, null, context);
                     context.addEntityChangeEvent(entityChangeEvent);
                 }
                 deleted++;

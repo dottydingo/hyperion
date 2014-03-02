@@ -13,15 +13,16 @@ public class EntityChangeEvent<C extends ApiObject>
     private C originalItem;
     private C updatedItem;
     private Set<String> updatedFields;
-    private HttpMethod httpMethod;
+    private PersistenceContext persistenceContext;
 
-    public EntityChangeEvent(String endpointName, C originalItem, C updatedItem, Set<String> updatedFields, HttpMethod httpMethod)
+    public EntityChangeEvent(String endpointName, C originalItem, C updatedItem, Set<String> updatedFields,
+                             PersistenceContext persistenceContext)
     {
         this.endpointName = endpointName;
         this.originalItem = originalItem;
         this.updatedItem = updatedItem;
         this.updatedFields = updatedFields;
-        this.httpMethod = httpMethod;
+        this.persistenceContext = persistenceContext;
     }
 
     public String getEndpointName()
@@ -44,8 +45,14 @@ public class EntityChangeEvent<C extends ApiObject>
         return updatedFields;
     }
 
+    @Deprecated
     public HttpMethod getHttpMethod()
     {
-        return httpMethod;
+        return persistenceContext.getHttpMethod();
+    }
+
+    public PersistenceContext getPersistenceContext()
+    {
+        return persistenceContext;
     }
 }
