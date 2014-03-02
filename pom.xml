@@ -1,54 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE project [
-        <!ELEMENT project (modelVersion|parent|groupId|artifactId|version|name|description|url|licenses|scm|developers|properties|dependencies|repositories|build)*>
-        <!ATTLIST project
-                xmlns CDATA #REQUIRED
-                xmlns:xsi CDATA #REQUIRED
-                xsi:schemaLocation CDATA #REQUIRED>
-        <!ELEMENT modelVersion (#PCDATA)>
-        <!ELEMENT parent (groupId|artifactId|version)*>
-        <!ELEMENT groupId (#PCDATA)>
-        <!ELEMENT artifactId (#PCDATA)>
-        <!ELEMENT version (#PCDATA)>
-        <!ELEMENT name (#PCDATA)>
-        <!ELEMENT description (#PCDATA)>
-        <!ELEMENT url (#PCDATA)>
-        <!ELEMENT licenses (license)*>
-        <!ELEMENT license (name|url|distribution)*>
-        <!ELEMENT distribution (#PCDATA)>
-        <!ELEMENT scm (connection|developerConnection|url)*>
-        <!ELEMENT connection (#PCDATA)>
-        <!ELEMENT developerConnection (#PCDATA)>
-        <!ELEMENT developers (developer)*>
-        <!ELEMENT developer (id|name|email)*>
-        <!ELEMENT id (#PCDATA)>
-        <!ELEMENT email (#PCDATA)>
-        <!ELEMENT properties (spring.version|jackson.version|hibernate.version|endpoint.version)*>
-        <!ELEMENT spring.version (#PCDATA)>
-        <!ELEMENT jackson.version (#PCDATA)>
-        <!ELEMENT hibernate.version (#PCDATA)>
-        <!ELEMENT endpoint.version (#PCDATA)>
-        <!ELEMENT dependencies (dependency)*>
-        <!ELEMENT dependency (groupId|artifactId|version|optional|scope)*>
-        <!ELEMENT optional (#PCDATA)>
-        <!ELEMENT scope (#PCDATA)>
-        <!ELEMENT repositories (repository)*>
-        <!ELEMENT repository (id|name|url)*>
-        <!ELEMENT build (plugins)*>
-        <!ELEMENT plugins (plugin)*>
-        <!ELEMENT plugin (groupId|artifactId|version|configuration|executions)*>
-        <!ELEMENT configuration (source|target|showDeprecation|showWarnings|optimize)*>
-        <!ELEMENT source (#PCDATA)>
-        <!ELEMENT target (#PCDATA)>
-        <!ELEMENT showDeprecation (#PCDATA)>
-        <!ELEMENT showWarnings (#PCDATA)>
-        <!ELEMENT optimize (#PCDATA)>
-        <!ELEMENT executions (execution)*>
-        <!ELEMENT execution (id|phase|goals)*>
-        <!ELEMENT phase (#PCDATA)>
-        <!ELEMENT goals (goal)*>
-        <!ELEMENT goal (#PCDATA)>
-        ]>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -60,7 +10,7 @@
 
     <groupId>com.dottydingo.hyperion</groupId>
     <artifactId>hyperion</artifactId>
-    <version>0.30.0</version>
+    <version>0.21.0-SNAPSHOT</version>
 
     <name>Hyperion</name>
     <description>
@@ -91,7 +41,7 @@
         <spring.version>3.2.3.RELEASE</spring.version>
         <jackson.version>2.3.0</jackson.version>
         <hibernate.version>4.1.7.Final</hibernate.version>
-        <endpoint.version>1.0.1</endpoint.version>
+        <endpoint.version>1.1.0-SNAPSHOT</endpoint.version>
     </properties>
 
     <dependencies>

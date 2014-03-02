@@ -1,8 +1,6 @@
 package com.dottydingo.hyperion.service.pipeline.phase;
 
-import com.dottydingo.hyperion.exception.BadRequestException;
-import com.dottydingo.hyperion.exception.HyperionException;
-import com.dottydingo.hyperion.exception.NotFoundException;
+import com.dottydingo.hyperion.exception.*;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.configuration.ServiceRegistry;
@@ -15,6 +13,7 @@ import com.dottydingo.hyperion.service.pipeline.UriParser;
 import com.dottydingo.hyperion.service.pipeline.UriRequestResult;
 import com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.service.context.HyperionContext;
+import com.dottydingo.hyperion.service.status.ServiceStatus;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     private HyperionEndpointConfiguration hyperionEndpointConfiguration;
     private AuthorizationProvider authorizationProvider;
     private UriParser uriParser ;
+    private ServiceStatus serviceStatus;
 
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
     {
@@ -54,9 +54,17 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         this.uriParser = uriParser;
     }
 
+    public void setServiceStatus(ServiceStatus serviceStatus)
+    {
+        this.serviceStatus = serviceStatus;
+    }
+
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
+        if(serviceStatus.getForceDown())
+            throw new ServiceUnavailableException("Service not available");
+
         HyperionRequest request = phaseContext.getEndpointRequest();
         HyperionResponse response = phaseContext.getEndpointResponse();
 
@@ -78,7 +86,10 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         HttpMethod httpMethod = getHttpMethod(requestMethod);
 
         if(!plugin.isMethodAllowed(httpMethod))
-            throw new HyperionException(405,String.format("%s is not allowed.",httpMethod));
+            throw new NotAllowedException(String.format("%s is not allowed.",httpMethod));
+
+        if(serviceStatus.getReadOnly() && httpMethod.isWriteOperation())
+            throw new NotAllowedException("Service is in read only mode.");
 
         phaseContext.setEffectiveMethod(httpMethod);
 
@@ -130,7 +141,7 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
         phaseContext.setAuthorizationContext(authorizationContext);
 
         if(!authorizationContext.isAuthorized())
-            throw new HyperionException(403,"Not Authorized");
+            throw new AuthorizationException("Not Authorized");
 
     }
 

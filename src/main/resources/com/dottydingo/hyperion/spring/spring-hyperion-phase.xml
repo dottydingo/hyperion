@@ -22,6 +22,7 @@
         <property name="hyperionEndpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="name" value="RequestValidation"/>
         <property name="uriParser" ref="hyperionUriParser"/>
+        <property name="serviceStatus" ref="hyperionEndpointStatus"/>
     </bean>
 
     <bean id="hyperionQueryPhase" class="com.dottydingo.hyperion.service.pipeline.phase.QueryPhase" parent="baseHyperionPhase">

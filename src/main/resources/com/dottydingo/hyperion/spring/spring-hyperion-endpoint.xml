@@ -17,6 +17,11 @@
 
     <bean id="hyperionEndpointStatusRegistry" class="com.dottydingo.service.endpoint.status.DefaultContextStatusRegistry"/>
 
+    <bean id="hyperionEndpointStatus" class="com.dottydingo.hyperion.service.status.ServiceStatus">
+        <property name="forceDown" value="${endpoint.forceDown}"/>
+        <property name="readOnly" value="${endpoint.readOnly}"/>
+    </bean>
+
     <bean id="hyperionEndpointConfiguration" class="com.dottydingo.hyperion.service.configuration.HyperionEndpointConfiguration">
         <property name="allowTrace" value="${endpoint.allowTrace}"/>
         <property name="correlationIdHeaderName" value="${endpoint.correlationIdHeaderName}"/>
@@ -45,6 +50,7 @@
         <property name="contextStatusBuilder" ref="hyperionEndpointStatusBuilder"/>
         <property name="pipelineInitiator" ref="hyperionPipelineInitiator"/>
         <property name="userContextBuilder" ref="hyperionUserContextBuilder"/>
+        <property name="endpointStatus" ref="hyperionEndpointStatus"/>
     </bean>
 
 
@@ -52,6 +58,7 @@
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
         <property name="traceManager" ref="traceManager"/>
         <property name="requestLogHandler" ref="hyperionRequestLogHandler"/>
+        <property name="endpointStatus" ref="hyperionEndpointStatus"/>
         <property name="completionCallbacks">
             <list>
                 <bean  class="com.dottydingo.hyperion.service.pipeline.HyperionCompletionCallback">
