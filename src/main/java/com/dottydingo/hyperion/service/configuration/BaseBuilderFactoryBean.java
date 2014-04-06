@@ -1,6 +1,5 @@
 package com.dottydingo.hyperion.service.configuration;
 
-import com.dottydingo.hyperion.service.persistence.sort.SortBuilder;
 import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
@@ -16,6 +15,7 @@ public abstract class BaseBuilderFactoryBean<T> implements FactoryBean<Map<Strin
 {
     protected Class<?> apiClass;
     protected Map<String,T> overrides = new HashMap<String, T>();
+    protected Map<String,T> additionalFields = new HashMap<String, T>();
     protected Set<String> excludeFields = new HashSet<String>();
     private Map<String,String> fieldNameRemapping = new HashMap<String, String>();
 
@@ -32,6 +32,11 @@ public abstract class BaseBuilderFactoryBean<T> implements FactoryBean<Map<Strin
     public void setOverrides(Map<String, T> overrides)
     {
         this.overrides = overrides;
+    }
+
+    public void setAdditionalFields(Map<String, T> additionalFields)
+    {
+        this.additionalFields = additionalFields;
     }
 
     public void setExcludeFields(Set<String> excludeFields)
@@ -81,7 +86,10 @@ public abstract class BaseBuilderFactoryBean<T> implements FactoryBean<Map<Strin
             String resolved = getResolvedName(field);
 
             map.put(resolved,builder);
+
         }
+
+        map.putAll(additionalFields);
 
         return map;
     }

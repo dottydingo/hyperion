@@ -26,16 +26,16 @@ public class DefaultSortBuilder implements SortBuilder
     @Override
     public List<Order> buildOrder(boolean desc, CriteriaBuilder cb, Root root)
     {
-        From from = getFrom(root,PathIterator.getPath(propertyPath));
+        Path from = getFrom(root,PathIterator.getPath(propertyPath));
         Path path = from.get(propertyName);
         Order order = desc ? cb.desc(path) : cb.asc(path);
         return Collections.singletonList(order);
     }
 
-    protected From getFrom(From from, PathIterator path)
+    protected Path getFrom(Path from, PathIterator path)
     {
         if(path.hasNext())
-            return getFrom(from.join(path.next()),path);
+            return getFrom(from.get(path.next()),path);
         return from;
     }
 }

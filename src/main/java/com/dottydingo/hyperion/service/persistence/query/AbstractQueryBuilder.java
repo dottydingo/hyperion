@@ -1,11 +1,13 @@
 package com.dottydingo.hyperion.service.persistence.query;
 
+import com.dottydingo.hyperion.exception.BadRequestException;
 import cz.jirutka.rsql.parser.model.Comparison;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
 /**
@@ -32,7 +34,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     argument
      * @return Predicate
      */
-    protected Predicate createPredicate(From root, CriteriaBuilder cb,  String propertyName, Comparison operator, Object argument)
+    protected Predicate createPredicate(Path root, CriteriaBuilder cb,  String propertyName, Comparison operator, Object argument)
     {
         logger.debug("Creating criterion: {} {} {}",
                 new Object[]{propertyName, operator, argument});
@@ -80,7 +82,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createEqual(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
         return cb.equal(root.get(propertyPath), argument);
     }
@@ -93,7 +95,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createLike(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createLike(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
         String like = (String) argument;
         like = like.replace(LIKE_WILDCARD, '%');
@@ -108,7 +110,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createNotEqual(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createNotEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
         return cb.notEqual(root.get(propertyPath), argument);
     }
@@ -121,7 +123,7 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     Value with wildcards.
      * @return Criterion
      */
-    protected Predicate createNotLike(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createNotLike(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
         return cb.notLike(root.get(propertyPath), (String) argument);
     }
@@ -133,9 +135,12 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createGreaterThan(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createGreaterThan(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
-        return cb.gt(root.get(propertyPath),(Number) argument);
+        if(!(argument instanceof Comparable))
+            throw new BadRequestException(String.format("Incompatible query operation: %s.","gt"));
+
+        return cb.greaterThan(root.get(propertyPath), (Comparable) argument);
     }
 
     /**
@@ -145,9 +150,12 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createGreaterEqual(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createGreaterEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
-        return cb.ge(root.get(propertyPath), (Number)argument);
+        if(!(argument instanceof Comparable))
+            throw new BadRequestException(String.format("Incompatible query operation: %s.","ge"));
+
+        return cb.greaterThanOrEqualTo(root.get(propertyPath), (Comparable) argument);
     }
 
     /**
@@ -157,9 +165,12 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createLessThan(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createLessThan(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
-        return cb.lt(root.get(propertyPath), (Number)argument);
+        if(!(argument instanceof Comparable))
+            throw new BadRequestException(String.format("Incompatible query operation: %s.","lt"));
+
+        return cb.lessThan(root.get(propertyPath), (Comparable) argument);
     }
 
     /**
@@ -169,9 +180,12 @@ public abstract class AbstractQueryBuilder<T> implements QueryBuilder
      * @param argument     value
      * @return Criterion
      */
-    protected Predicate createLessEqual(From root, CriteriaBuilder cb,String propertyPath, Object argument)
+    protected Predicate createLessEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
-        return cb.le(root.get(propertyPath), (Number)argument);
+        if(!(argument instanceof Comparable))
+            throw new BadRequestException(String.format("Incompatible query operation: %s.","le"));
+
+        return cb.lessThanOrEqualTo(root.get(propertyPath), (Comparable) argument);
     }
 
     /**
