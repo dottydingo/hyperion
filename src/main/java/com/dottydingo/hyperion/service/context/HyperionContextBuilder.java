@@ -14,16 +14,18 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
 {
 
     @Override
-    protected void setupRequest(HttpServletRequest httpServletRequest, HyperionRequest request)
+    protected void setupRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HyperionRequest request)
+            throws IOException
     {
-        super.setupRequest(httpServletRequest,request);
+        super.setupRequest(httpServletRequest, httpServletResponse, request);
         request.setResourceUri(getResourceUri(httpServletRequest));
     }
 
     @Override
-    protected void setupResponse(HttpServletResponse httpServletResponse, HyperionResponse response)
+    protected void setupResponse(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, HyperionResponse response)
+            throws IOException
     {
-        super.setupResponse(httpServletResponse, response);
+        super.setupResponse(httpServletRequest, httpServletResponse, response);
         response.setHeader("Access-Control-Allow-Origin",
                 ((HyperionEndpointConfiguration)endpointConfiguration).getAllowedOrigins());
     }
