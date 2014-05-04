@@ -30,14 +30,31 @@
                 <property name="optionsPhaseExecutor" ref="hyperionOptionsExecutor"/>
             </bean>
         </property>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionEndpointValidationPhase"/>
-                <property name="corePoolSize" value="${pipeline.endpointValidationPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.endpointValidationPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.endpointValidationPhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionEndpointValidationTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionEndpointValidationTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.endpointValidationPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.endpointValidationPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg >
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.endpointValidationPhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionEndpointValidationPhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionEndpointValidationTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionEndpointValidationTpExecutor"/>
     </bean>
 
     <bean id="baseHyperionPersistenceExecutor" parent="hyperionBaseExecutor" abstract="true">
@@ -50,100 +67,234 @@
 
     <bean id="hyperionQueryExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionQueryPhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionQueryPhase"/>
-                <property name="corePoolSize" value="${pipeline.queryPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.queryPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.queryPhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionQueryTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionQueryTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.queryPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.queryPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.queryPhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionQueryPhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionQueryTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionQueryTpExecutor"/>
     </bean>
 
     <bean id="hyperionGetExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionGetPhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionGetPhase"/>
-                <property name="corePoolSize" value="${pipeline.getPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.getPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.getPhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionGetTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionGetTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.getPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.getPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.getPhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionGetPhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionGetTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionGetTpExecutor"/>
     </bean>
 
     <bean id="hyperionCreateExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionCreatePhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionCreatePhase"/>
-                <property name="corePoolSize" value="${pipeline.createPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.createPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.createPhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionCreateTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionCreateTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.createPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.createPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.createPhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionCreatePhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionCreateTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionCreateTpExecutor"/>
     </bean>
 
     <bean id="hyperionUpdateExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionUpdatePhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionUpdatePhase"/>
-                <property name="corePoolSize" value="${pipeline.updatePhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.updatePhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.updatePhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionUpdateTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionUpdateTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.updatePhase.minThreads}"/>
+        <constructor-arg value="${pipeline.updatePhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.updatePhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionUpdatePhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionUpdateTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionUpdateTpExecutor"/>
     </bean>
 
     <bean id="hyperionDeleteExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionDeletePhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionDeletePhase"/>
-                <property name="corePoolSize" value="${pipeline.deletePhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.deletePhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.deletePhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionDeleteTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionDeleteTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.deletePhase.minThreads}"/>
+        <constructor-arg value="${pipeline.deletePhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.deletePhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionDeletePhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionDeleteTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionDeleteTpExecutor"/>
     </bean>
 
     <bean id="hyperionHistoryExecutor" parent="baseHyperionPersistenceExecutor">
         <property name="phase" ref="hyperionHistoryPhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionHistoryPhase"/>
-                <property name="corePoolSize" value="${pipeline.historyPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.historyPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.historyPhase.maxQueueSize}"/>
-            </bean>
-        </property>
+        <property name="executor" ref="hyperionHistoryTpExecutor"/>
     </bean>
+
+    <bean id="hyperionHistoryTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.historyPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.historyPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.historyPhase.maxQueueSize}"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionHistoryPhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionHistoryTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionHistoryTpExecutor"/>
+    </bean>
+
 
     <bean id="hyperionOptionsExecutor" parent="hyperionBaseExecutor">
         <property name="phase" ref="hyperionOptionsPhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionOptionsPhase"/>
-                <property name="corePoolSize" value="${pipeline.optionsPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.optionsPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.optionsPhase.maxQueueSize}"/>
+        <property name="executor" ref="hyperionOptionsTpExecutor"/>
+    </bean>
+
+    <bean id="hyperionOptionsTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.optionsPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.optionsPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg >
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.optionsPhase.maxQueueSize}"/>
             </bean>
-        </property>
+        </constructor-arg>
+        <constructor-arg >
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionOptionsPhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg >
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="hyperionOptionsTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionOptionsTpExecutor"/>
     </bean>
 
     <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">
         <property name="phase" ref="hyperionResponseMarshallerPhase"/>
-        <property name="executor">
-            <bean class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
-                <property name="threadNamePrefix" value="hyperionResponseMarshallerPhase"/>
-                <property name="corePoolSize" value="${pipeline.responseMarshallerPhase.minThreads}"/>
-                <property name="maxPoolSize" value="${pipeline.responseMarshallerPhase.maxThreads}"/>
-                <property name="queueCapacity" value="${pipeline.responseMarshallerPhase.maxQueueSize}"/>
-            </bean>
-        </property>
+        <property name="executor" ref="hyperionMarhallTpExecutor"/>
     </bean>
 
+    <bean id="hyperionMarhallTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
+        <constructor-arg value="${pipeline.responseMarshallerPhase.minThreads}"/>
+        <constructor-arg value="${pipeline.responseMarshallerPhase.maxThreads}"/>
+        <constructor-arg value="60"/>
+        <constructor-arg value="SECONDS"/>
+        <constructor-arg>
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg type="int" value="${pipeline.responseMarshallerPhase.maxQueueSize}"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionThreadFactory">
+                <property name="threadNamePrefix" value="hyperionMarshallResponsePhase"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.dottydingo.hyperion.service.pipeline.HyperionRejectedExecutionHandler"/>
+        </constructor-arg>
+    </bean>
 
-
+    <bean id="hyperionMarhallTpExecutorMbean" class="com.dottydingo.hyperion.service.status.ExecutorStatus">
+        <constructor-arg ref="hyperionMarhallTpExecutor"/>
+    </bean>
 </beans>
