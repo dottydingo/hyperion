@@ -49,24 +49,28 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
             else
                 logger.info(cause.getMessage());
 
-            response.setResponseCode(status);
 
-            response.setContentEncoding("UTF-8");
-            response.setContentType("application/json");
+            if(!context.isTimedOut())
+            {
+                response.setResponseCode(status);
 
-            ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setStatusCode(response.getResponseCode());
-            errorResponse.setMessage(error.getMessage());
-            if(status == 500 || context.getShowErrorDetail())
-                errorResponse.setErrorDetail(buildErrorDetail(cause));
+                response.setContentEncoding("UTF-8");
+                response.setContentType("application/json");
 
-            String exceptionType = error.getClass().getName();
-            if(!(error instanceof HyperionException))
-                exceptionType = InternalException.class.getName();
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setStatusCode(response.getResponseCode());
+                errorResponse.setMessage(error.getMessage());
+                if (status == 500 || context.getShowErrorDetail())
+                    errorResponse.setErrorDetail(buildErrorDetail(cause));
 
-            errorResponse.setType(exceptionType);
+                String exceptionType = error.getClass().getName();
+                if (!(error instanceof HyperionException))
+                    exceptionType = InternalException.class.getName();
 
-            endpointMarshaller.marshall(response.getOutputStream(),errorResponse);
+                errorResponse.setType(exceptionType);
+
+                endpointMarshaller.marshall(response.getOutputStream(), errorResponse);
+            }
         }
 
     }
