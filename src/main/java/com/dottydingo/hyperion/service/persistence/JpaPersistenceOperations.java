@@ -84,10 +84,11 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         if(filter != null)
             predicateBuilders.add(filter);
 
-        OrderBuilder<P> orderBuilder = orderBuilderFactory.createOrderBuilder(sort,context.getEntityPlugin());
+        OrderBuilder<P> orderBuilder = orderBuilderFactory.createOrderBuilder(sort, context.getEntityPlugin());
 
         Dao<P,ID> dao = context.getEntityPlugin().getDao();
-        PersistentQueryResult<P> all = dao.query(context.getEntityPlugin().getEntityClass(),pageStart,size,orderBuilder,predicateBuilders);
+        PersistentQueryResult<P> all = dao.query(context.getEntityPlugin().getEntityClass(), pageStart, size,
+                orderBuilder, predicateBuilders);
 
         List<C> converted;
         if(all.getTotalCount() > 0)
@@ -132,7 +133,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         if(!context.getEntityPlugin().getPersistenceFilter().canCreate(persistent,context))
             return null;
 
-        P saved = dao.create(persistent);
+        P saved = doCreate(persistent,context);
 
         if(context.getEntityPlugin().isHistoryEnabled())
             saveHistory(context,saved,HistoryAction.create);
@@ -149,6 +150,12 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         }
 
         return toReturn;
+    }
+
+    protected P doCreate(P persistent,PersistenceContext context)
+    {
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
+        return dao.create(persistent);
     }
 
 
@@ -194,7 +201,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         context.setWriteContext(WriteContext.update);
         if(dirty)
         {
-            P persistent = dao.update(existing);
+            P persistent = doUpdate(context, existing);
             if(context.getEntityPlugin().isHistoryEnabled())
                 saveHistory(context,persistent,HistoryAction.modify);
 
@@ -214,6 +221,12 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
     }
 
+    protected P doUpdate(PersistenceContext context, P existing)
+    {
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
+        return dao.update(existing);
+    }
+
     @Override
     public int deleteItem(List<ID> ids, PersistenceContext context)
     {
@@ -229,7 +242,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             if(context.getEntityPlugin().getPersistenceFilter().canDelete(item,context))
             {
                 apiVersionPlugin.getValidator().validateDelete(item, context);
-                dao.delete(item);
+                doDelete(context, item);
                 if(context.getEntityPlugin().isHistoryEnabled())
                     saveHistory(context,item,HistoryAction.delete);
 
@@ -245,6 +258,12 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         }
 
         return deleted;
+    }
+
+    protected void doDelete(PersistenceContext context, P item)
+    {
+        Dao<P,ID> dao = context.getEntityPlugin().getDao();
+        dao.delete(item);
     }
 
 

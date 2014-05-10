@@ -89,7 +89,7 @@
         <dependency>
             <groupId>cz.jirutka.rsql</groupId>
             <artifactId>rsql-parser</artifactId>
-            <version>1.0</version>
+            <version>1.0.2</version>
             <optional>true</optional>
         </dependency>
 
@@ -166,13 +166,6 @@
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>jirutka.cz</id>
-            <name>Repository with RSQL</name>
-            <url>http://repos.jirutka.cz/maven/</url>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>
