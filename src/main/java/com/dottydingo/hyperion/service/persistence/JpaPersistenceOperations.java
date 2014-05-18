@@ -217,7 +217,11 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             return toReturn;
         }
         else
+        {
+            // make sure we don't persist anything unintentionally
+            dao.evict(existing);
             return translator.convertPersistent(existing, context);
+        }
 
     }
 

@@ -144,6 +144,12 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     }
 
     @Override
+    public void evict(P entity)
+    {
+        em.detach(entity);
+    }
+
+    @Override
     public <H extends BasePersistentHistoryEntry<ID>> PersistentQueryResult<H> getHistory(Class<H> historyType, String entityType,
                                                                          ID entityId, Integer start, Integer limit)
     {
