@@ -6,6 +6,8 @@ import com.dottydingo.hyperion.service.pipeline.auth.AuthorizationContext;
 import com.dottydingo.service.endpoint.context.EndpointContext;
 import com.dottydingo.service.endpoint.context.UserContext;
 
+import java.util.Locale;
+
 /**
  */
 public class HyperionContext extends EndpointContext<HyperionRequest,HyperionResponse,UserContext>
@@ -20,6 +22,7 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     private Object result;
     private AuthorizationContext authorizationContext;
     private boolean showErrorDetail;
+    private Locale local;
 
     public EntityPlugin getEntityPlugin()
     {
@@ -120,5 +123,15 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     public boolean getShowErrorDetail()
     {
         return showErrorDetail;
+    }
+
+    public Locale getLocal()
+    {
+        return local;
+    }
+
+    public void setLocal(Locale local)
+    {
+        this.local = local;
     }
 }

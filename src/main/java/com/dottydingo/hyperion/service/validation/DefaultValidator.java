@@ -28,7 +28,7 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         ValidationErrorContext errorContext = new ValidationErrorContext();
         validateCreate(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext));
+            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         ValidationErrorContext errorContext = new ValidationErrorContext();
         validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext));
+            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext));
     }
 
     @Override
@@ -46,17 +46,17 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         ValidationErrorContext errorContext = new ValidationErrorContext();
         validateDelete(persistentObject, errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext));
+            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext));
     }
 
-    protected String buildValidationErrorMessage(ValidationErrorContext errorContext)
+    protected String buildValidationErrorMessage(ValidationErrorContext errorContext, PersistenceContext persistenceContext)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("The following validation errors have occurred:");
         for (ValidationErrorHolder holder : errorContext.getValidationErrors())
         {
             sb.append("\n");
-            sb.append(messageSource.getMessage(holder.getResourceCode(), holder.getParameters(), null));
+            sb.append(messageSource.getMessage(holder.getResourceCode(), holder.getParameters(), persistenceContext.getLocale()));
         }
         return sb.toString();
     }

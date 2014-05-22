@@ -25,6 +25,7 @@ public class PersistenceContext
     private Set<String> changedFields = new HashSet<String>();
     private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
     private AuthorizationContext authorizationContext;
+    private Locale locale;
 
     public String getEntity()
     {
@@ -146,6 +147,16 @@ public class PersistenceContext
         this.authorizationContext = authorizationContext;
     }
 
+    public Locale getLocale()
+    {
+        return locale;
+    }
+
+    public void setLocale(Locale locale)
+    {
+        this.locale = locale;
+    }
+
     @Override
     public Object clone() throws CloneNotSupportedException
     {
@@ -162,6 +173,7 @@ public class PersistenceContext
         ctx.changedFields = this.changedFields;
         ctx.entityChangeEvents = this.entityChangeEvents;
         ctx.authorizationContext = this.authorizationContext;
+        ctx.locale = this.locale;
 
         return ctx;
     }
