@@ -144,9 +144,10 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable> implemen
     }
 
     @Override
-    public void evict(P entity)
+    public P reset(P entity)
     {
-        em.detach(entity);
+        em.refresh(entity);
+        return entity;
     }
 
     @Override
