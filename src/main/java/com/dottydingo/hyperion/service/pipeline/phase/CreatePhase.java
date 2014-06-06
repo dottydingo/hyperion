@@ -4,6 +4,7 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
+import com.dottydingo.hyperion.service.marshall.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.hyperion.service.persistence.EntityChangeEvent;
@@ -35,7 +36,8 @@ public class CreatePhase extends BasePersistencePhase<HyperionContext>
         ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
-        ApiObject clientObject = marshaller.unmarshall(request.getInputStream(),apiVersionPlugin.getApiClass());
+        RequestContext<ApiObject> requestContext = marshaller.unmarshallWithContext(request.getInputStream(),apiVersionPlugin.getApiClass());
+        ApiObject clientObject = requestContext.getRequestObject();
         clientObject.setId(null);
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
@@ -43,6 +45,7 @@ public class CreatePhase extends BasePersistencePhase<HyperionContext>
         if(fieldSet != null)
             fieldSet.add("id");
 
+        persistenceContext.setProvidedFields(requestContext.getSetFields());
 
         ApiObject saved = plugin.getPersistenceOperations().createOrUpdateItem(clientObject, persistenceContext);
         if(saved != null)

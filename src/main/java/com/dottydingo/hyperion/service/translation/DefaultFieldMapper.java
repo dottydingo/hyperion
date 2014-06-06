@@ -65,7 +65,7 @@ public class DefaultFieldMapper <C,P> implements FieldMapper<C,P>
 
         boolean dirty = false;
 
-        if(clientValue != null)
+        if(clientValue != null || context.isFieldProvided(getClientFieldName()))
         {
             dirty = propertyChangeEvaluator.hasChanged(persistentObjectWrapper.getValue(persistentFieldName),
                     clientValue);
