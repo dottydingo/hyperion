@@ -104,7 +104,8 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
             if(hyperionEndpointConfiguration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
                     (version == null || version.length()==0))
-                throw new BadRequestException(String.format("The %s parameter must be specified",hyperionEndpointConfiguration.getVersionParameterName()));
+                throw new BadRequestException(String.format("The %s parameter must be specified",
+                        hyperionEndpointConfiguration.getVersionParameterName()));
         }
 
 

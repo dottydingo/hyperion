@@ -44,7 +44,9 @@ public class UpdatePhase extends BasePersistencePhase<HyperionContext>
         if(ids.size() != 1)
             throw new BadRequestException("A single id must be provided for an update.");
 
-        persistenceContext.setProvidedFields(requestContext.getSetFields());
+        Set<String> setFields = requestContext.getSetFields();
+
+        persistenceContext.setProvidedFields(setFields);
 
         Set<String> fieldSet = persistenceContext.getRequestedFields();
         if(fieldSet != null)
