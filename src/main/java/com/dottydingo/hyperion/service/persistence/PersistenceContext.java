@@ -26,6 +26,7 @@ public class PersistenceContext
     private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
     private AuthorizationContext authorizationContext;
     private Locale locale;
+    private Set<String> providedFields = Collections.emptySet();
 
     public String getEntity()
     {
@@ -157,6 +158,22 @@ public class PersistenceContext
         this.locale = locale;
     }
 
+
+    public Set<String> getProvidedFields()
+    {
+        return providedFields;
+    }
+
+    public void setProvidedFields(Set<String> providedFields)
+    {
+        this.providedFields = providedFields;
+    }
+
+    public boolean isFieldProvided(String fieldName)
+    {
+        return providedFields.contains(fieldName);
+    }
+
     @Override
     public Object clone() throws CloneNotSupportedException
     {
@@ -174,6 +191,7 @@ public class PersistenceContext
         ctx.entityChangeEvents = this.entityChangeEvents;
         ctx.authorizationContext = this.authorizationContext;
         ctx.locale = this.locale;
+        ctx.providedFields = this.providedFields;
 
         return ctx;
     }

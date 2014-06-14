@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.service.marshall;
 
 import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.exception.InternalException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
@@ -32,6 +33,21 @@ public class EndpointMarshaller
         try
         {
             return objectMapper.readValue(inputStream,type);
+        }
+        catch (Exception e)
+        {
+            throw new BadRequestException(String.format("Error unmarshalling request: %s",e.getMessage()),e);
+        }
+    }
+
+    public <T> RequestContext<T> unmarshallWithContext(InputStream inputStream, Class<T> type)
+    {
+        try
+        {
+            JsonNode jsonNode = objectMapper.readTree(inputStream);
+            T value = objectMapper.convertValue(jsonNode,type);
+
+            return new RequestContext<T>(value,jsonNode.fieldNames());
         }
         catch (Exception e)
         {

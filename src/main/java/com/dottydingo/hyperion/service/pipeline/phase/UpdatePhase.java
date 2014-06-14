@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.exception.BadRequestException;
 import com.dottydingo.hyperion.service.configuration.ApiVersionPlugin;
 import com.dottydingo.hyperion.service.configuration.EntityPlugin;
 import com.dottydingo.hyperion.service.marshall.EndpointMarshaller;
+import com.dottydingo.hyperion.service.marshall.RequestContext;
 import com.dottydingo.hyperion.service.model.PersistentObject;
 import com.dottydingo.hyperion.service.context.HyperionContext;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
@@ -36,11 +37,16 @@ public class UpdatePhase extends BasePersistencePhase<HyperionContext>
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
-        ApiObject clientObject = marshaller.unmarshall(request.getInputStream(), apiVersionPlugin.getApiClass());
+        RequestContext<ApiObject> requestContext = marshaller.unmarshallWithContext(request.getInputStream(), apiVersionPlugin.getApiClass());
+        ApiObject clientObject = requestContext.getRequestObject();
 
         List ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
         if(ids.size() != 1)
             throw new BadRequestException("A single id must be provided for an update.");
+
+        Set<String> setFields = requestContext.getSetFields();
+
+        persistenceContext.setProvidedFields(setFields);
 
         Set<String> fieldSet = persistenceContext.getRequestedFields();
         if(fieldSet != null)
