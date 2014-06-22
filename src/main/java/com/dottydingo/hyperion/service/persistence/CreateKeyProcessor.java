@@ -8,5 +8,5 @@ import java.io.Serializable;
  */
 public interface CreateKeyProcessor<C extends ApiObject,ID extends Serializable>
 {
-    ID lookup(C item);
+    ID lookup(C item, PersistenceContext persistenceContext);
 }

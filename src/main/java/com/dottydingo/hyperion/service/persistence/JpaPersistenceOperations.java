@@ -114,7 +114,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         CreateKeyProcessor<C,ID> createKeyProcessor = context.getEntityPlugin().getCreateKeyProcessor();
         if(createKeyProcessor != null)
         {
-            ID id = createKeyProcessor.lookup(item);
+            ID id = createKeyProcessor.lookup(item,context);
             if(id != null)
                 return updateItem(Collections.singletonList(id),item,context);
         }
