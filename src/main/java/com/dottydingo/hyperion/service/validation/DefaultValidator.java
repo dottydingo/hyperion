@@ -17,6 +17,8 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     public static final String REQUIRED_FIELD = "validation_required_field";
     public static final String FIELD_LENGTH = "validation_field_length";
     public static final String CHANGE_NOT_ALLOWED = "validation_change_not_allowed";
+    public static final String CONFLICT = "validation_conflict";
+    public static final String VALIDATION_ERROR = "validation_error";
 
     private MessageSource messageSource;
 
@@ -29,6 +31,12 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     public void validateCreate(C clientObject, PersistenceContext persistenceContext)
     {
         ValidationErrorContext errorContext = new ValidationErrorContext();
+
+        validateCreateConflict(clientObject,errorContext,persistenceContext);
+        if(errorContext.hasErrors())
+            throw new ValidationException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+                    buildErrorDetails(errorContext,persistenceContext));
+
         validateCreate(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
             throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
@@ -39,6 +47,12 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     public void validateUpdate(C clientObject, P persistentObject, PersistenceContext persistenceContext)
     {
         ValidationErrorContext errorContext = new ValidationErrorContext();
+
+        validateUpdateConflict(clientObject,persistentObject,errorContext,persistenceContext);
+        if(errorContext.hasErrors())
+            throw new ValidationException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+                    buildErrorDetails(errorContext,persistenceContext));
+
         validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
             throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
@@ -49,6 +63,12 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     public void validateDelete(P persistentObject, PersistenceContext persistenceContext)
     {
         ValidationErrorContext errorContext = new ValidationErrorContext();
+
+        validateDeleteConflict(persistentObject,errorContext,persistenceContext);
+        if(errorContext.hasErrors())
+            throw new ValidationException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+                    buildErrorDetails(errorContext,persistenceContext));
+
         validateDelete(persistentObject, errorContext,persistenceContext);
         if(errorContext.hasErrors())
             throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
@@ -69,11 +89,16 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         return errorDetails;
     }
 
+    protected String buildErrorMessage(PersistenceContext persistenceContext,String key,Object... parameters)
+    {
+        return messageSource.getMessage(key,parameters,persistenceContext.getLocale());
+    }
+
     @Deprecated
     protected String buildValidationErrorMessage(ValidationErrorContext errorContext, PersistenceContext persistenceContext)
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("The following validation errors have occurred:");
+        sb.append(messageSource.getMessage(VALIDATION_ERROR,null,persistenceContext.getLocale()));
         for (ValidationErrorHolder holder : errorContext.getValidationErrors())
         {
             sb.append("\n");
@@ -81,6 +106,13 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         }
         return sb.toString();
     }
+
+    protected void validateCreateConflict(C clientObject, ValidationErrorContext errorContext,PersistenceContext persistenceContext){}
+
+    protected void validateUpdateConflict(C clientObject, P persistentObject,ValidationErrorContext errorContext,PersistenceContext persistenceContext){}
+
+    protected void validateDeleteConflict(P persistentObject,ValidationErrorContext errorContext,PersistenceContext persistenceContext){}
+
 
     protected void validateRequired(ValidationErrorContext errorContext, String fieldName, Object value)
     {
