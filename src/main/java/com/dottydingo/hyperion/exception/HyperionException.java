@@ -1,10 +1,15 @@
 package com.dottydingo.hyperion.exception;
 
+import com.dottydingo.hyperion.api.ErrorDetail;
+
+import java.util.List;
+
 /**
  */
 public class HyperionException extends RuntimeException
 {
     private int statusCode;
+    private List<ErrorDetail> errorDetails;
 
     public HyperionException(String message)
     {
@@ -25,5 +30,20 @@ public class HyperionException extends RuntimeException
     public int getStatusCode()
     {
         return statusCode;
+    }
+
+    public void setStatusCode(int statusCode)
+    {
+        this.statusCode = statusCode;
+    }
+
+    public List<ErrorDetail> getErrorDetails()
+    {
+        return errorDetails;
+    }
+
+    public void setErrorDetails(List<ErrorDetail> errorDetails)
+    {
+        this.errorDetails = errorDetails;
     }
 }

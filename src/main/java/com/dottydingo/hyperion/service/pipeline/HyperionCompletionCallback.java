@@ -61,11 +61,13 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
                 errorResponse.setStatusCode(response.getResponseCode());
                 errorResponse.setMessage(error.getMessage());
                 if (status == 500 || context.getShowErrorDetail())
-                    errorResponse.setErrorDetail(buildErrorDetail(cause));
+                    errorResponse.setStackTrace(buildStackTrace(cause));
 
                 String exceptionType = error.getClass().getName();
                 if (!(error instanceof HyperionException))
                     exceptionType = InternalException.class.getName();
+                else
+                    errorResponse.setErrorDetails(((HyperionException) error).getErrorDetails());
 
                 errorResponse.setType(exceptionType);
 
@@ -86,7 +88,7 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
         return cause;
     }
 
-    private String buildErrorDetail(Throwable t)
+    private String buildStackTrace(Throwable t)
     {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);

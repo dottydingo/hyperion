@@ -2,6 +2,8 @@ package com.dottydingo.hyperion.api;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.List;
+
 /**
  *
  */
@@ -11,7 +13,8 @@ public class ErrorResponse
     private int statusCode;
     private String message;
     private String type;
-    private String errorDetail;
+    private List<ErrorDetail> errorDetails;
+    private String stackTrace;
 
     public int getStatusCode()
     {
@@ -43,13 +46,23 @@ public class ErrorResponse
         this.type = type;
     }
 
-    public String getErrorDetail()
+    public List<ErrorDetail> getErrorDetails()
     {
-        return errorDetail;
+        return errorDetails;
     }
 
-    public void setErrorDetail(String errorDetail)
+    public void setErrorDetails(List<ErrorDetail> errorDetails)
     {
-        this.errorDetail = errorDetail;
+        this.errorDetails = errorDetails;
+    }
+
+    public String getStackTrace()
+    {
+        return stackTrace;
+    }
+
+    public void setStackTrace(String stackTrace)
+    {
+        this.stackTrace = stackTrace;
     }
 }

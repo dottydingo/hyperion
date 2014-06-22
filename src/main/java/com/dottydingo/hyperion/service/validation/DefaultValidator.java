@@ -1,10 +1,13 @@
 package com.dottydingo.hyperion.service.validation;
 
+import com.dottydingo.hyperion.api.ErrorDetail;
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
 import org.springframework.context.MessageSource;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -28,7 +31,8 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         ValidationErrorContext errorContext = new ValidationErrorContext();
         validateCreate(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext));
+            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
+                    buildErrorDetails(errorContext,persistenceContext));
     }
 
     @Override
@@ -37,7 +41,8 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         ValidationErrorContext errorContext = new ValidationErrorContext();
         validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext));
+            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
+                    buildErrorDetails(errorContext,persistenceContext));
     }
 
     @Override
@@ -46,9 +51,25 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         ValidationErrorContext errorContext = new ValidationErrorContext();
         validateDelete(persistentObject, errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext));
+            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
+                    buildErrorDetails(errorContext,persistenceContext));
     }
 
+    protected List<ErrorDetail> buildErrorDetails(ValidationErrorContext errorContext,PersistenceContext persistenceContext)
+    {
+        List<ErrorDetail> errorDetails = new ArrayList<ErrorDetail>();
+        for (ValidationErrorHolder holder : errorContext.getValidationErrors())
+        {
+            ErrorDetail errorDetail = new ErrorDetail();
+            errorDetail.setCode(holder.getResourceCode());
+            errorDetail.setMessage(messageSource.getMessage(holder.getResourceCode(), holder.getParameters(), persistenceContext.getLocale()));
+            errorDetails.add(errorDetail);
+        }
+
+        return errorDetails;
+    }
+
+    @Deprecated
     protected String buildValidationErrorMessage(ValidationErrorContext errorContext, PersistenceContext persistenceContext)
     {
         StringBuilder sb = new StringBuilder();
