@@ -135,16 +135,23 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         P saved = doCreate(persistent,context);
 
+        EntityChangeListener entityChangeListener = context.getEntityPlugin().getEntityChangeListener();
+
+        AdminPersistenceContext adminPersistenceContext = null;
+        if(entityChangeListener != null || context.getEntityPlugin().isHistoryEnabled())
+            adminPersistenceContext = new AdminPersistenceContext(context);
+
         if(context.getEntityPlugin().isHistoryEnabled())
-            saveHistory(context,saved,HistoryAction.create);
+            saveHistory(adminPersistenceContext,saved,HistoryAction.create);
 
         C toReturn = translator.convertPersistent(saved,context);
         context.setWriteContext(WriteContext.create);
 
-        EntityChangeListener entityChangeListener = context.getEntityPlugin().getEntityChangeListener();
+
         if(entityChangeListener != null)
         {
-            EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), null,toReturn,null,
+            C newObject = translator.convertPersistent(saved,adminPersistenceContext);
+            EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), null,newObject,null,
                     context);
             context.addEntityChangeEvent(entityChangeEvent);
         }
@@ -182,11 +189,15 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
 
         EntityChangeListener entityChangeListener = context.getEntityPlugin().getEntityChangeListener();
 
+        AdminPersistenceContext adminPersistenceContext = null;
+        if(entityChangeListener != null || context.getEntityPlugin().isHistoryEnabled())
+            adminPersistenceContext = new AdminPersistenceContext(context);
+
         // only capture the original if there is a listener
         C originalItem = null;
         if(entityChangeListener != null)
         {
-            originalItem = translator.convertPersistent(existing,context);
+            originalItem = translator.convertPersistent(existing,adminPersistenceContext);
         }
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
@@ -203,14 +214,15 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         {
             P persistent = doUpdate(context, existing);
             if(context.getEntityPlugin().isHistoryEnabled())
-                saveHistory(context,persistent,HistoryAction.modify);
+                saveHistory(adminPersistenceContext,persistent,HistoryAction.modify);
 
             C toReturn = translator.convertPersistent(persistent, context);
 
             if(entityChangeListener != null)
             {
+                C updatedItem = translator.convertPersistent(persistent,adminPersistenceContext);
                 EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
-                        toReturn, context.getChangedFields(), context);
+                        updatedItem, context.getChangedFields(), context);
                 context.addEntityChangeEvent(entityChangeEvent);
             }
 
@@ -247,12 +259,17 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
             {
                 apiVersionPlugin.getValidator().validateDelete(item, context);
                 doDelete(context, item);
+
+                AdminPersistenceContext adminPersistenceContext = null;
+                if(entityChangeListener != null || context.getEntityPlugin().isHistoryEnabled())
+                    adminPersistenceContext = new AdminPersistenceContext(context);
+
                 if(context.getEntityPlugin().isHistoryEnabled())
-                    saveHistory(context,item,HistoryAction.delete);
+                    saveHistory(adminPersistenceContext,item,HistoryAction.delete);
 
                 if(entityChangeListener != null)
                 {
-                    C originalItem = translator.convertPersistent(item, context);
+                    C originalItem = translator.convertPersistent(item, adminPersistenceContext);
                     EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
                             null, null, context);
                     context.addEntityChangeEvent(entityChangeEvent);
@@ -305,7 +322,7 @@ public class JpaPersistenceOperations<C extends ApiObject, P extends PersistentO
         return result;
     }
 
-    protected void saveHistory(PersistenceContext context, P entity,HistoryAction historyAction)
+    protected void saveHistory(AdminPersistenceContext context, P entity,HistoryAction historyAction)
     {
         BasePersistentHistoryEntry entry = historyEntryFactory.generateHistory(context,entity,historyAction);
         Dao<P,ID> dao = context.getEntityPlugin().getDao();

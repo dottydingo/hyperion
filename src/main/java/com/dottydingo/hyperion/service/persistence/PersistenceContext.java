@@ -28,6 +28,29 @@ public class PersistenceContext
     private Locale locale;
     private Set<String> providedFields = Collections.emptySet();
 
+    public PersistenceContext()
+    {
+    }
+
+    public PersistenceContext(PersistenceContext other)
+    {
+        this.entity = other.entity;
+        this.requestedFields = other.requestedFields;
+        this.entityPlugin = other.entityPlugin;
+        this.apiVersionPlugin = other.apiVersionPlugin;
+        this.httpMethod = other.httpMethod;
+        this.userContext = other.userContext;
+        this.writeContext = other.writeContext;
+        this.dirty = other.dirty;
+        this.currentTimestamp = other.currentTimestamp;
+        this.changedFields = other.changedFields;
+        this.entityChangeEvents = other.entityChangeEvents;
+        this.authorizationContext = other.authorizationContext;
+        this.locale = other.locale;
+        this.providedFields = other.providedFields;
+    }
+
+
     public String getEntity()
     {
         return entity;
@@ -174,26 +197,11 @@ public class PersistenceContext
         return providedFields.contains(fieldName);
     }
 
+    @Deprecated
     @Override
     public Object clone() throws CloneNotSupportedException
     {
-        PersistenceContext ctx = new PersistenceContext();
-        ctx.apiVersionPlugin = this.apiVersionPlugin;
-        ctx.entity = this.entity;
-        ctx.entityPlugin = this.entityPlugin;
-        ctx.httpMethod = this.httpMethod;
-        ctx.requestedFields = this.requestedFields;
-        ctx.userContext = this.userContext;
-        ctx.writeContext = this.writeContext;
-        ctx.dirty = this.dirty;
-        ctx.currentTimestamp = this.currentTimestamp;
-        ctx.changedFields = this.changedFields;
-        ctx.entityChangeEvents = this.entityChangeEvents;
-        ctx.authorizationContext = this.authorizationContext;
-        ctx.locale = this.locale;
-        ctx.providedFields = this.providedFields;
-
-        return ctx;
+        return new PersistenceContext(this);
     }
 
 

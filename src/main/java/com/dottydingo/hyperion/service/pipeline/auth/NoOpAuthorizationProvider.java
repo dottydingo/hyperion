@@ -12,25 +12,4 @@ public class NoOpAuthorizationProvider implements AuthorizationProvider
     {
         return new NoOpAuthorizationContext();
     }
-
-    private class NoOpAuthorizationContext implements AuthorizationContext
-    {
-        @Override
-        public boolean isAuthorized()
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isReadable(String propertyName)
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isWritable(String propertyName)
-        {
-            return true;
-        }
-    }
 }
