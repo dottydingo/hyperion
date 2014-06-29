@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.service.validation;
 
 import com.dottydingo.hyperion.api.ErrorDetail;
+import com.dottydingo.hyperion.exception.ConflictException;
 import com.dottydingo.hyperion.exception.HyperionException;
 import com.dottydingo.hyperion.exception.ValidationException;
 import com.dottydingo.hyperion.service.persistence.PersistenceContext;
@@ -34,7 +35,7 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateCreateConflict(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+            throw new ConflictException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
                     buildErrorDetails(errorContext,persistenceContext));
 
         validateCreate(clientObject,errorContext,persistenceContext);
@@ -50,7 +51,7 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateUpdateConflict(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+            throw new ConflictException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
                     buildErrorDetails(errorContext,persistenceContext));
 
         validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
@@ -66,7 +67,7 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateDeleteConflict(persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+            throw new ConflictException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
                     buildErrorDetails(errorContext,persistenceContext));
 
         validateDelete(persistentObject, errorContext,persistenceContext);
