@@ -102,4 +102,19 @@ public class ApiVersionPlugin<C extends ApiObject,P extends PersistentObject>
     {
         this.createKeyProcessor = createKeyProcessor;
     }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("ApiVersionPlugin{");
+        sb.append("version=").append(version);
+        sb.append(", translator=").append(translator);
+        sb.append(", validator=").append(validator);
+        sb.append(", apiClass=").append(apiClass);
+        sb.append(", sortBuilders=").append(sortBuilders);
+        sb.append(", queryBuilders=").append(queryBuilders);
+        sb.append(", createKeyProcessor=").append(createKeyProcessor);
+        sb.append('}');
+        return sb.toString();
+    }
 }

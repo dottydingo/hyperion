@@ -60,7 +60,7 @@ public class QueryPhase extends BasePersistencePhase<HyperionContext>
         EndpointSort requestedSorts = endpointSortBuilder.buildSort(sort, persistenceContext);
         Expression queryExpression = null;
 
-        if(sort != null && sort.trim().length() > 0)
+        if(query != null && query.trim().length() > 0)
             queryExpression = buildQueryExpression(query, persistenceContext);
 
         QueryResult queryResult = phaseContext.getEntityPlugin()

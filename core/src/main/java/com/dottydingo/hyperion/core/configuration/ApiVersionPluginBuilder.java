@@ -59,6 +59,8 @@ public class ApiVersionPluginBuilder
         if(queries.isEmpty())
             logger.warn("No queryBuilders specified for apiClass: {}",apiClass);
 
+        logger.debug("Plugin: {}",plugin);
+
         return plugin;
     }
 
@@ -94,31 +96,55 @@ public class ApiVersionPluginBuilder
     }
 
 
+    /**
+     * Set the API class for this version
+     * @param apiClass the API class
+     */
     public void setApiClass(Class<? extends ApiObject> apiClass)
     {
         this.apiClass = apiClass;
     }
 
+    /**
+     * Set the translator for this version
+     * @param translator the translator
+     */
     public void setTranslator(Translator translator)
     {
         this.translator = translator;
     }
 
+    /**
+     * Set the validator for this version
+     * @param validator the validator
+     */
     public void setValidator(Validator validator)
     {
         this.validator = validator;
     }
 
+    /**
+     * Set the sort builders for this version
+     * @param sortBuilders the sort builders
+     */
     public void setSortBuilders(Map<String, EntitySortBuilder> sortBuilders)
     {
         this.sortBuilders = sortBuilders;
     }
 
+    /**
+     * Set the query builders for this version
+     * @param queryBuilders the query builders
+     */
     public void setQueryBuilders(Map<String, EntityQueryBuilder> queryBuilders)
     {
         this.queryBuilders = queryBuilders;
     }
 
+    /**
+     * Set an optional create key processor for this version
+     * @param createKeyProcessor the create key processor
+     */
     public void setCreateKeyProcessor(CreateKeyProcessor createKeyProcessor)
     {
         this.createKeyProcessor = createKeyProcessor;

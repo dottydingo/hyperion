@@ -1,6 +1,8 @@
-package com.dottydingo.hyperion.jpa.persistence.sort;
+package com.dottydingo.hyperion.jpa.configuration;
 
 import com.dottydingo.hyperion.core.configuration.BaseBuilderFactoryBean;
+import com.dottydingo.hyperion.jpa.persistence.sort.DefaultJpaEntitySortBuilder;
+import com.dottydingo.hyperion.jpa.persistence.sort.JpaEntitySortBuilder;
 
 /**
  */

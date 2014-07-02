@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.jpa.persistence.query;
 
+import com.dottydingo.hyperion.jpa.configuration.JpaEntityQueryBuilderFactoryBean;
 import com.dottydingo.hyperion.jpa.persistence.SampleApiObject;
 import cz.jirutka.rsql.parser.model.Comparison;
 import junit.framework.Assert;

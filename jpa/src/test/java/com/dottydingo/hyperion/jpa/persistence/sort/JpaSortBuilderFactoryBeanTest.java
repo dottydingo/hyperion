@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.jpa.persistence.sort;
 
+import com.dottydingo.hyperion.jpa.configuration.JpaEntitySortBuilderFactoryBean;
 import com.dottydingo.hyperion.jpa.persistence.SampleApiObject;
 import junit.framework.Assert;
 import org.junit.Before;
