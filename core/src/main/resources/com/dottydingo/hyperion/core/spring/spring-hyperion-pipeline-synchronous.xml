@@ -1,0 +1,74 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+    <bean id="hyperionPipelineInitiator" class="com.dottydingo.service.endpoint.SynchronousPipelineInitiator">
+        <property name="initialPhaseSelector">
+            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
+                <property name="nextPhase" ref="hyperionEndpointValidationExecutor"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="hyperionBaseExecutor" class="com.dottydingo.service.pipeline.SynchronousPhaseExecutor" abstract="true">
+        <property name="errorHandler" ref="hyperionErrorHandler"/>
+    </bean>
+    
+    <bean id="hyperionEndpointValidationExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionEndpointValidationPhase"/>
+        <property name="nextPhaseSelector">
+            <bean class="com.dottydingo.hyperion.core.endpoint.pipeline.selector.CrudPhaseSelector">
+                <property name="queryPhaseExecutor" ref="hyperionQueryExecutor"/>
+                <property name="getPhaseExecutor" ref="hyperionGetExecutor"/>
+                <property name="postPhaseExecutor" ref="hyperionCreateExecutor"/>
+                <property name="putPhaseExecutor" ref="hyperionUpdateExecutor"/>
+                <property name="deletePhaseExecutor" ref="hyperionDeleteExecutor"/>
+                <property name="historyPhaseExecutor" ref="hyperionHistoryExecutor"/>
+                <property name="optionsPhaseExecutor" ref="hyperionOptionsExecutor"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="baseHyperionPersistenceExecutor" parent="hyperionBaseExecutor" abstract="true">
+        <property name="nextPhaseSelector">
+            <bean class="com.dottydingo.service.pipeline.StaticNextPhaseSelector">
+                <property name="nextPhase" ref="hyperionMarhallExecutor"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="hyperionQueryExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionQueryPhase"/>
+    </bean>
+
+    <bean id="hyperionGetExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionGetPhase"/>
+    </bean>
+
+    <bean id="hyperionCreateExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionCreatePhase"/>
+    </bean>
+
+    <bean id="hyperionUpdateExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionUpdatePhase"/>
+    </bean>
+
+    <bean id="hyperionDeleteExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionDeletePhase"/>
+    </bean>
+
+    <bean id="hyperionHistoryExecutor" parent="baseHyperionPersistenceExecutor">
+        <property name="phase" ref="hyperionHistoryPhase"/>
+    </bean>
+
+    <bean id="hyperionOptionsExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionOptionsPhase"/>
+    </bean>
+
+    <bean id="hyperionMarhallExecutor" parent="hyperionBaseExecutor">
+        <property name="phase" ref="hyperionResponseMarshallerPhase"/>
+    </bean>
+    
+
+</beans>

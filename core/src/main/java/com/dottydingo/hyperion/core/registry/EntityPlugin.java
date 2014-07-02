@@ -1,0 +1,193 @@
+package com.dottydingo.hyperion.core.registry;
+
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.core.endpoint.HttpMethod;
+import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
+import com.dottydingo.hyperion.core.model.PersistentObject;
+import com.dottydingo.hyperion.core.key.KeyConverter;
+import com.dottydingo.hyperion.core.persistence.*;
+import com.dottydingo.hyperion.core.persistence.dao.Dao;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ */
+public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
+{
+    private String endpointName;
+    private Class<P> entityClass;
+    private KeyConverter<ID> keyConverter;
+
+    private Set<HttpMethod> limitMethods = new HashSet<HttpMethod>();
+    private int cacheMaxAge = 0;
+
+    private PersistenceOperations<C,ID> persistenceOperations;
+    private Dao<P,ID,?,?> dao;
+    private PersistenceFilter<P> persistenceFilter = new EmptyPersistenceFilter<P>();
+
+    private boolean historyEnabled = false;
+    private Class<? extends PersistentHistoryEntry> historyType;
+
+    private ApiVersionRegistry<C,P> apiVersionRegistry;
+
+    private List<EntityChangeListener<C>> transactionalEntityChangeListeners;
+    private List<EntityChangeListener<C>> entityChangeListeners;
+
+    public String getEndpointName()
+    {
+        return endpointName;
+    }
+
+    public void setEndpointName(String endpointName)
+    {
+        this.endpointName = endpointName;
+    }
+
+    public KeyConverter<ID> getKeyConverter()
+    {
+        return keyConverter;
+    }
+
+    public void setKeyConverter(KeyConverter<ID> keyConverter)
+    {
+        this.keyConverter = keyConverter;
+    }
+
+    public PersistenceOperations<C,ID> getPersistenceOperations()
+    {
+        return persistenceOperations;
+    }
+
+    public void setPersistenceOperations(PersistenceOperations<C,ID> persistenceOperations)
+    {
+        this.persistenceOperations = persistenceOperations;
+    }
+
+    public ApiVersionRegistry<C,P> getApiVersionRegistry()
+    {
+        return apiVersionRegistry;
+    }
+
+    public void setApiVersionRegistry(ApiVersionRegistry<C,P> apiVersionRegistry)
+    {
+        this.apiVersionRegistry = apiVersionRegistry;
+    }
+
+
+    public void setLimitMethods(Set<HttpMethod> limitMethods)
+    {
+        this.limitMethods = limitMethods;
+        if(!limitMethods.isEmpty()) // always allow OPTIONS
+            limitMethods.add(HttpMethod.OPTIONS);
+    }
+
+    public boolean isMethodAllowed(HttpMethod method)
+    {
+        return limitMethods.isEmpty() || limitMethods.contains(method);
+    }
+
+    public void filterAllowedMethods(Set<HttpMethod> methods)
+    {
+        if(!limitMethods.isEmpty())
+            methods.retainAll(limitMethods);
+    }
+
+    public Class<P> getEntityClass()
+    {
+        return entityClass;
+    }
+
+    public void setEntityClass(Class<P> entityClass)
+    {
+        this.entityClass = entityClass;
+    }
+
+    public boolean isHistoryEnabled()
+    {
+        return historyEnabled;
+    }
+
+    public void setHistoryEnabled(boolean historyEnabled)
+    {
+        this.historyEnabled = historyEnabled;
+    }
+
+    public Class<? extends PersistentHistoryEntry> getHistoryType()
+    {
+        return historyType;
+    }
+
+    public void setHistoryType(Class<? extends PersistentHistoryEntry> historyType)
+    {
+        this.historyType = historyType;
+    }
+
+    public PersistenceFilter<P> getPersistenceFilter()
+    {
+        return persistenceFilter;
+    }
+
+    public void setPersistenceFilter(PersistenceFilter<P> persistenceFilter)
+    {
+        this.persistenceFilter = persistenceFilter;
+    }
+
+    public int getCacheMaxAge()
+    {
+        return cacheMaxAge;
+    }
+
+    public void setCacheMaxAge(int cacheMaxAge)
+    {
+        this.cacheMaxAge = cacheMaxAge;
+    }
+
+    public Dao<P, ID,?,?> getDao()
+    {
+        return dao;
+    }
+
+    public void setDao(Dao<P, ID,?,?> dao)
+    {
+        this.dao = dao;
+    }
+
+    public Set<HttpMethod> getLimitMethods()
+    {
+        return limitMethods;
+    }
+
+    public List<EntityChangeListener<C>> getTransactionalEntityChangeListeners()
+    {
+        return transactionalEntityChangeListeners;
+    }
+
+    public void setTransactionalEntityChangeListeners(List<EntityChangeListener<C>> transactionalEntityChangeListeners)
+    {
+        this.transactionalEntityChangeListeners = transactionalEntityChangeListeners;
+    }
+
+    public List<EntityChangeListener<C>> getEntityChangeListeners()
+    {
+        return entityChangeListeners;
+    }
+
+    public void setEntityChangeListeners(List<EntityChangeListener<C>> entityChangeListeners)
+    {
+        this.entityChangeListeners = entityChangeListeners;
+    }
+
+    public boolean hasEntityChangeListeners()
+    {
+        return entityChangeListeners != null && entityChangeListeners.size() > 0;
+    }
+
+    public boolean hasTransactionalEntityChangeListeners()
+    {
+        return transactionalEntityChangeListeners != null && entityChangeListeners.size() > 0;
+    }
+}
