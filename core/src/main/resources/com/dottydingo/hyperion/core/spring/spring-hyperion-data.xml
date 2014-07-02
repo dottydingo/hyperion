@@ -4,16 +4,20 @@
        ">
 
 
-    <bean id="hyperionHistoryEntryFactory" class="com.dottydingo.hyperion.core.persistence.HistoryEntryFactory">
+    <bean id="hyperionHistorySerializer" class="com.dottydingo.hyperion.core.persistence.history.HistorySerializer">
         <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
     </bean>
 
+
+    <bean id="hyperionHistoryPersistentChangeListener" class="com.dottydingo.hyperion.core.persistence.history.HistoryPersistentChangeListener">
+        <property name="historySerializer" ref="hyperionHistorySerializer"/>
+    </bean>
 
     <bean id="hyperionBasePersistenceOperations"
           class="com.dottydingo.hyperion.core.persistence.DefaultPersistenceOperations">
         <property name="persistentOrderBuilderFactory" ref="hyperionPersistentOrderBuilderFactory"/>
         <property name="persistentQueryBuilderFactory" ref="hyperionPersistentQueryBuilderFactory"/>
-        <property name="historyEntryFactory" ref="hyperionHistoryEntryFactory"/>
+        <property name="historySerializer" ref="hyperionHistorySerializer"/>
     </bean>
 
     <bean id="hyperionTransactionDecorator" class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
@@ -35,7 +39,7 @@
 
     <bean id="hyperionObjectMapper" class="com.dottydingo.hyperion.core.endpoint.marshall.ObjectMapperBuilder"/>
 
-    <bean id="hyperionBaseServiceRegistry" class="com.dottydingo.hyperion.core.configuration.ServiceRegistryBuilder" abstract="true">
+    <bean id="hyperionBaseServiceRegistry" class="com.dottydingo.hyperion.core.configuration.SpringServiceRegistryBuilder" abstract="true">
         <property name="defaultPersistenceOperations" ref="hyperionPersistenceOperations"/>
         <property name="defaultDao" ref="hyperionDao"/>
     </bean>

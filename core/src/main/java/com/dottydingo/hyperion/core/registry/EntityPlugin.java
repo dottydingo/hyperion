@@ -7,11 +7,13 @@ import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.key.KeyConverter;
 import com.dottydingo.hyperion.core.persistence.*;
 import com.dottydingo.hyperion.core.persistence.dao.Dao;
+import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
+import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,8 +36,8 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
 
     private ApiVersionRegistry<C,P> apiVersionRegistry;
 
-    private List<EntityChangeListener<C>> transactionalEntityChangeListeners;
-    private List<EntityChangeListener<C>> entityChangeListeners;
+    private List<PersistentChangeListener<C,ID>> persistentChangeListeners = Collections.emptyList();
+    private List<EntityChangeListener<C>> entityChangeListeners = Collections.emptyList();
 
     public String getEndpointName()
     {
@@ -161,14 +163,14 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
         return limitMethods;
     }
 
-    public List<EntityChangeListener<C>> getTransactionalEntityChangeListeners()
+    public List<PersistentChangeListener<C,ID>> getPersistentChangeListeners()
     {
-        return transactionalEntityChangeListeners;
+        return persistentChangeListeners;
     }
 
-    public void setTransactionalEntityChangeListeners(List<EntityChangeListener<C>> transactionalEntityChangeListeners)
+    public void setPersistentChangeListeners(List<PersistentChangeListener<C, ID>> persistentChangeListeners)
     {
-        this.transactionalEntityChangeListeners = transactionalEntityChangeListeners;
+        this.persistentChangeListeners = persistentChangeListeners;
     }
 
     public List<EntityChangeListener<C>> getEntityChangeListeners()
@@ -183,11 +185,16 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
 
     public boolean hasEntityChangeListeners()
     {
-        return entityChangeListeners != null && entityChangeListeners.size() > 0;
+        return !entityChangeListeners.isEmpty();
     }
 
-    public boolean hasTransactionalEntityChangeListeners()
+    public boolean hasPersistentChangeListeners()
     {
-        return transactionalEntityChangeListeners != null && entityChangeListeners.size() > 0;
+        return !entityChangeListeners.isEmpty();
+    }
+
+    public boolean hasListeners()
+    {
+        return hasEntityChangeListeners() || hasPersistentChangeListeners();
     }
 }

@@ -13,10 +13,4 @@
 
 
 
-    <bean id="hyperionTransactionDecorator" class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
-        <property name="delegate" ref="hyperionBasePersistenceOperations"/>
-        <property name="transactionManager" ref="transactionManager"/>
-    </bean>
-
-
 </beans>

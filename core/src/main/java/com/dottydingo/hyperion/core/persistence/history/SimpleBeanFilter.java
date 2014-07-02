@@ -1,4 +1,4 @@
-package com.dottydingo.hyperion.core.persistence;
+package com.dottydingo.hyperion.core.persistence.history;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.exception.InternalException;

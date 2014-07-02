@@ -1,4 +1,4 @@
-package com.dottydingo.hyperion.core.registry;
+package com.dottydingo.hyperion.core.configuration;
 
 import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;

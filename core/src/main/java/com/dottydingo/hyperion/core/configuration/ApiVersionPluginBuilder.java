@@ -11,6 +11,8 @@ import com.dottydingo.hyperion.core.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,27 +25,38 @@ public class ApiVersionPluginBuilder
     protected Translator translator;
     protected Validator validator;
 
-    protected Map<String,EntitySortBuilder> sortBuilders;
-    protected Map<String,EntityQueryBuilder> queryBuilders;
+    protected Map<String,EntitySortBuilder> sortBuilders = Collections.emptyMap();
+    protected Map<String,EntityQueryBuilder> queryBuilders = Collections.emptyMap();
     protected CreateKeyProcessor createKeyProcessor;
 
-    public ApiVersionPlugin build() throws Exception
+    public ApiVersionPlugin build(EntityPluginBuilder entityPluginBuilder) throws Exception
     {
+        if(createKeyProcessor == null)
+            createKeyProcessor = entityPluginBuilder.getDefaultCreateKeyProcessor();
+
         validateRequired();
 
+        Endpoint endpoint = getEndpointAnnotation(apiClass);
+
         ApiVersionPlugin plugin = new ApiVersionPlugin();
-        plugin.setVersion(getVersion(apiClass));
+        plugin.setVersion(endpoint.version());
         plugin.setApiClass(apiClass);
         plugin.setTranslator(translator);
         plugin.setValidator(validator);
         plugin.setCreateKeyProcessor(createKeyProcessor);
 
-        plugin.setSortBuilders(getSortBuilder(sortBuilders));
-        if(plugin.getSortBuilders() == null)
+        Map<String,EntitySortBuilder> sorts = new HashMap<>();
+        sorts.putAll(entityPluginBuilder.getSortBuilders());
+        sorts.putAll(getSortBuilder(sortBuilders));
+        plugin.setSortBuilders(sorts);
+        if(sorts.isEmpty())
             logger.warn("No sortBuilders specified for apiClass: {}",apiClass);
 
-        plugin.setQueryBuilders(getQueryBuilders(queryBuilders));
-        if(plugin.getQueryBuilders() == null)
+        Map<String,EntityQueryBuilder> queries = new HashMap<>();
+        queries.putAll(entityPluginBuilder.getQueryBuilders());
+        queries.putAll(getQueryBuilders(queryBuilders));
+        plugin.setQueryBuilders(queries);
+        if(queries.isEmpty())
             logger.warn("No queryBuilders specified for apiClass: {}",apiClass);
 
         return plugin;
@@ -71,13 +84,13 @@ public class ApiVersionPluginBuilder
         return queryBuilders;
     }
 
-    protected int getVersion(Class<? extends ApiObject> apiClass)
+    protected Endpoint getEndpointAnnotation(Class<? extends ApiObject> apiClass)
     {
         Endpoint endpoint = apiClass.getAnnotation(Endpoint.class);
         if(endpoint == null)
             throw new RuntimeException(String.format("Missing @Endpoint annotation in apiClass %s",apiClass));
 
-        return endpoint.version();
+        return endpoint;
     }
 
 

@@ -3,6 +3,8 @@ package com.dottydingo.hyperion.core.persistence;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.exception.NotFoundException;
 import com.dottydingo.hyperion.api.exception.ValidationException;
+import com.dottydingo.hyperion.core.persistence.event.*;
+import com.dottydingo.hyperion.core.persistence.history.HistorySerializer;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.api.HistoryAction;
 import com.dottydingo.hyperion.api.HistoryEntry;
@@ -15,6 +17,7 @@ import com.dottydingo.hyperion.core.persistence.query.PersistentQueryBuilder;
 import com.dottydingo.hyperion.core.persistence.query.PersistentQueryBuilderFactory;
 import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilder;
 import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilderFactory;
+import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.translation.Translator;
 import cz.jirutka.rsql.parser.model.Expression;
 
@@ -29,7 +32,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
     protected PersistentQueryBuilderFactory persistentQueryBuilderFactory;
     protected PersistentOrderBuilderFactory persistentOrderBuilderFactory;
-    protected HistoryEntryFactory historyEntryFactory;
+    protected HistorySerializer historySerializer;
 
     public void setPersistentQueryBuilderFactory(PersistentQueryBuilderFactory persistentQueryBuilderFactory)
     {
@@ -41,11 +44,10 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         this.persistentOrderBuilderFactory = persistentOrderBuilderFactory;
     }
 
-    public void setHistoryEntryFactory(HistoryEntryFactory historyEntryFactory)
+    public void setHistorySerializer(HistorySerializer historySerializer)
     {
-        this.historyEntryFactory = historyEntryFactory;
+        this.historySerializer = historySerializer;
     }
-
 
     @Override
     public List<C> findByIds(List<ID> ids, PersistenceContext context)
@@ -126,40 +128,46 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         apiVersionPlugin.getValidator().validateCreate(item, context);
 
-        Dao dao = context.getEntityPlugin().getDao();
+        EntityPlugin entityPlugin = context.getEntityPlugin();
+        Dao dao = entityPlugin.getDao();
 
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         P persistent = translator.convertClient(item, context);
 
-        if(!context.getEntityPlugin().getPersistenceFilter().canCreate(persistent,context))
+        if(!entityPlugin.getPersistenceFilter().canCreate(persistent,context))
             return null;
 
         P saved = doCreate(persistent,context);
 
 
-        AdminPersistenceContext adminPersistenceContext = null;
-        if(context.getEntityPlugin().hasEntityChangeListeners()  || context.getEntityPlugin().isHistoryEnabled())
-            adminPersistenceContext = new AdminPersistenceContext(context);
-
-        if(context.getEntityPlugin().isHistoryEnabled())
-            saveHistory(adminPersistenceContext,saved,HistoryAction.CREATE);
-
         C toReturn = translator.convertPersistent(saved,context);
         context.setWriteContext(WriteContext.create);
 
 
-        if(context.getEntityPlugin().hasEntityChangeListeners())
+        if(entityPlugin.hasListeners())
         {
+            AdminPersistenceContext adminPersistenceContext = new AdminPersistenceContext(context);
             C newObject = translator.convertPersistent(saved,adminPersistenceContext);
-            EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), null,newObject,null,
-                    context);
-            context.addEntityChangeEvent(entityChangeEvent);
+            PersistentChangeEvent<C, ID> entityChangeEvent =
+                    new PersistentChangeEvent<C, ID>(null, newObject, null,
+                            context, saved.getId(), EntityChangeAction.CREATE);
+
+            if(entityPlugin.hasEntityChangeListeners())
+            {
+                processEntityChangeEvents(context,Collections.singletonList(entityChangeEvent));
+            }
+
+            if(entityPlugin.hasEntityChangeListeners())
+                context.addEntityChangeEvent(entityChangeEvent);
+
         }
 
         return toReturn;
     }
+
+
 
     protected P doCreate(P persistent,PersistenceContext context)
     {
@@ -175,8 +183,9 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
-        Dao<P,ID,?,?> dao = context.getEntityPlugin().getDao();
-        P existing = dao.find(context.getEntityPlugin().getEntityClass(),ids.get(0));
+        EntityPlugin entityPlugin = context.getEntityPlugin();
+        Dao<P,ID,?,?> dao = entityPlugin.getDao();
+        P existing = dao.find(entityPlugin.getEntityClass(),ids.get(0));
 
         if(existing == null)
             throw new NotFoundException(
@@ -184,18 +193,18 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
 
-        if(!context.getEntityPlugin().getPersistenceFilter().canUpdate(existing,context))
+        if(!entityPlugin.getPersistenceFilter().canUpdate(existing,context))
         {
             return null;
         }
 
         AdminPersistenceContext adminPersistenceContext = null;
-        if(context.getEntityPlugin().hasEntityChangeListeners() || context.getEntityPlugin().isHistoryEnabled())
+        if(entityPlugin.hasListeners())
             adminPersistenceContext = new AdminPersistenceContext(context);
 
         // only capture the original if there is a listener
         C originalItem = null;
-        if(context.getEntityPlugin().hasEntityChangeListeners())
+        if(entityPlugin.hasListeners())
         {
             originalItem = translator.convertPersistent(existing,adminPersistenceContext);
         }
@@ -213,17 +222,20 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         if(dirty)
         {
             P persistent = doUpdate(context, existing);
-            if(context.getEntityPlugin().isHistoryEnabled())
-                saveHistory(adminPersistenceContext,persistent,HistoryAction.MODIFY);
 
             C toReturn = translator.convertPersistent(persistent, context);
 
-            if(context.getEntityPlugin().hasEntityChangeListeners())
+            if(entityPlugin.hasListeners())
             {
                 C updatedItem = translator.convertPersistent(persistent,adminPersistenceContext);
-                EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
-                        updatedItem, context.getChangedFields(), context);
-                context.addEntityChangeEvent(entityChangeEvent);
+                PersistentChangeEvent<C,ID> entityChangeEvent = new PersistentChangeEvent<>(originalItem,
+                        updatedItem, context.getChangedFields(), context,persistent.getId(),EntityChangeAction.MODIFY);
+
+                if(entityPlugin.hasPersistentChangeListeners())
+                    processEntityChangeEvents(context,Collections.singletonList(entityChangeEvent));
+
+                if(entityPlugin.hasEntityChangeListeners())
+                    context.addEntityChangeEvent(entityChangeEvent);
             }
 
             return toReturn;
@@ -247,36 +259,43 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     public int deleteItem(List<ID> ids, PersistenceContext context)
     {
 
-        Dao<P,ID,?,?> dao = context.getEntityPlugin().getDao();
+        EntityPlugin entityPlugin = context.getEntityPlugin();
+        Dao<P,ID,?,?> dao = entityPlugin.getDao();
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        Iterable<P> persistentItems = dao.findAll(context.getEntityPlugin().getEntityClass(),ids);
+        Iterable<P> persistentItems = dao.findAll(entityPlugin.getEntityClass(),ids);
+        PersistenceFilter persistenceFilter = entityPlugin.getPersistenceFilter();
+
         int deleted = 0;
+        List<PersistentChangeEvent<C,ID>> deleteEvents = new ArrayList<>();
         for (P item : persistentItems)
         {
-            if(context.getEntityPlugin().getPersistenceFilter().canDelete(item,context))
+
+            if(persistenceFilter.canDelete(item, context))
             {
                 apiVersionPlugin.getValidator().validateDelete(item, context);
                 doDelete(context, item);
 
-                AdminPersistenceContext adminPersistenceContext = null;
-                if(context.getEntityPlugin().hasEntityChangeListeners()|| context.getEntityPlugin().isHistoryEnabled())
-                    adminPersistenceContext = new AdminPersistenceContext(context);
-
-                if(context.getEntityPlugin().isHistoryEnabled())
-                    saveHistory(adminPersistenceContext,item,HistoryAction.DELETE);
-
-                if(context.getEntityPlugin().hasEntityChangeListeners())
+                if(entityPlugin.hasListeners())
                 {
+                    AdminPersistenceContext adminPersistenceContext = new AdminPersistenceContext(context);
                     C originalItem = translator.convertPersistent(item, adminPersistenceContext);
-                    EntityChangeEvent<C> entityChangeEvent = new EntityChangeEvent<C>(context.getEntity(), originalItem,
-                            null, null, context);
-                    context.addEntityChangeEvent(entityChangeEvent);
+                    PersistentChangeEvent<C,ID> entityChangeEvent = new PersistentChangeEvent<>( originalItem,
+                            null, null, context,item.getId(),EntityChangeAction.DELETE);
+
+                    if(entityPlugin.hasPersistentChangeListeners())
+                        deleteEvents.add(entityChangeEvent);
+
+                    if(entityPlugin.hasEntityChangeListeners())
+                        context.addEntityChangeEvent(entityChangeEvent);
                 }
                 deleted++;
             }
         }
+
+        if(!deleteEvents.isEmpty())
+            processEntityChangeEvents(context,deleteEvents);
 
         return deleted;
     }
@@ -310,7 +329,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
                 historyEntry.setTimestamp(entry.getTimestamp());
                 historyEntry.setUser(entry.getUser());
                 historyEntry.setApiVersion(entry.getApiVersion());
-                historyEntry.setEntry(historyEntryFactory.readEntry(entry,context));
+                historyEntry.setEntry(historySerializer.deserializeHistoryEntry(entry,context));
                 historyEntries.add(historyEntry);
             }
         }
@@ -322,10 +341,16 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         return result;
     }
 
-    protected void saveHistory(AdminPersistenceContext context, P entity,HistoryAction historyAction)
+    protected void processEntityChangeEvents(PersistenceContext context, List<PersistentChangeEvent<C, ID>> changeEvents)
     {
-        PersistentHistoryEntry entry = historyEntryFactory.generateHistory(context,entity,historyAction);
-        Dao dao = context.getEntityPlugin().getDao();
-        dao.saveHistory(entry);
+        List<PersistentChangeListener> listeners = context.getEntityPlugin().getPersistentChangeListeners();
+        for (PersistentChangeListener listener : listeners)
+        {
+            for (PersistentChangeEvent<C, ID> changeEvent : changeEvents)
+            {
+                listener.processEntityChange(changeEvent);
+            }
+        }
     }
+
 }

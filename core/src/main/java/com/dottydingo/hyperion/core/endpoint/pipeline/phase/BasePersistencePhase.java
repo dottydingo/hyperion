@@ -2,8 +2,8 @@ package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
-import com.dottydingo.hyperion.core.persistence.EntityChangeEvent;
-import com.dottydingo.hyperion.core.persistence.EntityChangeListener;
+import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
+import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.service.endpoint.context.EndpointRequest;

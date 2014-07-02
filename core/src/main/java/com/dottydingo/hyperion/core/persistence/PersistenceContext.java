@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.core.persistence;
 
+import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;

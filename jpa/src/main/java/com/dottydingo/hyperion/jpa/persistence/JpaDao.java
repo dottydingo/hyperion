@@ -25,6 +25,11 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
     @PersistenceContext
     protected EntityManager em;
 
+    public void setEm(EntityManager em)
+    {
+        this.em = em;
+    }
+
     @Override
     public List<P> findAll(Class<P> entityClass, List<ID> ids)
     {
