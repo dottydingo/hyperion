@@ -1,7 +1,10 @@
 package com.dottydingo.hyperion.core.configuration;
 
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
+import com.dottydingo.hyperion.core.key.IntegerKeyConverter;
 import com.dottydingo.hyperion.core.key.KeyConverter;
+import com.dottydingo.hyperion.core.key.LongKeyConverter;
+import com.dottydingo.hyperion.core.key.StringKeyConverter;
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.*;
@@ -9,6 +12,13 @@ import com.dottydingo.hyperion.core.persistence.dao.Dao;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
 import com.dottydingo.hyperion.core.registry.*;
+import com.fasterxml.classmate.MemberResolver;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
+import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.ResolvedField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -17,6 +27,12 @@ import java.util.*;
  */
 public class EntityPluginBuilder
 {
+    private static final KeyConverter STRING_KEY_CONVERTER = new StringKeyConverter();
+    private static final KeyConverter LONG_KEY_CONVERTER = new LongKeyConverter();
+    private static final KeyConverter INTEGER_KEY_CONVERTER = new IntegerKeyConverter();
+
+    private Logger logger = logger = LoggerFactory.getLogger(EntityPluginBuilder.class);
+
     protected String endpointName;
     protected Class<? extends PersistentObject> entityClass;
     protected KeyConverter keyConverter;
@@ -129,7 +145,39 @@ public class EntityPluginBuilder
 
     protected KeyConverter getKeyConverter(KeyConverter keyConverter)
     {
-        return keyConverter;
+        if(keyConverter != null)
+            return keyConverter;
+
+        TypeResolver typeResolver = new TypeResolver();
+        ResolvedType resolvedType = typeResolver.resolve(entityClass);
+
+        MemberResolver memberResolver = new MemberResolver(typeResolver);
+        ResolvedTypeWithMembers typeWithMembers =memberResolver.resolve(resolvedType, null, null);
+
+        Class<?> idType = null;
+        for (ResolvedField field : typeWithMembers.getMemberFields())
+        {
+            if(field.getRawMember().getName().equals("id"))
+            {
+                idType = field.getType().getErasedType();
+                break;
+            }
+        }
+
+        if(idType == null)
+        {
+            logger.debug("Could not resolve the id field type");
+            return null;
+        }
+
+        if(idType.equals(String.class))
+            return STRING_KEY_CONVERTER;
+        else if(idType.equals(Long.class))
+            return LONG_KEY_CONVERTER;
+        else if(idType.equals(Integer.class))
+            return INTEGER_KEY_CONVERTER;
+
+        return null;
     }
 
     protected PersistenceFilter getPersistenceFilter(PersistenceFilter persistenceFilter)
