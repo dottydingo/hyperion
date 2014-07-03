@@ -21,6 +21,8 @@ public class DefaultEndpointSortBuilder implements EndpointSortBuilder
 
         Map<String,EntitySortBuilder> validSorts = persistenceContext.getApiVersionPlugin().getSortBuilders();
 
+        EntitySortBuilder idSort = validSorts.get("id");
+        boolean containsIdSort = false;
         EndpointSort sort = new EndpointSort();
         String[] split = sortString.split(",");
         for (String s1 : split)
@@ -32,10 +34,16 @@ public class DefaultEndpointSortBuilder implements EndpointSortBuilder
             if(!validSorts.containsKey(name))
                 throw new BadRequestException(String.format("%s is not a valid sort field.", name));
 
+            if(name.equals("id"))
+                containsIdSort = true;
+
             boolean desc = props.length == 2 && props[1].equalsIgnoreCase("desc");
 
             sort.addOrder(name,desc);
         }
+
+        if(!containsIdSort && idSort != null)
+            sort.addOrder("id");
 
         return sort;
     }
