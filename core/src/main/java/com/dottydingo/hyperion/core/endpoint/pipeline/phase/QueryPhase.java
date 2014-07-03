@@ -1,7 +1,6 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.exception.BadRequestException;
-import com.dottydingo.hyperion.core.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
@@ -9,22 +8,15 @@ import com.dottydingo.hyperion.core.persistence.QueryResult;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
-import cz.jirutka.rsql.parser.ParseException;
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.Node;
 
 /**
  */
-public class QueryPhase extends BasePersistencePhase<HyperionContext>
+public class QueryPhase extends BasePersistencePhase
 {
-    private HyperionEndpointConfiguration configuration;
     private EndpointSortBuilder endpointSortBuilder;
-
-    public void setConfiguration(HyperionEndpointConfiguration configuration)
-    {
-        this.configuration = configuration;
-    }
 
     public void setEndpointSortBuilder(EndpointSortBuilder endpointSortBuilder)
     {

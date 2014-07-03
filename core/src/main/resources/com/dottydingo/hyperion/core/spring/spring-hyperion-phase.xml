@@ -6,9 +6,11 @@
 
     <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.core.endpoint.pipeline.HyperionErrorHandler"/>
 
-    <bean id="baseHyperionPhase" class="com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase" abstract="true">
+    <bean id="baseHyperionPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.BaseHyperionPhase" abstract="true">
         <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
         <property name="traceManager" ref="traceManager"/>
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+        <property name="messageSource" ref="hyperionMessageSource"/>
     </bean>
 
     <bean id="hyperionAuthorizationChecker" class="com.dottydingo.hyperion.core.endpoint.pipeline.auth.NoOpAuthorizationProvider"/>
@@ -21,7 +23,6 @@
             parent="baseHyperionPhase">
         <property name="serviceRegistry" ref="hyperionServiceRegistry"/>
         <property name="authorizationProvider" ref="hyperionAuthorizationChecker"/>
-        <property name="hyperionEndpointConfiguration" ref="hyperionEndpointConfiguration"/>
         <property name="name" value="RequestValidation"/>
         <property name="uriParser" ref="hyperionUriParser"/>
         <property name="serviceStatus" ref="hyperionEndpointStatus"/>
@@ -29,7 +30,6 @@
 
     <bean id="hyperionQueryPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.QueryPhase" parent="baseHyperionPhase">
         <property name="name" value="query"/>
-        <property name="configuration" ref="hyperionEndpointConfiguration"/>
         <property name="endpointSortBuilder" ref="hyperionEndpointSortBuilder"/>
     </bean>
 
@@ -62,9 +62,15 @@
 
     <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">
         <property name="name" value="marshall"/>
-        <property name="configuration" ref="hyperionEndpointConfiguration"/>
         <property name="marshaller" ref="hyperionEndpointMarshaller"/>
     </bean>
 
+    <bean id="hyperionMessageSource" class="com.dottydingo.hyperion.core.message.HyperionMessageSource" init-method="init">
+        <property name="defaultEncoding" value="${message.defaultEncoding}"/>
+        <property name="baseErrorResourceBundles" value="${message.error.baseBundles}"/>
+        <property name="additionalErrorResourceBundles" value="${message.error.additionalBundles}"/>
+        <property name="baseValidationResourceBundles" value="${message.validation.baseBundles}"/>
+        <property name="additionalValidationResourceBundles" value="${message.validation.additionalBundles}"/>
+    </bean>
 
 </beans>

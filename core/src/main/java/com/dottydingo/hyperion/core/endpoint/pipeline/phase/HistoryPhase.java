@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  */
-public class HistoryPhase extends BasePersistencePhase<HyperionContext>
+public class HistoryPhase extends BasePersistencePhase
 {
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception

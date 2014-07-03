@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.core.persistence;
 
+import com.dottydingo.hyperion.core.message.HyperionMessageSource;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
@@ -27,6 +28,7 @@ public class PersistenceContext
     private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
     private AuthorizationContext authorizationContext;
     private Locale locale;
+    private HyperionMessageSource messageSource;
     private Set<String> providedFields = Collections.emptySet();
 
     public PersistenceContext()
@@ -48,6 +50,7 @@ public class PersistenceContext
         this.entityChangeEvents = other.entityChangeEvents;
         this.authorizationContext = other.authorizationContext;
         this.locale = other.locale;
+        this.messageSource = other.messageSource;
         this.providedFields = other.providedFields;
     }
 
@@ -198,12 +201,13 @@ public class PersistenceContext
         return providedFields.contains(fieldName);
     }
 
-    @Deprecated
-    @Override
-    public Object clone() throws CloneNotSupportedException
+    public HyperionMessageSource getMessageSource()
     {
-        return new PersistenceContext(this);
+        return messageSource;
     }
 
-
+    public void setMessageSource(HyperionMessageSource messageSource)
+    {
+        this.messageSource = messageSource;
+    }
 }

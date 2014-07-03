@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  */
-public class DeletePhase extends BasePersistencePhase<HyperionContext>
+public class DeletePhase extends BasePersistencePhase
 {
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception

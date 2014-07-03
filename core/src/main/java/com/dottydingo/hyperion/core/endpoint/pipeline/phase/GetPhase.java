@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  */
-public class GetPhase extends BasePersistencePhase<HyperionContext>
+public class GetPhase extends BasePersistencePhase
 {
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception

@@ -11,15 +11,8 @@ import java.util.*;
 
 /**
  */
-public class OptionsPhase extends AbstractEndpointPhase<HyperionContext>
+public class OptionsPhase extends BaseHyperionPhase
 {
-    private HyperionEndpointConfiguration configuration;
-
-    public void setConfiguration(HyperionEndpointConfiguration configuration)
-    {
-        this.configuration = configuration;
-    }
-
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {

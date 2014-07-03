@@ -10,19 +10,13 @@ import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 
 /**
  */
-public class ResponseMarshallerPhase extends AbstractEndpointPhase<HyperionContext>
+public class ResponseMarshallerPhase extends BaseHyperionPhase
 {
     private EndpointMarshaller marshaller;
-    private HyperionEndpointConfiguration configuration;
 
     public void setMarshaller(EndpointMarshaller marshaller)
     {
         this.marshaller = marshaller;
-    }
-
-    public void setConfiguration(HyperionEndpointConfiguration configuration)
-    {
-        this.configuration = configuration;
     }
 
     @Override

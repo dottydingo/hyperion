@@ -4,11 +4,12 @@ import com.dottydingo.hyperion.api.ErrorDetail;
 import com.dottydingo.hyperion.api.exception.ConflictException;
 import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.exception.ValidationException;
+import com.dottydingo.hyperion.core.message.HyperionMessageSource;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
-import org.springframework.context.MessageSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -21,13 +22,6 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     public static final String CONFLICT = "validation_conflict";
     public static final String VALIDATION_ERROR = "validation_error";
 
-    private MessageSource messageSource;
-
-    public void setMessageSource(MessageSource messageSource)
-    {
-        this.messageSource = messageSource;
-    }
-
     @Override
     public void validateCreate(C clientObject, PersistenceContext persistenceContext)
     {
@@ -35,12 +29,12 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateCreateConflict(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ConflictException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+            throw new ConflictException(buildMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
                     buildErrorDetails(errorContext,persistenceContext));
 
         validateCreate(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
+            throw new ValidationException(buildMessage(persistenceContext, VALIDATION_ERROR),
                     buildErrorDetails(errorContext,persistenceContext));
     }
 
@@ -51,12 +45,13 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateUpdateConflict(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ConflictException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+            throw new ConflictException(buildMessage(persistenceContext, CONFLICT, persistenceContext.getHttpMethod(),
+                    persistenceContext.getEntity()),
                     buildErrorDetails(errorContext,persistenceContext));
 
         validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
+            throw new ValidationException(buildMessage(persistenceContext, VALIDATION_ERROR),
                     buildErrorDetails(errorContext,persistenceContext));
     }
 
@@ -67,45 +62,37 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateDeleteConflict(persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ConflictException(buildErrorMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+            throw new ConflictException(buildMessage(persistenceContext, CONFLICT, persistenceContext.getHttpMethod(),
+                    persistenceContext.getEntity()),
                     buildErrorDetails(errorContext,persistenceContext));
 
         validateDelete(persistentObject, errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildValidationErrorMessage(errorContext, persistenceContext),
+            throw new ValidationException(buildMessage(persistenceContext,VALIDATION_ERROR),
                     buildErrorDetails(errorContext,persistenceContext));
     }
 
     protected List<ErrorDetail> buildErrorDetails(ValidationErrorContext errorContext,PersistenceContext persistenceContext)
     {
+        HyperionMessageSource messageSource = persistenceContext.getMessageSource();
+        Locale locale = persistenceContext.getLocale();
+
         List<ErrorDetail> errorDetails = new ArrayList<ErrorDetail>();
         for (ValidationErrorHolder holder : errorContext.getValidationErrors())
         {
             ErrorDetail errorDetail = new ErrorDetail();
             errorDetail.setCode(holder.getResourceCode());
-            errorDetail.setMessage(messageSource.getMessage(holder.getResourceCode(), holder.getParameters(), persistenceContext.getLocale()));
+            errorDetail.setMessage(messageSource.getValidationMessage(holder.getResourceCode(), holder.getParameters(),
+                    locale));
             errorDetails.add(errorDetail);
         }
 
         return errorDetails;
     }
 
-    protected String buildErrorMessage(PersistenceContext persistenceContext,String key,Object... parameters)
+    protected String buildMessage(PersistenceContext persistenceContext,String key,Object... parameters)
     {
-        return messageSource.getMessage(key,parameters,persistenceContext.getLocale());
-    }
-
-    @Deprecated
-    protected String buildValidationErrorMessage(ValidationErrorContext errorContext, PersistenceContext persistenceContext)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append(messageSource.getMessage(VALIDATION_ERROR,null,persistenceContext.getLocale()));
-        for (ValidationErrorHolder holder : errorContext.getValidationErrors())
-        {
-            sb.append("\n");
-            sb.append(messageSource.getMessage(holder.getResourceCode(), holder.getParameters(), persistenceContext.getLocale()));
-        }
-        return sb.toString();
+        return persistenceContext.getMessageSource().getValidationMessage(key,parameters, persistenceContext.getLocale());
     }
 
     protected void validateCreateConflict(C clientObject, ValidationErrorContext errorContext,PersistenceContext persistenceContext){}

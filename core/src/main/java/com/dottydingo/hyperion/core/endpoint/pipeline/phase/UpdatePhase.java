@@ -17,7 +17,7 @@ import java.util.Set;
 
 /**
  */
-public class UpdatePhase extends BasePersistencePhase<HyperionContext>
+public class UpdatePhase extends BasePersistencePhase
 {
     private EndpointMarshaller marshaller;
 

@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  */
-public abstract class BasePersistencePhase<C extends HyperionContext> extends AbstractEndpointPhase<C>
+public abstract class BasePersistencePhase extends BaseHyperionPhase
 {
     protected Set<String> buildFieldSet(String fields)
     {
@@ -48,7 +48,7 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         }
     }
 
-    protected void processChangeEvents(C phaseContext,PersistenceContext persistenceContext)
+    protected void processChangeEvents(HyperionContext phaseContext,PersistenceContext persistenceContext)
     {
         EntityPlugin entityPlugin = phaseContext.getEntityPlugin();
         if(!entityPlugin.hasEntityChangeListeners())
@@ -64,7 +64,7 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         }
     }
 
-    protected PersistenceContext buildPersistenceContext(C context)
+    protected PersistenceContext buildPersistenceContext(HyperionContext context)
     {
         PersistenceContext persistenceContext = new PersistenceContext();
         persistenceContext.setEntityPlugin(context.getEntityPlugin());
@@ -75,6 +75,7 @@ public abstract class BasePersistencePhase<C extends HyperionContext> extends Ab
         persistenceContext.setRequestedFields(buildFieldSet(context.getEndpointRequest().getFirstParameter("fields")));
         persistenceContext.setAuthorizationContext(context.getAuthorizationContext());
         persistenceContext.setLocale(context.getLocal());
+        persistenceContext.setMessageSource(messageSource);
 
         return persistenceContext;
     }

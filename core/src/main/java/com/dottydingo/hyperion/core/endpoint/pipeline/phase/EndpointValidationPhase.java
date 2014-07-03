@@ -22,12 +22,11 @@ import java.net.URLDecoder;
 
 /**
  */
-public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionContext>
+public class EndpointValidationPhase extends BaseHyperionPhase
 {
     private Logger logger = LoggerFactory.getLogger(EndpointValidationPhase.class);
 
     private ServiceRegistry serviceRegistry;
-    private HyperionEndpointConfiguration hyperionEndpointConfiguration;
     private AuthorizationProvider authorizationProvider;
     private UriParser uriParser ;
     private ServiceStatus serviceStatus;
@@ -35,11 +34,6 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
     public void setServiceRegistry(ServiceRegistry serviceRegistry)
     {
         this.serviceRegistry = serviceRegistry;
-    }
-
-    public void setHyperionEndpointConfiguration(HyperionEndpointConfiguration hyperionEndpointConfiguration)
-    {
-        this.hyperionEndpointConfiguration = hyperionEndpointConfiguration;
     }
 
     public void setAuthorizationProvider(AuthorizationProvider authorizationProvider)
@@ -96,14 +90,14 @@ public class EndpointValidationPhase extends AbstractEndpointPhase<HyperionConte
 
         if(version == null || version.length() == 0)
         {
-            version = request.getFirstParameter(hyperionEndpointConfiguration.getVersionParameterName());
+            version = request.getFirstParameter(configuration.getVersionParameterName());
             if(version == null || version.length() == 0)
-                version = request.getFirstHeader(hyperionEndpointConfiguration.getVersionHeaderName());
+                version = request.getFirstHeader(configuration.getVersionHeaderName());
 
-            if(hyperionEndpointConfiguration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
+            if(configuration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
                     (version == null || version.length()==0))
                 throw new BadRequestException(String.format("The %s parameter must be specified",
-                        hyperionEndpointConfiguration.getVersionParameterName()));
+                        configuration.getVersionParameterName()));
         }
 
 
