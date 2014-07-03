@@ -3,7 +3,7 @@ package com.dottydingo.hyperion.core.persistence;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.HistoryEntry;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
-import cz.jirutka.rsql.parser.model.Expression;
+import cz.jirutka.rsql.parser.ast.Node;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -45,7 +45,7 @@ public class TransactionalDecorator<C extends ApiObject, ID extends Serializable
     }
 
     @Override
-    public QueryResult<C> query(Expression query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
+    public QueryResult<C> query(Node query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
     {
         TransactionStatus status = transactionManager.getTransaction(getReadOnlyTransaction());
         try

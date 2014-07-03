@@ -1,12 +1,12 @@
 package com.dottydingo.hyperion.jpa.persistence.query;
 
 import com.dottydingo.hyperion.jpa.persistence.PathIterator;
-import cz.jirutka.rsql.parser.model.Comparison;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
+import java.util.List;
 
 /**
  */
@@ -27,11 +27,14 @@ public class DefaultJpaEntityQueryBuilder<T> extends AbstractEntityJpaQueryBuild
 
 
     @Override
-    public Predicate buildPredicate(From root, CriteriaBuilder cb, Comparison operator, String argument)
+    public Predicate buildPredicate(From root, CriteriaBuilder cb, ComparisonOperator operator, List<String> arguments)
     {
         Path from = getFrom(root,PathIterator.getPath(propertyPath));
 
-        Object parsed =  argumentParser.parse(argument,from.get(propertyName).getJavaType());
+        Object parsed = operator.supportsMultipleArguments()
+                ? argumentParser.parse(arguments,from.get(propertyName).getJavaType())
+                : argumentParser.parse(arguments.get(0),from.get(propertyName).getJavaType());
+
         return createPredicate(from,cb,propertyName,operator,parsed);
     }
 

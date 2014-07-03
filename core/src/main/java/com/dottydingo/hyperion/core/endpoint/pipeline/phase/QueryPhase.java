@@ -11,8 +11,8 @@ import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 import cz.jirutka.rsql.parser.ParseException;
 import cz.jirutka.rsql.parser.RSQLParser;
-import cz.jirutka.rsql.parser.TokenMgrError;
-import cz.jirutka.rsql.parser.model.Expression;
+import cz.jirutka.rsql.parser.RSQLParserException;
+import cz.jirutka.rsql.parser.ast.Node;
 
 /**
  */
@@ -58,7 +58,7 @@ public class QueryPhase extends BasePersistencePhase<HyperionContext>
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
         EndpointSort requestedSorts = endpointSortBuilder.buildSort(sort, persistenceContext);
-        Expression queryExpression = null;
+        Node queryExpression = null;
 
         if(query != null && query.trim().length() > 0)
             queryExpression = buildQueryExpression(query, persistenceContext);
@@ -80,21 +80,16 @@ public class QueryPhase extends BasePersistencePhase<HyperionContext>
 
     }
 
-    protected Expression buildQueryExpression(String query,PersistenceContext persistenceContext)
+    protected Node buildQueryExpression(String query,PersistenceContext persistenceContext)
     {
-        Expression queryTree;
         try
         {
             logger.debug("Parsing query: {}", query);
-            return queryTree = RSQLParser.parse(query);
+            return new RSQLParser().parse(query);
         }
-        catch (ParseException ex)
+        catch (RSQLParserException ex)
         {
             throw new BadRequestException("Error parsing query.", ex);
-        }
-        catch (TokenMgrError er)
-        {
-            throw new BadRequestException("Invalid query", er);
         }
     }
 }

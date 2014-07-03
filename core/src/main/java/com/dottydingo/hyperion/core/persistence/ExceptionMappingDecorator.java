@@ -4,7 +4,7 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.HistoryEntry;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
-import cz.jirutka.rsql.parser.model.Expression;
+import cz.jirutka.rsql.parser.ast.Node;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.io.Serializable;
@@ -42,7 +42,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
     }
 
     @Override
-    public QueryResult<C> query(Expression query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
+    public QueryResult<C> query(Node query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
     {
         try
         {

@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  */
@@ -21,6 +23,17 @@ public class DefaultArgumentParser  implements ArgumentParser
     private static final Logger logger = LoggerFactory.getLogger(DefaultArgumentParser.class);
 
     private DateTimeFormatter dateParser = ISODateTimeFormat.dateOptionalTimeParser();
+
+    @Override
+    public <T> List<T> parse(List<String> argument, Class<T> type) throws HyperionException
+    {
+        List<T> results = new ArrayList<>();
+        for (String s : argument)
+        {
+            results.add(parse(s,type));
+        }
+        return results;
+    }
 
     @Override
     public <T> T parse(String argument, Class<T> type) throws HyperionException

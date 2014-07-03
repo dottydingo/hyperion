@@ -1,12 +1,11 @@
 package com.dottydingo.hyperion.core.persistence.query;
 
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
-import com.dottydingo.hyperion.core.registry.EntityPlugin;
-import cz.jirutka.rsql.parser.model.Expression;
+import cz.jirutka.rsql.parser.ast.Node;
 
 /**
  */
 public interface PersistentQueryBuilderFactory<B extends PersistentQueryBuilder>
 {
-    B createQueryBuilder(Expression rootExpression, PersistenceContext persistenceContext);
+    B createQueryBuilder(Node rootExpression, PersistenceContext persistenceContext);
 }

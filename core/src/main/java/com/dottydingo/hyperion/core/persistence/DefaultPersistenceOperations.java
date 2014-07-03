@@ -6,7 +6,6 @@ import com.dottydingo.hyperion.api.exception.ValidationException;
 import com.dottydingo.hyperion.core.persistence.event.*;
 import com.dottydingo.hyperion.core.persistence.history.HistorySerializer;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
-import com.dottydingo.hyperion.api.HistoryAction;
 import com.dottydingo.hyperion.api.HistoryEntry;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
@@ -19,7 +18,7 @@ import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilder;
 import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilderFactory;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.translation.Translator;
-import cz.jirutka.rsql.parser.model.Expression;
+import cz.jirutka.rsql.parser.ast.Node;
 
 import java.io.Serializable;
 import java.util.*;
@@ -69,7 +68,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     }
 
     @Override
-    public QueryResult<C> query(Expression query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
+    public QueryResult<C> query(Node query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 

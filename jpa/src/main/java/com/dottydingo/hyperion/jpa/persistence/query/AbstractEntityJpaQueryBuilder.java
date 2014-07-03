@@ -3,13 +3,13 @@ package com.dottydingo.hyperion.jpa.persistence.query;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.persistence.query.ArgumentParser;
 import com.dottydingo.hyperion.core.persistence.query.DefaultArgumentParser;
-import cz.jirutka.rsql.parser.model.Comparison;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
+import java.util.Collection;
 
 /**
  */
@@ -35,10 +35,9 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      * @param argument     argument
      * @return Predicate
      */
-    protected Predicate createPredicate(Path root, CriteriaBuilder cb,  String propertyName, Comparison operator, Object argument)
+    protected Predicate createPredicate(Path root, CriteriaBuilder cb,  String propertyName, ComparisonOperator operator, Object argument)
     {
-        logger.debug("Creating criterion: {} {} {}",
-                new Object[]{propertyName, operator, argument});
+        logger.debug("Creating criterion: {} {} {}", propertyName, operator, argument);
 
         switch (operator)
         {
@@ -72,6 +71,10 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
                 return createLessThan(root, cb, propertyName, argument);
             case LESS_EQUAL:
                 return createLessEqual(root, cb, propertyName, argument);
+            case IN:
+                return createIn(root, cb, propertyName, argument);
+            case NOT_IN:
+                return createNotIn(root, cb, propertyName, argument);
         }
         throw new IllegalArgumentException("Unknown operator: " + operator);
     }
@@ -81,7 +84,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -94,7 +97,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createLike(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -109,7 +112,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createNotEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -122,7 +125,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     Value with wildcards.
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createNotLike(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -134,7 +137,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createGreaterThan(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -149,7 +152,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createGreaterEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -164,7 +167,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createLessThan(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -179,7 +182,7 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
      *
      * @param propertyPath property name prefixed with an association alias
      * @param argument     value
-     * @return Criterion
+     * @return Predicate
      */
     protected Predicate createLessEqual(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
     {
@@ -187,6 +190,24 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
             throw new BadRequestException(String.format("Incompatible query operation: %s.","le"));
 
         return cb.lessThanOrEqualTo(root.get(propertyPath), (Comparable) argument);
+    }
+
+    protected Predicate createIn(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
+    {
+        if(!(argument instanceof Collection))
+            throw new BadRequestException(String.format("Incompatible query operation: %s.","in"));
+
+        Path expression = root.get(propertyPath);
+        return expression.in((Collection)argument);
+    }
+
+    protected Predicate createNotIn(Path root, CriteriaBuilder cb,String propertyPath, Object argument)
+    {
+        if(!(argument instanceof Collection))
+            throw new BadRequestException(String.format("Incompatible query operation: %s.", "in"));
+
+        Path expression = root.get(propertyPath);
+        return cb.not(expression.in((Collection)argument));
     }
 
     /**
