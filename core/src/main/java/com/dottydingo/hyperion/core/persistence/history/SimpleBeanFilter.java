@@ -49,6 +49,7 @@ public class SimpleBeanFilter
         }
         catch (Exception e)
         {
+            // no easy way to localize, though this shouldn't generally happen in a production context
             throw new InternalException("Error creating API instance.",e);
         }
     }

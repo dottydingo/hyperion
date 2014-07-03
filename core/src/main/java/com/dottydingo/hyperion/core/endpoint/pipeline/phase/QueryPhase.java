@@ -16,6 +16,7 @@ import cz.jirutka.rsql.parser.ast.Node;
  */
 public class QueryPhase extends BasePersistencePhase
 {
+    private static final String INVALID_QUERY_STRING = "ERROR_INVALID_QUERY_STRING";
     private EndpointSortBuilder endpointSortBuilder;
 
     public void setEndpointSortBuilder(EndpointSortBuilder endpointSortBuilder)
@@ -29,23 +30,24 @@ public class QueryPhase extends BasePersistencePhase
         EndpointRequest request = phaseContext.getEndpointRequest();
         EndpointResponse response = phaseContext.getEndpointResponse();
 
-        Integer start = getIntegerParameter("start",request);
-        Integer limit = getIntegerParameter("limit",request);
+        Integer start = getIntegerParameter("start",phaseContext);
+        Integer limit = getIntegerParameter("limit",phaseContext);
 
         String query = request.getFirstParameter("query");
         String sort = request.getFirstParameter("sort");
 
         if(start != null && start < 1)
-            throw new BadRequestException("The start parameter must be greater than zero.");
+            throw new BadRequestException(messageSource.getErrorMessage(BAD_START_PARAMETER,phaseContext.getLocale()));
 
         if(limit != null && limit < 1)
-            throw new BadRequestException("The limit parameter must be greater than zero.");
+            throw new BadRequestException(messageSource.getErrorMessage(BAD_LIMIT_PARAMETER,phaseContext.getLocale()));
 
         if(limit == null)
             limit = configuration.getDefaultLimit();
 
         if(limit > configuration.getMaxLimit())
-            throw new BadRequestException(String.format("The limit parameter can not be greater than %d.",configuration.getMaxLimit()));
+            throw new BadRequestException(messageSource.getErrorMessage("ERROR_MAX_LIMIT_EXCEEDED",
+                    phaseContext.getLocale(),configuration.getMaxLimit()));
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
@@ -81,7 +83,8 @@ public class QueryPhase extends BasePersistencePhase
         }
         catch (RSQLParserException ex)
         {
-            throw new BadRequestException("Error parsing query.", ex);
+            throw new BadRequestException(persistenceContext.getMessageSource()
+                    .getErrorMessage(INVALID_QUERY_STRING,persistenceContext.getLocale(),query));
         }
     }
 }

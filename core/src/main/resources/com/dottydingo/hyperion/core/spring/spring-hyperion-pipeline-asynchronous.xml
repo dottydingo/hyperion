@@ -21,6 +21,7 @@
         <property name="phase" ref="hyperionEndpointValidationPhase"/>
         <property name="nextPhaseSelector">
             <bean class="com.dottydingo.hyperion.core.endpoint.pipeline.selector.CrudPhaseSelector">
+                <property name="messageSource" ref="hyperionMessageSource"/>
                 <property name="queryPhaseExecutor" ref="hyperionQueryExecutor"/>
                 <property name="getPhaseExecutor" ref="hyperionGetExecutor"/>
                 <property name="postPhaseExecutor" ref="hyperionCreateExecutor"/>

@@ -12,6 +12,9 @@ import java.util.Map;
  */
 public class DefaultEndpointSortBuilder implements EndpointSortBuilder
 {
+
+    private static final String INVALID_SORT_FIELD = "ERROR_INVALID_SORT_FIELD";
+
     @Override
     public EndpointSort buildSort(String sortString, PersistenceContext persistenceContext)
     {
@@ -32,7 +35,8 @@ public class DefaultEndpointSortBuilder implements EndpointSortBuilder
 
             // todo localize
             if(!validSorts.containsKey(name))
-                throw new BadRequestException(String.format("%s is not a valid sort field.", name));
+                throw new BadRequestException(
+                        persistenceContext.getMessageSource().getErrorMessage(INVALID_SORT_FIELD,persistenceContext.getLocale(),name));
 
             if(name.equals("id"))
                 containsIdSort = true;

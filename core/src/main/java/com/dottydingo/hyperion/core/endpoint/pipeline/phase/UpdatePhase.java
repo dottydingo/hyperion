@@ -42,7 +42,7 @@ public class UpdatePhase extends BasePersistencePhase
 
         List ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
         if(ids.size() != 1)
-            throw new BadRequestException("A single id must be provided for an update.");
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 
         Set<String> setFields = requestContext.getSetFields();
 

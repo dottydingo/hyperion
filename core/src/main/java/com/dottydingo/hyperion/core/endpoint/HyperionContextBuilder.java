@@ -36,7 +36,7 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
     {
         HyperionContext hyperionContext = super.buildContext(httpServletRequest, httpServletResponse);
         hyperionContext.setShowErrorDetail(shouldIncludeErrorDetail(hyperionContext.getEndpointRequest()));
-        hyperionContext.setLocal(httpServletRequest.getLocale());
+        hyperionContext.setLocale(httpServletRequest.getLocale());
         return hyperionContext;
     }
 

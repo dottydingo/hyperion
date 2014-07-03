@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class HistoryPhase extends BasePersistencePhase
 {
+
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
@@ -27,16 +28,16 @@ public class HistoryPhase extends BasePersistencePhase
         EntityPlugin plugin = phaseContext.getEntityPlugin();
         List<Serializable> ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
         if(ids.size() != 1)
-            throw new BadRequestException("A single ID must be provided.");
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 
-        Integer start = getIntegerParameter("start",request);
-        Integer limit = getIntegerParameter("limit",request);
+        Integer start = getIntegerParameter("start",phaseContext);
+        Integer limit = getIntegerParameter("limit",phaseContext);
 
         if(start != null && start < 1)
-            throw new BadRequestException("The start parameter must be greater than zero.");
+            throw new BadRequestException(messageSource.getErrorMessage(BAD_START_PARAMETER,phaseContext.getLocale()));
 
         if(limit != null && limit < 1)
-            throw new BadRequestException("The limit parameter must be greater than zero.");
+            throw new BadRequestException(messageSource.getErrorMessage(BAD_LIMIT_PARAMETER,phaseContext.getLocale()));
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 

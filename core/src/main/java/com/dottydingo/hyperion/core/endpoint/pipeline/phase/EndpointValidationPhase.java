@@ -9,11 +9,9 @@ import com.dottydingo.hyperion.core.endpoint.HyperionResponse;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationProvider;
-import com.dottydingo.hyperion.core.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.core.endpoint.status.ServiceStatus;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
-import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +22,15 @@ import java.net.URLDecoder;
  */
 public class EndpointValidationPhase extends BaseHyperionPhase
 {
+    private static final String SERVICE_NOT_AVAILABLE = "ERROR_SERVICE_NOT_AVAILABLE";
+    private static final String URI_NOT_RECOGNIZED = "ERROR_URI_NOT_RECOGNIZED";
+    private static final String INVALID_ENTITY = "ERROR_INVALID_ENTITY";
+    private static final String METHOD_NOT_ALLOWED = "ERROR_METHOD_NOT_ALLOWED";
+    private static final String READ_ONLY_MODE = "ERROR_READ_ONLY_MODE";
+    private static final String MISSING_VERSION_PARAMETER = "ERROR_MISSING_VERSION_PARAMETER";
+    private static final String INVALID_VERSION = "ERROR_INVALID_VERSION";
+    private static final String NOT_AUTHORIZED = "ERROR_NOT_AUTHORIZED";
+
     private Logger logger = LoggerFactory.getLogger(EndpointValidationPhase.class);
 
     private ServiceRegistry serviceRegistry;
@@ -55,7 +62,8 @@ public class EndpointValidationPhase extends BaseHyperionPhase
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
         if(serviceStatus.getForceDown())
-            throw new ServiceUnavailableException("Service not available");
+            throw new ServiceUnavailableException(messageSource.getErrorMessage(SERVICE_NOT_AVAILABLE,
+                    phaseContext.getLocale()));
 
         HyperionRequest request = phaseContext.getEndpointRequest();
         HyperionResponse response = phaseContext.getEndpointResponse();
@@ -63,25 +71,28 @@ public class EndpointValidationPhase extends BaseHyperionPhase
         UriRequestResult uriRequestResult = uriParser.parseRequestUri(request.getResourceUri());
 
         if(uriRequestResult == null)
-            throw new NotFoundException(String.format("%s is not recognized.",request.getResourceUri()));
+            throw new NotFoundException(
+                    messageSource.getErrorMessage(URI_NOT_RECOGNIZED,phaseContext.getLocale(),request.getResourceUri()));
 
         String entityName = uriRequestResult.getEndpoint();
 
         EntityPlugin plugin = serviceRegistry.getPluginForName(entityName);
         if(plugin == null)
-            throw new NotFoundException(String.format("%s is not a valid entity.",entityName));
+            throw new NotFoundException(messageSource.getErrorMessage(INVALID_ENTITY, phaseContext.getLocale(),
+                    entityName));
 
         phaseContext.setEntityPlugin(plugin);
 
-        phaseContext.setRequestMethod(getHttpMethod(request.getRequestMethod()));
+        phaseContext.setRequestMethod(getHttpMethod(request.getRequestMethod(), phaseContext));
         String requestMethod = getEffectiveMethod(request);
-        HttpMethod httpMethod = getHttpMethod(requestMethod);
+        HttpMethod httpMethod = getHttpMethod(requestMethod, phaseContext);
 
         if(!plugin.isMethodAllowed(httpMethod))
-            throw new NotAllowedException(String.format("%s is not allowed.",httpMethod));
+            throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED, phaseContext.getLocale(),
+                    httpMethod));
 
         if(serviceStatus.getReadOnly() && httpMethod.isWriteOperation())
-            throw new NotAllowedException("Service is in read only mode.");
+            throw new NotAllowedException(messageSource.getErrorMessage(READ_ONLY_MODE,phaseContext.getLocale()));
 
         phaseContext.setEffectiveMethod(httpMethod);
 
@@ -96,8 +107,9 @@ public class EndpointValidationPhase extends BaseHyperionPhase
 
             if(configuration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
                     (version == null || version.length()==0))
-                throw new BadRequestException(String.format("The %s parameter must be specified",
-                        configuration.getVersionParameterName()));
+                throw new BadRequestException(
+                        messageSource.getErrorMessage(MISSING_VERSION_PARAMETER, phaseContext.getLocale(),
+                                configuration.getVersionParameterName()));
         }
 
 
@@ -109,12 +121,13 @@ public class EndpointValidationPhase extends BaseHyperionPhase
             }
             catch(NumberFormatException e)
             {
-                throw new BadRequestException(String.format("%s is not a valid value for version.",version));
+                throw new BadRequestException(messageSource.getErrorMessage(INVALID_VERSION, phaseContext.getLocale(),
+                        version));
             }
         }
 
         if(!validateMethod(httpMethod,uriRequestResult))
-            throw new HyperionException(405,"Not allowed.");
+            throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED,phaseContext.getLocale(),httpMethod));
 
         if(uriRequestResult.getId() != null)
             phaseContext.setId(URLDecoder.decode(uriRequestResult.getId(),"UFT-8"));
@@ -134,11 +147,11 @@ public class EndpointValidationPhase extends BaseHyperionPhase
         phaseContext.setAuthorizationContext(authorizationContext);
 
         if(!authorizationContext.isAuthorized())
-            throw new AuthorizationException("Not Authorized");
+            throw new AuthorizationException(messageSource.getErrorMessage(NOT_AUTHORIZED,phaseContext.getLocale()));
 
     }
 
-    protected HttpMethod getHttpMethod(String methodName)
+    protected HttpMethod getHttpMethod(String methodName, HyperionContext context)
     {
         HttpMethod httpMethod;
         try
@@ -147,7 +160,7 @@ public class EndpointValidationPhase extends BaseHyperionPhase
         }
         catch (IllegalArgumentException e)
         {
-            throw new HyperionException(405,String.format("%s is not allowed.", methodName));
+            throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED,context.getLocale(),methodName));
         }
         return httpMethod;
     }

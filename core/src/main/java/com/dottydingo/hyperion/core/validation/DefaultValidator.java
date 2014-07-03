@@ -2,7 +2,6 @@ package com.dottydingo.hyperion.core.validation;
 
 import com.dottydingo.hyperion.api.ErrorDetail;
 import com.dottydingo.hyperion.api.exception.ConflictException;
-import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.exception.ValidationException;
 import com.dottydingo.hyperion.core.message.HyperionMessageSource;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
@@ -21,6 +20,7 @@ public class DefaultValidator<C,P> implements Validator<C, P>
     public static final String CHANGE_NOT_ALLOWED = "validation_change_not_allowed";
     public static final String CONFLICT = "validation_conflict";
     public static final String VALIDATION_ERROR = "validation_error";
+    public static final String REVISION_CONFLICT = "validation_revision_conflict";
 
     @Override
     public void validateCreate(C clientObject, PersistenceContext persistenceContext)
@@ -82,8 +82,8 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         {
             ErrorDetail errorDetail = new ErrorDetail();
             errorDetail.setCode(holder.getResourceCode());
-            errorDetail.setMessage(messageSource.getValidationMessage(holder.getResourceCode(), holder.getParameters(),
-                    locale));
+            errorDetail.setMessage(messageSource.getValidationMessage(holder.getResourceCode(), locale, holder.getParameters()
+            ));
             errorDetails.add(errorDetail);
         }
 
@@ -92,7 +92,8 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
     protected String buildMessage(PersistenceContext persistenceContext,String key,Object... parameters)
     {
-        return persistenceContext.getMessageSource().getValidationMessage(key,parameters, persistenceContext.getLocale());
+        return persistenceContext.getMessageSource().getValidationMessage(key, persistenceContext.getLocale(),
+                parameters);
     }
 
     protected void validateCreateConflict(C clientObject, ValidationErrorContext errorContext,PersistenceContext persistenceContext){}
@@ -127,12 +128,10 @@ public class DefaultValidator<C,P> implements Validator<C, P>
             errorContext.addValidationError(FIELD_LENGTH, fieldName, fieldName, maxLength);
     }
 
-    protected void validateRevisionMatch(String type, Integer clientRevision,Integer persistentRevision)
+    protected void validateRevisionMatch(PersistenceContext context,String type, String fieldName, Integer clientRevision,Integer persistentRevision)
     {
         if(clientRevision != null && !clientRevision.equals(persistentRevision))
-            throw new HyperionException(409,
-                    String.format("The value for %s is stale. The supplied revision %s does not match the existing revision %s.",
-                            type,clientRevision,persistentRevision));
+            throw new ConflictException(buildMessage(context,REVISION_CONFLICT,type,fieldName,clientRevision,persistentRevision));
     }
 
     protected boolean valueChanged(Object clientValue,Object persistentValue)

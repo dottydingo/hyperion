@@ -12,9 +12,9 @@ import java.io.Serializable;
 
 /**
  */
-// todo: localize
 public class HistoryPersistentChangeListener implements PersistentChangeListener<ApiObject,Serializable>
 {
+    private static final String HISTORY_PROCESSING_ERROR = "ERROR_HISTORY_PROCESSING_ERROR";
     private HistorySerializer historySerializer;
 
     public void setHistorySerializer(HistorySerializer historySerializer)
@@ -36,7 +36,9 @@ public class HistoryPersistentChangeListener implements PersistentChangeListener
         }
         catch (Exception e)
         {
-            throw new InternalException("Error processing history entry.", e);
+            throw new InternalException(
+                    context.getMessageSource().getErrorMessage(HISTORY_PROCESSING_ERROR,context.getLocale()),
+                    e);
         }
     }
 

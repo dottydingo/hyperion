@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.core.persistence;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.exception.ConflictException;
 import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.HistoryEntry;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
@@ -14,18 +15,12 @@ import java.util.List;
  */
 public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializable> implements PersistenceOperations<C, ID>
 {
+    private static final String ITEM_CHANGED = "ERROR_ITEM_CHANGED";
     private PersistenceOperations<C,ID> delegate;
 
     public void setDelegate(PersistenceOperations<C, ID> delegate)
     {
-        try
-        {
-            this.delegate = delegate;
-        }
-        catch (RuntimeException e)
-        {
-            throw mapException(e);
-        }
+        this.delegate = delegate;
     }
 
     @Override
@@ -37,7 +32,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         }
         catch (RuntimeException e)
         {
-            throw mapException(e);
+            throw mapException(e, context);
         }
     }
 
@@ -50,7 +45,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         }
         catch (RuntimeException e)
         {
-            throw mapException(e);
+            throw mapException(e, context);
         }
     }
 
@@ -63,7 +58,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         }
         catch (RuntimeException e)
         {
-            throw mapException(e);
+            throw mapException(e, context);
         }
     }
 
@@ -76,7 +71,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         }
         catch (RuntimeException e)
         {
-            throw mapException(e);
+            throw mapException(e, context);
         }
     }
 
@@ -89,7 +84,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         }
         catch (RuntimeException e)
         {
-            throw mapException(e);
+            throw mapException(e, context);
         }
     }
 
@@ -102,15 +97,15 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         }
         catch (RuntimeException e)
         {
-            throw mapException(e);
+            throw mapException(e, context);
         }
     }
 
-    protected RuntimeException mapException(RuntimeException ex)
+    protected RuntimeException mapException(RuntimeException ex, PersistenceContext context)
     {
         if(ex instanceof OptimisticLockingFailureException)
         {
-            return new HyperionException(409,"Item has been changed.");
+            return new ConflictException(context.getMessageSource().getErrorMessage(ITEM_CHANGED,context.getLocale()));
         }
         return ex;
     }

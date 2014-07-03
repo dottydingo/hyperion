@@ -22,7 +22,7 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     private Object result;
     private AuthorizationContext authorizationContext;
     private boolean showErrorDetail;
-    private Locale local;
+    private Locale locale;
 
     public EntityPlugin getEntityPlugin()
     {
@@ -125,13 +125,13 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
         return showErrorDetail;
     }
 
-    public Locale getLocal()
+    public Locale getLocale()
     {
-        return local;
+        return locale;
     }
 
-    public void setLocal(Locale local)
+    public void setLocale(Locale locale)
     {
-        this.local = local;
+        this.locale = locale;
     }
 }

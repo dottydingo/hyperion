@@ -1,8 +1,9 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.selector;
 
-import com.dottydingo.hyperion.api.exception.HyperionException;
+import com.dottydingo.hyperion.api.exception.NotAllowedException;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
+import com.dottydingo.hyperion.core.message.HyperionMessageSource;
 import com.dottydingo.service.pipeline.PhaseExecutor;
 import com.dottydingo.service.pipeline.PhaseSelector;
 
@@ -10,6 +11,9 @@ import com.dottydingo.service.pipeline.PhaseSelector;
  */
 public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
 {
+    private static final String METHOD_NOT_ALLOWED = "ERROR_METHOD_NOT_ALLOWED";
+
+    private HyperionMessageSource messageSource;
     private PhaseExecutor<HyperionContext> queryPhaseExecutor;
     private PhaseExecutor<HyperionContext> getPhaseExecutor;
     private PhaseExecutor<HyperionContext> historyPhaseExecutor;
@@ -17,6 +21,11 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
     private PhaseExecutor<HyperionContext> putPhaseExecutor;
     private PhaseExecutor<HyperionContext> deletePhaseExecutor;
     private PhaseExecutor<HyperionContext> optionsPhaseExecutor;
+
+    public void setMessageSource(HyperionMessageSource messageSource)
+    {
+        this.messageSource = messageSource;
+    }
 
     public void setQueryPhaseExecutor(PhaseExecutor<HyperionContext> queryPhaseExecutor)
     {
@@ -88,7 +97,8 @@ public class CrudPhaseSelector implements PhaseSelector<HyperionContext>
         }
 
         if(executor == null)
-            throw new HyperionException(405,"Method not allowed.");
+            throw new NotAllowedException(
+                    messageSource.getErrorMessage(METHOD_NOT_ALLOWED,context.getLocale(),method));
 
         return executor;
     }

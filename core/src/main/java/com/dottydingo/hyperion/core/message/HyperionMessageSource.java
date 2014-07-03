@@ -58,12 +58,12 @@ public class HyperionMessageSource
         validationMessageSource.setDefaultEncoding(defaultEncoding);
     }
 
-    public String getErrorMessage(String code,Object[] args, Locale locale)
+    public String getErrorMessage(String code, Locale locale, Object... args)
     {
         return errorMessageSource.getMessage(code, args, locale);
     }
 
-    public String getValidationMessage(String code,Object[] args, Locale locale)
+    public String getValidationMessage(String code, Locale locale, Object... args)
     {
         return validationMessageSource.getMessage(code, args, locale);
     }

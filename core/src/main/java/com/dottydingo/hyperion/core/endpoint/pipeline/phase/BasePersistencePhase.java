@@ -6,8 +6,6 @@ import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
-import com.dottydingo.service.endpoint.context.EndpointRequest;
-import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,6 +15,11 @@ import java.util.Set;
  */
 public abstract class BasePersistencePhase extends BaseHyperionPhase
 {
+    protected static final String INVALID_INTEGER_PARAMETER = "ERROR_INVALID_INTEGER_PARAMETER";
+    protected static final String ERROR_SINGLE_ID_REQUIRED = "ERROR_SINGLE_ID_REQUIRED";
+    protected static final String BAD_START_PARAMETER = "ERROR_BAD_START_PARAMETER";
+    protected static final String BAD_LIMIT_PARAMETER = "ERROR_BAD_LIMIT_PARAMETER";
+
     protected Set<String> buildFieldSet(String fields)
     {
         if(fields == null || fields.length() == 0)
@@ -32,9 +35,9 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         return fieldSet;
     }
 
-    protected Integer getIntegerParameter(String name, EndpointRequest request)
+    protected Integer getIntegerParameter(String name, HyperionContext context)
     {
-        String value = request.getFirstParameter(name);
+        String value = context.getEndpointRequest().getFirstParameter(name);
         if(value == null)
             return null;
 
@@ -44,7 +47,7 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         }
         catch (NumberFormatException e)
         {
-            throw new BadRequestException(String.format("%s must be an integer.",name));
+            throw new BadRequestException(messageSource.getErrorMessage(INVALID_INTEGER_PARAMETER,context.getLocale(),name));
         }
     }
 
@@ -74,7 +77,7 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         persistenceContext.setUserContext(context.getUserContext());
         persistenceContext.setRequestedFields(buildFieldSet(context.getEndpointRequest().getFirstParameter("fields")));
         persistenceContext.setAuthorizationContext(context.getAuthorizationContext());
-        persistenceContext.setLocale(context.getLocal());
+        persistenceContext.setLocale(context.getLocale());
         persistenceContext.setMessageSource(messageSource);
 
         return persistenceContext;

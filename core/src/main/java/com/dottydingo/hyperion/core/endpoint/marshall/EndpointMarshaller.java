@@ -10,6 +10,7 @@ import java.io.OutputStream;
 
 /**
  */
+// todo localize
 public class EndpointMarshaller
 {
     private ObjectMapper objectMapper;
@@ -64,6 +65,7 @@ public class EndpointMarshaller
         }
         catch(Exception e)
         {
+            // no easy way to localize this...
             throw new InternalException("Error marhsalling response.",e);
         }
 

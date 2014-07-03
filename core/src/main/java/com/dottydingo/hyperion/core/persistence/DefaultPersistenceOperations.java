@@ -29,6 +29,9 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         implements PersistenceOperations<C,ID>
 {
 
+    private static final String ID_MISMATCH = "VALIDATION_ID_MISMATCH";
+    private static final String ITEM_NOT_FOUND = "ERROR_ITEM_NOT_FOUND";
+
     protected PersistentQueryBuilderFactory persistentQueryBuilderFactory;
     protected PersistentOrderBuilderFactory persistentOrderBuilderFactory;
     protected HistorySerializer historySerializer;
@@ -188,7 +191,8 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         if(existing == null)
             throw new NotFoundException(
-                    String.format("%s with id %s was not found.",context.getEntity(),ids.get(0)));
+                    context.getMessageSource().getErrorMessage(ITEM_NOT_FOUND, context.getLocale(),
+                            context.getEntity(), ids.get(0)));
 
         apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
 
@@ -215,7 +219,8 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         boolean dirty = translator.copyClient(item, existing,context);
 
         if(oldId != null && !oldId.equals(existing.getId()))
-            throw new ValidationException("Id in URI does not match the Id in the payload.");
+            throw new ValidationException(
+                    context.getMessageSource().getValidationMessage(ID_MISMATCH,context.getLocale()));
 
         context.setWriteContext(WriteContext.update);
         if(dirty)
