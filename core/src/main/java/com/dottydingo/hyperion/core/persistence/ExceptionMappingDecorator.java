@@ -4,9 +4,10 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.exception.ConflictException;
 import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.HistoryEntry;
+import com.dottydingo.hyperion.api.exception.ServiceUnavailableException;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
 import cz.jirutka.rsql.parser.ast.Node;
-import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,6 +17,10 @@ import java.util.List;
 public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializable> implements PersistenceOperations<C, ID>
 {
     private static final String ITEM_CHANGED = "ERROR_ITEM_CHANGED";
+    private static final String UNCAUGHT_CONFLICT = "ERROR_UNCAUGHT_CONFLICT";
+    private static final String QUERY_TIMEOUT = "ERROR_QUERY_TIMEOUT";
+    private static final String DATA_ACCESS_FAILURE = "ERROR_DATA_ACCESS_FAILURE";
+
     private PersistenceOperations<C,ID> delegate;
 
     public void setDelegate(PersistenceOperations<C, ID> delegate)
@@ -103,10 +108,33 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
 
     protected RuntimeException mapException(RuntimeException ex, PersistenceContext context)
     {
-        if(ex instanceof OptimisticLockingFailureException)
+        RuntimeException convertedException = convertException(ex, context);
+        if(convertedException != null)
+            return convertedException;
+
+        return ex;
+    }
+
+    protected RuntimeException convertException(RuntimeException ex, PersistenceContext context)
+    {
+        if(ex instanceof ConcurrencyFailureException)
         {
             return new ConflictException(context.getMessageSource().getErrorMessage(ITEM_CHANGED,context.getLocale()));
         }
-        return ex;
+        else if(ex instanceof QueryTimeoutException)
+        {
+            return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(QUERY_TIMEOUT,context.getLocale()));
+        }
+        else if(ex instanceof DataIntegrityViolationException)
+        {
+            return new ConflictException(context.getMessageSource().getErrorMessage(UNCAUGHT_CONFLICT,
+                    context.getLocale(),ex.getMessage()));
+        }
+        else if(ex instanceof NonTransientDataAccessResourceException)
+        {
+            return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(DATA_ACCESS_FAILURE,
+                    context.getLocale()));
+        }
+        return null;
     }
 }
