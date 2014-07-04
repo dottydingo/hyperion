@@ -14,6 +14,7 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     protected int defaultLimit = 500;
     protected int maxLimit = 1000;
     protected boolean includeErrorDetail = false;
+    protected boolean trackProvidedFieldsOnUpdate = false;
 
     public String getVersionParameterName()
     {
@@ -93,5 +94,15 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     public void setIncludeErrorDetail(boolean includeErrorDetail)
     {
         this.includeErrorDetail = includeErrorDetail;
+    }
+
+    public boolean isTrackProvidedFieldsOnUpdate()
+    {
+        return trackProvidedFieldsOnUpdate;
+    }
+
+    public void setTrackProvidedFieldsOnUpdate(boolean trackProvidedFieldsOnUpdate)
+    {
+        this.trackProvidedFieldsOnUpdate = trackProvidedFieldsOnUpdate;
     }
 }

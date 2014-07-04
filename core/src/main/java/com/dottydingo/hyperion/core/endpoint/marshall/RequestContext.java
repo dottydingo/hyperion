@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.core.endpoint.marshall;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -9,15 +10,12 @@ import java.util.Set;
 public class RequestContext<T>
 {
     private T requestObject;
-    private Set<String> setFields = new HashSet<String>();
+    private Map<Object,Set<String>> providedFields;
 
-    public RequestContext(T requestObject, Iterator<String> iterator)
+    public RequestContext(T requestObject, Map<Object, Set<String>> providedFields)
     {
         this.requestObject = requestObject;
-        while (iterator.hasNext())
-        {
-            setFields.add(iterator.next());
-        }
+        this.providedFields = providedFields;
     }
 
     public T getRequestObject()
@@ -30,13 +28,18 @@ public class RequestContext<T>
         this.requestObject = requestObject;
     }
 
-    public Set<String> getSetFields()
+    public Map<Object, Set<String>> getProvidedFields()
     {
-        return setFields;
+        return providedFields;
     }
 
-    public void setSetFields(Set<String> setFields)
+    public void setProvidedFields(Map<Object, Set<String>> providedFields)
     {
-        this.setFields = setFields;
+        this.providedFields = providedFields;
+    }
+
+    public boolean isTrackingProvidedFields()
+    {
+        return providedFields != null;
     }
 }

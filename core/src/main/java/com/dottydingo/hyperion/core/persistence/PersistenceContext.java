@@ -29,7 +29,7 @@ public class PersistenceContext
     private AuthorizationContext authorizationContext;
     private Locale locale;
     private HyperionMessageSource messageSource;
-    private Set<String> providedFields = Collections.emptySet();
+    private Map<Object,Set<String>> providedFields = Collections.emptyMap();
 
     public PersistenceContext()
     {
@@ -186,19 +186,21 @@ public class PersistenceContext
     }
 
 
-    public Set<String> getProvidedFields()
-    {
-        return providedFields;
-    }
-
-    public void setProvidedFields(Set<String> providedFields)
+    public void setProvidedFields(Map<Object, Set<String>> providedFields)
     {
         this.providedFields = providedFields;
     }
 
-    public boolean isFieldProvided(String fieldName)
+    public boolean isFieldProvided(Object item, String fieldName)
     {
-        return providedFields.contains(fieldName);
+        if(providedFields == null)
+            return false;
+
+        Set<String> fields = providedFields.get(item);
+        if(fields != null)
+            return fields.contains(fieldName);
+
+        return false;
     }
 
     public HyperionMessageSource getMessageSource()

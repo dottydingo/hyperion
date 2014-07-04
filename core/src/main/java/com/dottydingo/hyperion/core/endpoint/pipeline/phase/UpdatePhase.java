@@ -54,9 +54,7 @@ public class UpdatePhase extends BasePersistencePhase
         if(ids.size() != 1)
             throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 
-        Set<String> setFields = requestContext.getSetFields();
-
-        persistenceContext.setProvidedFields(setFields);
+        persistenceContext.setProvidedFields(requestContext.getProvidedFields());
 
         Set<String> fieldSet = persistenceContext.getRequestedFields();
         if(fieldSet != null)

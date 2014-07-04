@@ -41,6 +41,7 @@
         <property name="includeErrorDetail" value="${endpoint.includeErrorDetail}"/>
         <property name="enableResponseCompression" value="${endpoint.enableResponseCompression}"/>
         <property name="responseCompressionThreshold" value="${endpoint.responseCompressionThreshold}"/>
+        <property name="trackProvidedFieldsOnUpdate" value="${endpoint.trackProvidedFieldsOnUpdate}"/>
     </bean>
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.core.endpoint.NoOpRequestLogHandler"/>

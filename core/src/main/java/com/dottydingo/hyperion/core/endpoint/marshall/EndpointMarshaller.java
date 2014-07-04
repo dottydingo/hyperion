@@ -1,31 +1,66 @@
 package com.dottydingo.hyperion.core.endpoint.marshall;
 
-import com.dottydingo.hyperion.api.exception.BadRequestException;
-import com.dottydingo.hyperion.api.exception.InternalException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.dottydingo.hyperion.core.configuration.HyperionEndpointConfiguration;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  */
 public class EndpointMarshaller
 {
-    private ObjectMapper objectMapper;
+    private HyperionEndpointConfiguration configuration;
 
-    public EndpointMarshaller()
+    private ObjectMapper objectMapper;
+    private ObjectMapper trackingObjectMapper;
+    private boolean trackProvidedFieldsOnUpdate;
+
+    public void init()
     {
-        try
+        objectMapper = new ObjectMapper();
+
+        baseConfigureObjectMapper(objectMapper);
+
+        trackProvidedFieldsOnUpdate = configuration.isTrackProvidedFieldsOnUpdate();
+        if(trackProvidedFieldsOnUpdate)
         {
-            objectMapper = new ObjectMapperBuilder().getObject();
+            // we need to create a new instance here since making a copy would share the module
+            // registration
+            trackingObjectMapper =new ObjectMapper();
+            baseConfigureObjectMapper(trackingObjectMapper);
+            trackingObjectMapper.registerModule(new CollectorModule());
         }
-        catch (Exception ignore){}
+
     }
 
-    public void setObjectMapper(ObjectMapper objectMapper)
+    public void setConfiguration(HyperionEndpointConfiguration configuration)
     {
-        this.objectMapper = objectMapper;
+        this.configuration = configuration;
+    }
+
+    private void baseConfigureObjectMapper(ObjectMapper objectMapper)
+    {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.disable(SerializationFeature.CLOSE_CLOSEABLE);
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        configureObjectMapper(objectMapper);
+    }
+
+    /**
+     * Allow subclasses to provide additional object mapper configuration
+     * @param objectMapper the mapper to configure
+     */
+    protected void configureObjectMapper(ObjectMapper objectMapper)
+    {
+
     }
 
     public <T> T unmarshall(InputStream inputStream, Class<T> type) throws MarshallingException
@@ -42,12 +77,28 @@ public class EndpointMarshaller
 
     public <T> RequestContext<T> unmarshallWithContext(InputStream inputStream, Class<T> type)  throws MarshallingException
     {
+
+        if(!trackProvidedFieldsOnUpdate)
+        {
+            T item = unmarshall(inputStream,type);
+            return new RequestContext<>(item,null);
+        }
+
         try
         {
-            JsonNode jsonNode = objectMapper.readTree(inputStream);
-            T value = objectMapper.convertValue(jsonNode,type);
+            Map<Object,Set<String>> providedFieldsMap = new IdentityHashMap<>();
 
-            return new RequestContext<T>(value,jsonNode.fieldNames());
+            ContextAttributes attrs = trackingObjectMapper
+                    .getDeserializationConfig()
+                    .getAttributes()
+                    .withPerCallAttribute(TrackingSettableBeanProperty.PROVIDED_FIELDS_MAP, providedFieldsMap);
+
+            T value = trackingObjectMapper
+                    .reader(attrs)
+                    .readValue(trackingObjectMapper.getFactory().createParser(inputStream),type);
+
+
+            return new RequestContext<T>(value,providedFieldsMap);
         }
         catch (Exception e)
         {

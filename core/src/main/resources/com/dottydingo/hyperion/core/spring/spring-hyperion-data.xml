@@ -33,11 +33,11 @@
 
     <bean id="hyperionDefaultArgumentParser" class="com.dottydingo.hyperion.core.persistence.query.DefaultArgumentParser"/>
 
-    <bean id="hyperionEndpointMarshaller" class="com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller">
-        <property name="objectMapper" ref="hyperionObjectMapper"/>
+    <bean id="hyperionEndpointMarshaller" class="com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller"
+            init-method="init">
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
     </bean>
 
-    <bean id="hyperionObjectMapper" class="com.dottydingo.hyperion.core.endpoint.marshall.ObjectMapperBuilder"/>
 
     <bean id="hyperionBaseServiceRegistry" class="com.dottydingo.hyperion.core.configuration.SpringServiceRegistryBuilder" abstract="true">
         <property name="defaultPersistenceOperations" ref="hyperionPersistenceOperations"/>
