@@ -1,6 +1,8 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.exception.BadRequestException;
+import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
@@ -17,6 +19,7 @@ import java.util.Set;
  */
 public class CreatePhase extends BasePersistencePhase
 {
+
     private EndpointMarshaller marshaller;
 
     public void setMarshaller(EndpointMarshaller marshaller)
@@ -33,7 +36,15 @@ public class CreatePhase extends BasePersistencePhase
         ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
-        ApiObject clientObject = marshaller.unmarshall(request.getInputStream(),apiVersionPlugin.getApiClass());
+        ApiObject clientObject = null;
+        try
+        {
+            clientObject = marshaller.unmarshall(request.getInputStream(),apiVersionPlugin.getApiClass());
+        }
+        catch (MarshallingException e)
+        {
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST,phaseContext.getLocale(),e.getMessage()),e);
+        }
         clientObject.setId(null);
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);

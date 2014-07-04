@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.jpa.persistence.query;
 
+import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.EntityQueryBuilder;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -12,5 +13,6 @@ import java.util.List;
  */
 public interface JpaEntityQueryBuilder extends EntityQueryBuilder
 {
-    Predicate buildPredicate(From root,CriteriaBuilder cb,ComparisonOperator operator, List<String> arguments);
+    Predicate buildPredicate(From root, CriteriaBuilder cb, ComparisonOperator operator, List<String> arguments,
+                             PersistenceContext persistenceContext);
 }

@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.core.endpoint.HttpMethod;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.core.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
+import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 import com.dottydingo.service.endpoint.pipeline.AbstractEndpointPhase;
 
@@ -37,9 +38,9 @@ public class ResponseMarshallerPhase extends BaseHyperionPhase
                 if(phaseContext.getRequestMethod() != HttpMethod.HEAD)
                     marshaller.marshall(phaseContext.getEndpointResponse().getOutputStream(),result);
             }
-            catch(InternalException e)
+            catch(MarshallingException e)
             {
-                logger.error("Error marshalling response.",e);
+                logger.warn("Error marshalling response.",e);
             }
 
         }

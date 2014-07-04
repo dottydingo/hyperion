@@ -19,6 +19,7 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
     protected static final String ERROR_SINGLE_ID_REQUIRED = "ERROR_SINGLE_ID_REQUIRED";
     protected static final String BAD_START_PARAMETER = "ERROR_BAD_START_PARAMETER";
     protected static final String BAD_LIMIT_PARAMETER = "ERROR_BAD_LIMIT_PARAMETER";
+    protected static final String ERROR_READING_REQUEST = "ERROR_READING_REQUEST";
 
     protected Set<String> buildFieldSet(String fields)
     {

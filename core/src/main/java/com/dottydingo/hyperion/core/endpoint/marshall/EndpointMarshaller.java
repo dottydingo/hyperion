@@ -10,7 +10,6 @@ import java.io.OutputStream;
 
 /**
  */
-// todo localize
 public class EndpointMarshaller
 {
     private ObjectMapper objectMapper;
@@ -29,7 +28,7 @@ public class EndpointMarshaller
         this.objectMapper = objectMapper;
     }
 
-    public <T> T unmarshall(InputStream inputStream, Class<T> type)
+    public <T> T unmarshall(InputStream inputStream, Class<T> type) throws MarshallingException
     {
         try
         {
@@ -37,11 +36,11 @@ public class EndpointMarshaller
         }
         catch (Exception e)
         {
-            throw new BadRequestException(String.format("Error unmarshalling request: %s",e.getMessage()),e);
+            throw new MarshallingException(e);
         }
     }
 
-    public <T> RequestContext<T> unmarshallWithContext(InputStream inputStream, Class<T> type)
+    public <T> RequestContext<T> unmarshallWithContext(InputStream inputStream, Class<T> type)  throws MarshallingException
     {
         try
         {
@@ -52,12 +51,12 @@ public class EndpointMarshaller
         }
         catch (Exception e)
         {
-            throw new BadRequestException(String.format("Error unmarshalling request: %s",e.getMessage()),e);
+            throw new MarshallingException(e);
         }
     }
 
 
-    public <T> void marshall(OutputStream outputStream, T value)
+    public <T> void marshall(OutputStream outputStream, T value) throws MarshallingException
     {
         try
         {
@@ -65,8 +64,7 @@ public class EndpointMarshaller
         }
         catch(Exception e)
         {
-            // no easy way to localize this...
-            throw new InternalException("Error marhsalling response.",e);
+            throw new MarshallingException(e);
         }
 
     }

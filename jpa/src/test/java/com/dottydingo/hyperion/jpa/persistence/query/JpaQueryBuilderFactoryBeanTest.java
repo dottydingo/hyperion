@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.jpa.persistence.query;
 
+import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.jpa.configuration.JpaEntityQueryBuilderFactoryBean;
 import com.dottydingo.hyperion.jpa.persistence.SampleApiObject;
 import junit.framework.Assert;
@@ -121,7 +122,7 @@ public class JpaQueryBuilderFactoryBeanTest
     private class NoOpJpaQueryBuilder implements JpaEntityQueryBuilder
     {
         @Override
-        public Predicate buildPredicate(From root, CriteriaBuilder cb, ComparisonOperator operator, List<String> arguments)
+        public Predicate buildPredicate(From root, CriteriaBuilder cb, ComparisonOperator operator, List<String> arguments, PersistenceContext persistenceContext)
         {
             return null;
         }

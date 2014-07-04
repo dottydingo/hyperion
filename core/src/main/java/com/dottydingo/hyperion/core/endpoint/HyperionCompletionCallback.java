@@ -4,6 +4,7 @@ import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.exception.InternalException;
 import com.dottydingo.hyperion.api.ErrorResponse;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
+import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
 import com.dottydingo.service.endpoint.CompletionCallback;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 import org.slf4j.Logger;
@@ -70,7 +71,14 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
 
                 errorResponse.setType(exceptionType);
 
-                endpointMarshaller.marshall(response.getOutputStream(), errorResponse);
+                try
+                {
+                    endpointMarshaller.marshall(response.getOutputStream(), errorResponse);
+                }
+                catch (MarshallingException e)
+                {
+                    logger.warn("Error masrhalling error response.",e);
+                }
             }
         }
 

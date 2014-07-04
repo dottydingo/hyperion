@@ -33,7 +33,6 @@ public class DefaultEndpointSortBuilder implements EndpointSortBuilder
             String[] props = s1.split(":");
             String name = props[0].trim();
 
-            // todo localize
             if(!validSorts.containsKey(name))
                 throw new BadRequestException(
                         persistenceContext.getMessageSource().getErrorMessage(INVALID_SORT_FIELD,persistenceContext.getLocale(),name));

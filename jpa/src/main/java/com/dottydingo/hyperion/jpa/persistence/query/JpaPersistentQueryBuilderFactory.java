@@ -18,24 +18,25 @@ public class JpaPersistentQueryBuilderFactory implements PersistentQueryBuilderF
     @Override
     public JpaPersistentQueryBuilder createQueryBuilder(Node rootExpression, PersistenceContext persistenceContext)
     {
-        return new InternalPredicateBuilder(persistenceContext.getApiVersionPlugin().getQueryBuilders(),rootExpression);
+        return new InternalPredicateBuilder(persistenceContext,rootExpression);
     }
 
     private class InternalPredicateBuilder<P> implements JpaPersistentQueryBuilder<P>
     {
-        private Map<String, JpaEntityQueryBuilder> queryBuilders;
+        private PersistenceContext context;
         private Node rootExpression;
 
-        private InternalPredicateBuilder(Map<String, JpaEntityQueryBuilder> queryBuilders, Node rootExpression)
+        private InternalPredicateBuilder(PersistenceContext context, Node rootExpression)
         {
-            this.queryBuilders = queryBuilders;
+            this.context = context;
             this.rootExpression = rootExpression;
         }
 
         @Override
         public Predicate buildPredicate(Root<P> root, CriteriaQuery<?> query, CriteriaBuilder cb)
         {
-            return rootExpression.accept(new RsqlVisitor(root, cb, queryBuilders));
+            return rootExpression.accept(new RsqlVisitor(context, root, cb,
+                    context.getApiVersionPlugin().getQueryBuilders()));
         }
     }
 }

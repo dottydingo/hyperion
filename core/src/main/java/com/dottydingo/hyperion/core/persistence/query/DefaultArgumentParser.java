@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.core.persistence.query;
 
 import com.dottydingo.hyperion.api.exception.BadParameterException;
 import com.dottydingo.hyperion.api.exception.HyperionException;
+import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 public class DefaultArgumentParser  implements ArgumentParser
 {
+    public static final String PARAMETER_CONVERSION_ERROR = "ERROR_PARAMETER_CONVERSION_ERROR";
     private static DefaultArgumentParser INSTANCE = new DefaultArgumentParser();
 
     public static ArgumentParser getInstance() {return INSTANCE;}
@@ -25,18 +27,18 @@ public class DefaultArgumentParser  implements ArgumentParser
     private DateTimeFormatter dateParser = ISODateTimeFormat.dateOptionalTimeParser();
 
     @Override
-    public <T> List<T> parse(List<String> argument, Class<T> type) throws HyperionException
+    public <T> List<T> parse(List<String> argument, Class<T> type, PersistenceContext context) throws HyperionException
     {
         List<T> results = new ArrayList<>();
         for (String s : argument)
         {
-            results.add(parse(s,type));
+            results.add(parse(s,type, context));
         }
         return results;
     }
 
     @Override
-    public <T> T parse(String argument, Class<T> type) throws HyperionException
+    public <T> T parse(String argument, Class<T> type, PersistenceContext context) throws HyperionException
     {
 
         logger.debug("Parsing argument '{}' as type {}", argument, type.getSimpleName());
@@ -75,7 +77,7 @@ public class DefaultArgumentParser  implements ArgumentParser
         }
         catch (IllegalArgumentException ex)
         {
-            throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()));
+            throw new BadParameterException(createErrorMessage(argument, type, context));
         }
 
         // date
@@ -87,7 +89,7 @@ public class DefaultArgumentParser  implements ArgumentParser
             }
             catch (IllegalArgumentException ex1)
             {
-                throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()));
+                throw new BadParameterException(createErrorMessage(argument, type, context));
             }
         }
 
@@ -105,9 +107,16 @@ public class DefaultArgumentParser  implements ArgumentParser
         }
         catch (Exception ex)
         {
-            throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()),ex);
+            throw new BadParameterException(createErrorMessage(argument, type, context),ex);
         }
 
-        throw new BadParameterException(String.format("Could not convert \"%s\" to a %s",argument,type.getSimpleName()));
+        throw new BadParameterException(createErrorMessage(argument, type, context));
     }
+
+    protected <T> String createErrorMessage(String argument, Class<T> type, PersistenceContext context)
+    {
+        return context.getMessageSource().getErrorMessage(PARAMETER_CONVERSION_ERROR,context.getLocale(),argument,type);
+    }
+
+
 }
