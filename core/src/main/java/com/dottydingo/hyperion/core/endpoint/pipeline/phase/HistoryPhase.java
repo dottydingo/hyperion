@@ -26,7 +26,7 @@ public class HistoryPhase extends BasePersistencePhase
         EndpointResponse response = phaseContext.getEndpointResponse();
 
         EntityPlugin plugin = phaseContext.getEntityPlugin();
-        List<Serializable> ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
+        List<Serializable> ids = convertIds(phaseContext, plugin);
         if(ids.size() != 1)
             throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 

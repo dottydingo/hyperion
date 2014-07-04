@@ -27,7 +27,7 @@ public class DeletePhase extends BasePersistencePhase
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
-        List ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
+        List ids = convertIds(phaseContext, plugin);
         int deleted = plugin.getPersistenceOperations().deleteItem(ids, persistenceContext);
 
         processChangeEvents(phaseContext,persistenceContext);
@@ -37,4 +37,5 @@ public class DeletePhase extends BasePersistencePhase
 
         response.setResponseCode(200);
     }
+
 }

@@ -50,7 +50,7 @@ public class UpdatePhase extends BasePersistencePhase
         }
         ApiObject clientObject = requestContext.getRequestObject();
 
-        List ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
+        List ids = convertIds(phaseContext, plugin);
         if(ids.size() != 1)
             throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 

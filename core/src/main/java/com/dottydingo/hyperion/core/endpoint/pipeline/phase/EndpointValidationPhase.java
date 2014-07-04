@@ -30,6 +30,7 @@ public class EndpointValidationPhase extends BaseHyperionPhase
     private static final String MISSING_VERSION_PARAMETER = "ERROR_MISSING_VERSION_PARAMETER";
     private static final String INVALID_VERSION = "ERROR_INVALID_VERSION";
     private static final String NOT_AUTHORIZED = "ERROR_NOT_AUTHORIZED";
+    public static final String ENC = "UTF-8";
 
     private Logger logger = LoggerFactory.getLogger(EndpointValidationPhase.class);
 
@@ -130,7 +131,7 @@ public class EndpointValidationPhase extends BaseHyperionPhase
             throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED,phaseContext.getLocale(),httpMethod));
 
         if(uriRequestResult.getId() != null)
-            phaseContext.setId(URLDecoder.decode(uriRequestResult.getId(),"UFT-8"));
+            phaseContext.setId(URLDecoder.decode(uriRequestResult.getId(), ENC));
         phaseContext.setHistory(uriRequestResult.isHistory());
 
         ApiVersionPlugin versionPlugin = plugin.getApiVersionRegistry().getPluginForVersion(phaseContext.getVersion());

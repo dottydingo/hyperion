@@ -1,7 +1,9 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
+import com.dottydingo.hyperion.api.exception.BadParameterException;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
+import com.dottydingo.hyperion.core.key.KeyConverterException;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
@@ -20,6 +22,7 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
     protected static final String BAD_START_PARAMETER = "ERROR_BAD_START_PARAMETER";
     protected static final String BAD_LIMIT_PARAMETER = "ERROR_BAD_LIMIT_PARAMETER";
     protected static final String ERROR_READING_REQUEST = "ERROR_READING_REQUEST";
+    public static final String INVALID_ID = "ERROR_INVALID_ID";
 
     protected Set<String> buildFieldSet(String fields)
     {
@@ -84,4 +87,15 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         return persistenceContext;
     }
 
+    protected List convertIds(HyperionContext phaseContext, EntityPlugin plugin)
+    {
+        try
+        {
+            return plugin.getKeyConverter().covertKeys(phaseContext.getId());
+        }
+        catch (KeyConverterException e)
+        {
+            throw new BadParameterException(messageSource.getErrorMessage(INVALID_ID,phaseContext.getLocale(),e.getValue()));
+        }
+    }
 }

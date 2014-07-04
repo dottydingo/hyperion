@@ -16,7 +16,7 @@ public class GetPhase extends BasePersistencePhase
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
         EntityPlugin plugin = phaseContext.getEntityPlugin();
-        List ids = plugin.getKeyConverter().covertKeys(phaseContext.getId());
+        List ids = convertIds(phaseContext, plugin);
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
