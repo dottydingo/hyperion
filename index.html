@@ -3,46 +3,121 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Hyperion by dottydingo</title>
+
+    <title>Hyperion by mhellkamp</title>
   </head>
 
   <body>
-    <div id="container">
+    <header>
       <div class="inner">
+        <h1>Hyperion</h1>
+        <h2>A framework for creating data services in Java.</h2>
+        <a href="https://github.com/mhellkamp/hyperion" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-        <header>
-          <h1>Hyperion</h1>
-          <h2>A framework for creating data services in Java.</h2>
-        </header>
-
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/dottydingo/hyperion/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/dottydingo/hyperion/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/dottydingo/hyperion" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
-
-        <hr>
-
-        <section id="main_content">
-          <h1>hyperion</h1>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="hyperion" class="anchor" href="#hyperion"><span class="octicon octicon-link"></span></a>hyperion</h1>
 
 <p>A framework for creating data services in Java.</p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Built-in versioning support</li>
+<li>Sparse retrieves/updates</li>
+<li>Built-in paging support</li>
+<li>Built-in validation support</li>
+<li>Configurable ad-hoc queries</li>
+<li>Configurable ad-hoc sorting</li>
+<li>Optional history support</li>
+<li>Hooks for authorization based visibility of records and fields</li>
+<li>Built using a SEDA pipeline, supports either synchronous and asynchronous execution</li>
+</ul><p>Hyperion was designed to allow developers to quickly implement standardized data services without worrying about
+the underlying service plumbing. It is based on experience implementing standard data services in several different organizations.
+I've taken the lessons learned from implementing several different frameworks through the years and boiled it down to a framework that
+supports quickly creating data services. I classify this as a "Simple Service Framework" to avoid the religious war behind the REST and Restful
+service monikers. This framework supports most general use cases for data services but may not be a good fit for complex use cases, so caveat emptor.</p>
+
+<h1>
+<a name="why-another-data-service-framework" class="anchor" href="#why-another-data-service-framework"><span class="octicon octicon-link"></span></a>Why Another Data Service Framework?</h1>
+
+<p>I looked at several different Java based data service frameworks, such as <a href="http://projects.spring.io/spring-data-rest/">Spring Data Rest</a>
+and <a href="https://code.google.com/p/odata4j/">odata4j</a> and found that they had similar attributes:</p>
+
+<ul>
+<li>Exposed the persistence model directly, with little or no ability to modify the external representation</li>
+<li>Limited support for complex and context specific (insert/update/delete) validations</li>
+<li>Limited support for truly ad-hoc queries and sorts</li>
+<li>No real support for user based visibility</li>
+</ul><p>This had several problems for the types of use cases I needed to support:</p>
+
+<ul>
+<li>Allowing data objects to change over time while maintaining backward compatibility using a single endpoint</li>
+<li>Arbitrarily complex ad-hoc queries</li>
+<li>Multi-level sorts</li>
+<li>User based visibility for records and fields</li>
+<li>Validations/referential integrity checks</li>
+<li>Sparse GETs</li>
+</ul><p>Hyperion was designed to separate the external API representation of a data object from the underlying persistence model used to store the data. This
+has several advantages:</p>
+
+<ul>
+<li>The data model can change over time. Since the API model is independent from the persistence model different versions of the API model can be supported. The persistent and 
+API models can evolve independently.</li>
+<li>The persistence mechanism can be changed without impacting the callers.</li>
+<li>The caller can specify the fields to return. The framework will populate only the API fields being requested.</li>
+<li>The caller can specify only changed fields on a write operation. The framework will only populate the persistent fields that were sent in the API model.</li>
+</ul><h1>
+<a name="underlying-architecture" class="anchor" href="#underlying-architecture"><span class="octicon octicon-link"></span></a>Underlying Architecture</h1>
+
+<p>Each data object defined in a Hyperion service is called an entity. Each entity is a separate endpoint in the service, each of which support
+standard CRUD operations using POST, GET, PUT, and DELETE HTTP operations respectively. Each entity has a single persistent representation
+and one or more API representations, specified as versions of that entity API object. Each version of an entity API object has
+a corresponding translator to covert between the API representation and the persistent representation as well as a validator to
+enforce any necessary validation rules for a specific version of an entity.</p>
+
+<p>Translation uses a convention over configuration design principle. If a field on the API object has the same name and type
+as the field on the persistent object then translation happens automatically. Otherwise some level of configuration needs to
+be done to enable translation for that field. Configuring fields that can be sorted and queried is similar, the assumption is that all fields
+are supported unless excluded.</p>
+
+<h1>
+<a name="using-hyperion" class="anchor" href="#using-hyperion"><span class="octicon octicon-link"></span></a>Using Hyperion</h1>
+
+<p>TBD</p>
         </section>
 
-        <footer>
-          Hyperion is maintained by <a href="https://github.com/dottydingo">dottydingo</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
+        <aside id="sidebar">
+          <a href="https://github.com/mhellkamp/hyperion/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/mhellkamp/hyperion/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
 
-        
+          <p class="repo-owner"><a href="https://github.com/mhellkamp/hyperion"></a> is maintained by <a href="https://github.com/mhellkamp">mhellkamp</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
       </div>
     </div>
+
+  
   </body>
 </html>
