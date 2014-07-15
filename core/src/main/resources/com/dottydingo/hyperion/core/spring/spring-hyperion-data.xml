@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+
+    <bean id="hyperionHistorySerializer" class="com.dottydingo.hyperion.core.persistence.history.HistorySerializer">
+        <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+
+    <bean id="hyperionHistoryPersistentChangeListener" class="com.dottydingo.hyperion.core.persistence.history.HistoryPersistentChangeListener">
+        <property name="historySerializer" ref="hyperionHistorySerializer"/>
+    </bean>
+
+    <bean id="hyperionBasePersistenceOperations"
+          class="com.dottydingo.hyperion.core.persistence.DefaultPersistenceOperations">
+        <property name="persistentOrderBuilderFactory" ref="hyperionPersistentOrderBuilderFactory"/>
+        <property name="persistentQueryBuilderFactory" ref="hyperionPersistentQueryBuilderFactory"/>
+        <property name="historySerializer" ref="hyperionHistorySerializer"/>
+    </bean>
+
+    <bean id="hyperionTransactionDecorator" class="com.dottydingo.hyperion.core.persistence.TransactionalDecorator">
+        <property name="delegate" ref="hyperionBasePersistenceOperations"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <bean id="hyperionExceptionMappingDecorator" class="com.dottydingo.hyperion.core.persistence.ExceptionMappingDecorator">
+        <property name="delegate" ref="hyperionTransactionDecorator"/>
+    </bean>
+
+    <alias name="hyperionExceptionMappingDecorator" alias="hyperionPersistenceOperations"/>
+
+    <bean id="hyperionDefaultArgumentParser" class="com.dottydingo.hyperion.core.persistence.query.DefaultArgumentParser"/>
+
+    <bean id="hyperionEndpointMarshaller" class="com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller"
+            init-method="init">
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+    </bean>
+
+
+    <bean id="hyperionBaseServiceRegistry" class="com.dottydingo.hyperion.core.configuration.SpringServiceRegistryBuilder" abstract="true">
+        <property name="defaultPersistenceOperations" ref="hyperionPersistenceOperations"/>
+        <property name="defaultDao" ref="hyperionDao"/>
+    </bean>
+
+</beans>

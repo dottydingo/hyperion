@@ -1,0 +1,76 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       ">
+
+
+    <bean id="hyperionErrorHandler" class="com.dottydingo.hyperion.core.endpoint.pipeline.HyperionErrorHandler"/>
+
+    <bean id="baseHyperionPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.BaseHyperionPhase" abstract="true">
+        <property name="contextStatusRegistry" ref="hyperionEndpointStatusRegistry"/>
+        <property name="traceManager" ref="traceManager"/>
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+        <property name="messageSource" ref="hyperionMessageSource"/>
+    </bean>
+
+    <bean id="hyperionAuthorizationChecker" class="com.dottydingo.hyperion.core.endpoint.pipeline.auth.NoOpAuthorizationProvider"/>
+
+    <bean id="hyperionUriParser" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.DefaultUriParser"/>
+
+    <bean id="hyperionEndpointSortBuilder" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.DefaultEndpointSortBuilder"/>
+
+    <bean id="hyperionEndpointValidationPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.EndpointValidationPhase"
+            parent="baseHyperionPhase">
+        <property name="serviceRegistry" ref="hyperionServiceRegistry"/>
+        <property name="authorizationProvider" ref="hyperionAuthorizationChecker"/>
+        <property name="name" value="RequestValidation"/>
+        <property name="uriParser" ref="hyperionUriParser"/>
+        <property name="serviceStatus" ref="hyperionEndpointStatus"/>
+    </bean>
+
+    <bean id="hyperionQueryPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.QueryPhase" parent="baseHyperionPhase">
+        <property name="name" value="query"/>
+        <property name="endpointSortBuilder" ref="hyperionEndpointSortBuilder"/>
+    </bean>
+
+    <bean id="hyperionGetPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.GetPhase" parent="baseHyperionPhase">
+        <property name="name" value="get"/>
+    </bean>
+
+    <bean id="hyperionCreatePhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.CreatePhase" parent="baseHyperionPhase">
+        <property name="name" value="create"/>
+        <property name="marshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+    <bean id="hyperionUpdatePhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.UpdatePhase" parent="baseHyperionPhase">
+        <property name="name" value="update"/>
+        <property name="marshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+    <bean id="hyperionDeletePhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.DeletePhase" parent="baseHyperionPhase">
+        <property name="name" value="delete"/>
+    </bean>
+
+    <bean id="hyperionHistoryPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.HistoryPhase" parent="baseHyperionPhase">
+        <property name="name" value="history"/>
+    </bean>
+
+    <bean id="hyperionOptionsPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.OptionsPhase" parent="baseHyperionPhase">
+        <property name="name" value="options"/>
+        <property name="configuration" ref="hyperionEndpointConfiguration"/>
+    </bean>
+
+    <bean id="hyperionResponseMarshallerPhase" class="com.dottydingo.hyperion.core.endpoint.pipeline.phase.ResponseMarshallerPhase" parent="baseHyperionPhase">
+        <property name="name" value="marshall"/>
+        <property name="marshaller" ref="hyperionEndpointMarshaller"/>
+    </bean>
+
+    <bean id="hyperionMessageSource" class="com.dottydingo.hyperion.core.message.HyperionMessageSource" init-method="init">
+        <property name="defaultEncoding" value="${message.defaultEncoding}"/>
+        <property name="baseErrorResourceBundles" value="${message.error.baseBundles}"/>
+        <property name="additionalErrorResourceBundles" value="${message.error.additionalBundles}"/>
+        <property name="baseValidationResourceBundles" value="${message.validation.baseBundles}"/>
+        <property name="additionalValidationResourceBundles" value="${message.validation.additionalBundles}"/>
+    </bean>
+
+</beans>
