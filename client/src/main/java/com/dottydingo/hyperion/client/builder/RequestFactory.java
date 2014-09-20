@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.Endpoint;
 
 import java.io.Serializable;
 
@@ -12,9 +13,12 @@ public class RequestFactory<T extends ApiObject<ID>,ID extends Serializable>
     private Class<T> type;
     private String entityName;
 
-    public RequestFactory(int version, Class<T> type)
+    public RequestFactory(Class<T> type)
     {
-        this(version, type,type.getSimpleName());
+        Endpoint endpoint = getEndpointAnnotation(type);
+        this.version = endpoint.version();
+        this.type = type;
+        this.entityName = endpoint.value();
     }
 
     public RequestFactory(int version, Class<T> type, String entityName)
@@ -52,5 +56,14 @@ public class RequestFactory<T extends ApiObject<ID>,ID extends Serializable>
     public UpdateRequestBuilder<T,ID> update(T item)
     {
         return new UpdateRequestBuilder<T, ID>(version,type,entityName,item);
+    }
+
+    protected Endpoint getEndpointAnnotation(Class<? extends ApiObject> apiClass)
+    {
+        Endpoint endpoint = apiClass.getAnnotation(Endpoint.class);
+        if(endpoint == null)
+            throw new RuntimeException(String.format("Missing @Endpoint annotation in apiClass %s",apiClass));
+
+        return endpoint;
     }
 }
