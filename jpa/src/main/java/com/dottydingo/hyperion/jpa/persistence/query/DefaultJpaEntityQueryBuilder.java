@@ -3,10 +3,7 @@ package com.dottydingo.hyperion.jpa.persistence.query;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.jpa.persistence.PathIterator;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 /**
@@ -28,16 +25,16 @@ public class DefaultJpaEntityQueryBuilder<T> extends AbstractEntityJpaQueryBuild
 
 
     @Override
-    public Predicate buildPredicate(From root, CriteriaBuilder cb, ComparisonOperator operator, List<String> arguments,
-                                    PersistenceContext context)
+    public Predicate buildPredicate(From root, CriteriaQuery<?> query, CriteriaBuilder cb, ComparisonOperator operator,
+                                    List<String> arguments, PersistenceContext persistenceContext)
     {
         Path from = getFrom(root,PathIterator.getPath(propertyPath));
 
         Object parsed = operator.supportsMultipleArguments()
-                ? argumentParser.parse(arguments,from.get(propertyName).getJavaType(), context)
-                : argumentParser.parse(arguments.get(0),from.get(propertyName).getJavaType(), context);
+                ? argumentParser.parse(arguments,from.get(propertyName).getJavaType(), persistenceContext)
+                : argumentParser.parse(arguments.get(0),from.get(propertyName).getJavaType(), persistenceContext);
 
-        return createPredicate(from,cb,propertyName,operator,parsed, context);
+        return createPredicate(from, query, cb,propertyName,operator,parsed, persistenceContext);
     }
 
     protected Path getFrom(Path from, PathIterator path)

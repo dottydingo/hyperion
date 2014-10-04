@@ -122,7 +122,9 @@ public class JpaQueryBuilderFactoryBeanTest
     private class NoOpJpaQueryBuilder implements JpaEntityQueryBuilder
     {
         @Override
-        public Predicate buildPredicate(From root, CriteriaBuilder cb, ComparisonOperator operator, List<String> arguments, PersistenceContext persistenceContext)
+        public Predicate buildPredicate(From root, CriteriaQuery<?> query, CriteriaBuilder cb,
+                                        ComparisonOperator operator, List<String> arguments,
+                                        PersistenceContext persistenceContext)
         {
             return null;
         }

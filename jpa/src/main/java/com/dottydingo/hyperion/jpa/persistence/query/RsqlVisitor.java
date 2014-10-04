@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import cz.jirutka.rsql.parser.ast.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -19,15 +20,17 @@ public class RsqlVisitor extends NoArgRSQLVisitorAdapter<Predicate>
     private CriteriaBuilder cb;
     private Map<String,JpaEntityQueryBuilder> queryBuilders;
     private Root<?> entityRoot;
+    private CriteriaQuery<?> query;
     private PersistenceContext context;
 
 
-    public RsqlVisitor(PersistenceContext context, Root<?> entityRoot, CriteriaBuilder cb, Map<String,
-            JpaEntityQueryBuilder> queryBuilders)
+    public RsqlVisitor(PersistenceContext context, Root<?> entityRoot, CriteriaQuery<?> query,CriteriaBuilder cb,
+                       Map<String, JpaEntityQueryBuilder> queryBuilders)
     {
         this.context = context;
         this.cb = cb;
         this.queryBuilders = queryBuilders;
+        this.query = query;
         this.entityRoot = entityRoot;
     }
 
@@ -47,54 +50,54 @@ public class RsqlVisitor extends NoArgRSQLVisitorAdapter<Predicate>
     @Override
     public Predicate visit(EqualNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.EQUAL,node.getArguments(), context);
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.EQUAL,node.getArguments(), context);
     }
 
     @Override
     public Predicate visit(InNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.IN,node.getArguments(), context);
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.IN,node.getArguments(), context);
     }
 
     @Override
     public Predicate visit(GreaterThanOrEqualNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.GREATER_EQUAL,node.getArguments(),
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.GREATER_EQUAL,node.getArguments(),
                 context);
     }
 
     @Override
     public Predicate visit(GreaterThanNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.GREATER_THAN,node.getArguments(),
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.GREATER_THAN,node.getArguments(),
                 context);
     }
 
     @Override
     public Predicate visit(LessThanOrEqualNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.LESS_EQUAL,node.getArguments(),
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.LESS_EQUAL,node.getArguments(),
                 context);
     }
 
     @Override
     public Predicate visit(LessThanNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.LESS_THAN,node.getArguments(),
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.LESS_THAN,node.getArguments(),
                 context);
     }
 
     @Override
     public Predicate visit(NotEqualNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.NOT_EQUAL,node.getArguments(),
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.NOT_EQUAL,node.getArguments(),
                 context);
     }
 
     @Override
     public Predicate visit(NotInNode node)
     {
-        return getQueryBuilder(node).buildPredicate(entityRoot,cb,ComparisonOperator.NOT_IN,node.getArguments(),
+        return getQueryBuilder(node).buildPredicate(entityRoot, query, cb,ComparisonOperator.NOT_IN,node.getArguments(),
                 context);
     }
 

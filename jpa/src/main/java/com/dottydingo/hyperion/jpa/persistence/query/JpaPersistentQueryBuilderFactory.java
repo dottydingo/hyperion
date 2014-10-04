@@ -35,7 +35,7 @@ public class JpaPersistentQueryBuilderFactory implements PersistentQueryBuilderF
         @Override
         public Predicate buildPredicate(Root<P> root, CriteriaQuery<?> query, CriteriaBuilder cb)
         {
-            return rootExpression.accept(new RsqlVisitor(context, root, cb,
+            return rootExpression.accept(new RsqlVisitor(context, root,query, cb,
                     context.getApiVersionPlugin().getQueryBuilders()));
         }
     }
