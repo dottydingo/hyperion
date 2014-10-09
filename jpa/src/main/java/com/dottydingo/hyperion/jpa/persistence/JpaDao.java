@@ -99,7 +99,11 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<P> root = cq.from(entityClass);
-        cq.select(cb.count(root));
+
+        if(cq.isDistinct())
+            cq.select(cb.countDistinct(root));
+        else
+            cq.select(cb.count(root));
 
         Predicate[] predicateArray = null;
         if(predicateBuilders.size() > 0)
