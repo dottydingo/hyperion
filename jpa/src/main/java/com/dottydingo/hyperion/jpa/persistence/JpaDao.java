@@ -22,7 +22,7 @@ import java.util.List;
 public class JpaDao<P extends PersistentObject,ID extends Serializable>
         implements Dao<P,ID,JpaPersistentQueryBuilder,JpaPersistentOrderBuilder>
 {
-    @PersistenceContext
+    @PersistenceContext(unitName = "hyperionEntityManager")
     protected EntityManager em;
 
     public void setEm(EntityManager em)
@@ -49,6 +49,14 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
                                           JpaPersistentOrderBuilder orderBuilder,
                                           List<JpaPersistentQueryBuilder> predicateBuilders)
     {
+
+        PersistentQueryResult<P> result = new PersistentQueryResult<P>();
+
+        Long totalCount = getCount(entityClass,predicateBuilders);
+        result.setTotalCount(totalCount);
+        if(totalCount == 0)
+            return result;
+
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<P> criteriaQuery = cb.createQuery(entityClass);
         Root<P> root = criteriaQuery.from(entityClass);
@@ -65,11 +73,6 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
             predicateArray = predicates.toArray(new Predicate[predicates.size()]);
         }
 
-        PersistentQueryResult<P> result = new PersistentQueryResult<P>();
-        Long totalCount = getCount(entityClass,predicateBuilders);
-        result.setTotalCount(totalCount);
-        if(totalCount == 0)
-            return result;
 
         if(predicateArray != null)
             criteriaQuery.where(predicateArray);
@@ -94,16 +97,11 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
         return result;
     }
 
-    private Long getCount(Class<P> entityClass,List<JpaPersistentQueryBuilder> predicateBuilders)
+    protected Long getCount(Class<P> entityClass,List<JpaPersistentQueryBuilder> predicateBuilders)
     {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<P> root = cq.from(entityClass);
-
-        if(cq.isDistinct())
-            cq.select(cb.countDistinct(root));
-        else
-            cq.select(cb.count(root));
 
         Predicate[] predicateArray = null;
         if(predicateBuilders.size() > 0)
@@ -119,6 +117,15 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
 
         if(predicateArray != null)
             cq.where(predicateArray);
+
+        if(cq.isDistinct())
+        {
+            // we need to set this to a distinct count
+            cq.distinct(false);
+            cq.select(cb.countDistinct(root));
+        }
+        else
+            cq.select(cb.count(root));
 
         return em.createQuery(cq).getSingleResult();
     }

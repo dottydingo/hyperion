@@ -3,7 +3,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        ">
 
-    <bean id="hyperionDao" class="com.dottydingo.hyperion.jpa.persistence.JpaDao"/>
+    <bean id="hyperionDao" class="com.dottydingo.hyperion.jpa.persistence.JpaDao" />
 
     <bean id="hyperionPersistentQueryBuilderFactory"
           class="com.dottydingo.hyperion.jpa.persistence.query.JpaPersistentQueryBuilderFactory"/>
