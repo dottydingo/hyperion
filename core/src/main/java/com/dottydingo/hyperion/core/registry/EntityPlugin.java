@@ -190,7 +190,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
 
     public boolean hasPersistentChangeListeners()
     {
-        return !entityChangeListeners.isEmpty();
+        return !persistentChangeListeners.isEmpty();
     }
 
     public boolean hasListeners()
