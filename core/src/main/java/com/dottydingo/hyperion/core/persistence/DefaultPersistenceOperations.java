@@ -156,9 +156,9 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
                     new PersistentChangeEvent<C, ID>(null, newObject, null,
                             context, saved.getId(), EntityChangeAction.CREATE);
 
-            if(entityPlugin.hasEntityChangeListeners())
+            if(entityPlugin.hasPersistentChangeListeners())
             {
-                processEntityChangeEvents(context,Collections.singletonList(entityChangeEvent));
+                processPersistentChangeEvents(context, Collections.singletonList(entityChangeEvent));
             }
 
             if(entityPlugin.hasEntityChangeListeners())
@@ -236,7 +236,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
                         updatedItem, context.getChangedFields(), context,persistent.getId(),EntityChangeAction.MODIFY);
 
                 if(entityPlugin.hasPersistentChangeListeners())
-                    processEntityChangeEvents(context,Collections.singletonList(entityChangeEvent));
+                    processPersistentChangeEvents(context, Collections.singletonList(entityChangeEvent));
 
                 if(entityPlugin.hasEntityChangeListeners())
                     context.addEntityChangeEvent(entityChangeEvent);
@@ -299,7 +299,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         }
 
         if(!deleteEvents.isEmpty())
-            processEntityChangeEvents(context,deleteEvents);
+            processPersistentChangeEvents(context, deleteEvents);
 
         return deleted;
     }
@@ -345,7 +345,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         return result;
     }
 
-    protected void processEntityChangeEvents(PersistenceContext context, List<PersistentChangeEvent<C, ID>> changeEvents)
+    protected void processPersistentChangeEvents(PersistenceContext context, List<PersistentChangeEvent<C, ID>> changeEvents)
     {
         List<PersistentChangeListener> listeners = context.getEntityPlugin().getPersistentChangeListeners();
         for (PersistentChangeListener listener : listeners)
