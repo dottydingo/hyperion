@@ -46,15 +46,17 @@ public class ApiVersionPluginBuilder
         plugin.setCreateKeyProcessor(createKeyProcessor);
 
         Map<String,EntitySortBuilder> sorts = new HashMap<>();
-        sorts.putAll(entityPluginBuilder.getSortBuilders());
+        sorts.putAll(entityPluginBuilder.getDefaultSortBuilders());
         sorts.putAll(getSortBuilder(sortBuilders));
+        sorts.putAll(entityPluginBuilder.getOverrideSortBuilders());
         plugin.setSortBuilders(sorts);
         if(sorts.isEmpty())
             logger.warn("No sortBuilders specified for apiClass: {}",apiClass);
 
         Map<String,EntityQueryBuilder> queries = new HashMap<>();
-        queries.putAll(entityPluginBuilder.getQueryBuilders());
+        queries.putAll(entityPluginBuilder.getDefaultQueryBuilders());
         queries.putAll(getQueryBuilders(queryBuilders));
+        queries.putAll(entityPluginBuilder.getOverrideQueryBuilders());
         plugin.setQueryBuilders(queries);
         if(queries.isEmpty())
             logger.warn("No queryBuilders specified for apiClass: {}",apiClass);

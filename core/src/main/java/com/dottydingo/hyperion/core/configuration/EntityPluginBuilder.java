@@ -52,8 +52,11 @@ public class EntityPluginBuilder
     protected List<PersistentChangeListener> persistentChangeListeners = Collections.emptyList();
     protected List<EntityChangeListener> entityChangeListeners = Collections.emptyList();
 
-    protected Map<String,EntitySortBuilder> sortBuilders = Collections.emptyMap();
-    protected Map<String,EntityQueryBuilder> queryBuilders = Collections.emptyMap();
+    protected Map<String,EntitySortBuilder> defaultSortBuilders = Collections.emptyMap();
+    protected Map<String,EntityQueryBuilder> defaultQueryBuilders = Collections.emptyMap();
+
+    protected Map<String,EntitySortBuilder> overrideSortBuilders = Collections.emptyMap();
+    protected Map<String,EntityQueryBuilder> overrideQueryBuilders = Collections.emptyMap();
 
     protected List<ApiVersionPluginBuilder> versions;
 
@@ -350,32 +353,60 @@ public class EntityPluginBuilder
         return versions;
     }
 
-    protected Map<String, EntitySortBuilder> getSortBuilders()
+    protected Map<String, EntitySortBuilder> getDefaultSortBuilders()
     {
-        return sortBuilders;
+        return defaultSortBuilders;
     }
 
     /**
-     * Set the sort builders to be used across all versions of the entity
-     * @param sortBuilders the sort builders
+     * Set the default sort builders to be used across all versions of the entity
+     * @param defaultSortBuilders the sort builders
      */
-    public void setSortBuilders(Map<String, EntitySortBuilder> sortBuilders)
+    public void setDefaultSortBuilders(Map<String, EntitySortBuilder> defaultSortBuilders)
     {
-        this.sortBuilders = sortBuilders;
+        this.defaultSortBuilders = defaultSortBuilders;
     }
 
-    protected Map<String, EntityQueryBuilder> getQueryBuilders()
+    protected Map<String, EntityQueryBuilder> getDefaultQueryBuilders()
     {
-        return queryBuilders;
+        return defaultQueryBuilders;
     }
 
     /**
-     * Set the query builders to be used across all versions of the entity
-     * @param queryBuilders the query builders
+     * Set the default query builders to be used across all versions of the entity
+     * @param defaultQueryBuilders the query builders
      */
-    public void setQueryBuilders(Map<String, EntityQueryBuilder> queryBuilders)
+    public void setDefaultQueryBuilders(Map<String, EntityQueryBuilder> defaultQueryBuilders)
     {
-        this.queryBuilders = queryBuilders;
+        this.defaultQueryBuilders = defaultQueryBuilders;
+    }
+
+    public Map<String, EntitySortBuilder> getOverrideSortBuilders()
+    {
+        return overrideSortBuilders;
+    }
+
+    /**
+     * Set the override sort builders to be used across all versions of the entity
+     * @param overrideSortBuilders the sort builders
+     */
+    public void setOverrideSortBuilders(Map<String, EntitySortBuilder> overrideSortBuilders)
+    {
+        this.overrideSortBuilders = overrideSortBuilders;
+    }
+
+    public Map<String, EntityQueryBuilder> getOverrideQueryBuilders()
+    {
+        return overrideQueryBuilders;
+    }
+
+    /**
+     * Set the override query builders be to used across all versions of the entity
+     * @param overrideQueryBuilders the query builders
+     */
+    public void setOverrideQueryBuilders(Map<String, EntityQueryBuilder> overrideQueryBuilders)
+    {
+        this.overrideQueryBuilders = overrideQueryBuilders;
     }
 
     /**
