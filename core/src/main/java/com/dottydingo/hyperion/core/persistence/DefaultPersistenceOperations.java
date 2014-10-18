@@ -268,8 +268,15 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        Iterable<P> persistentItems = dao.findAll(entityPlugin.getEntityClass(),ids);
+        List<P> persistentItems = dao.findAll(entityPlugin.getEntityClass(),ids);
         PersistenceFilter persistenceFilter = entityPlugin.getPersistenceFilter();
+
+        AdminPersistenceContext adminPersistenceContext = null;
+        if(entityPlugin.hasListeners())
+        {
+            context.setCurrentTimestamp(dao.getCurrentTimestamp());
+            adminPersistenceContext = new AdminPersistenceContext(context);
+        }
 
         int deleted = 0;
         List<PersistentChangeEvent<C,ID>> deleteEvents = new ArrayList<>();
@@ -283,7 +290,6 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
                 if(entityPlugin.hasListeners())
                 {
-                    AdminPersistenceContext adminPersistenceContext = new AdminPersistenceContext(context);
                     C originalItem = translator.convertPersistent(item, adminPersistenceContext);
                     PersistentChangeEvent<C,ID> entityChangeEvent = new PersistentChangeEvent<>( originalItem,
                             null, null, context,item.getId(),EntityChangeAction.DELETE);
