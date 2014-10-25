@@ -3,11 +3,13 @@ package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 import com.dottydingo.hyperion.api.exception.BadParameterException;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
+import com.dottydingo.hyperion.core.endpoint.HyperionRequest;
 import com.dottydingo.hyperion.core.key.KeyConverterException;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
 import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
+import com.dottydingo.service.endpoint.context.MultiMap;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -73,16 +75,23 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
 
     protected PersistenceContext buildPersistenceContext(HyperionContext context)
     {
+        EntityPlugin entityPlugin = context.getEntityPlugin();
+        HyperionRequest endpointRequest = context.getEndpointRequest();
+
         PersistenceContext persistenceContext = new PersistenceContext();
-        persistenceContext.setEntityPlugin(context.getEntityPlugin());
-        persistenceContext.setEntity(context.getEntityPlugin().getEndpointName());
+        persistenceContext.setEntityPlugin(entityPlugin);
+        persistenceContext.setEntity(entityPlugin.getEndpointName());
         persistenceContext.setHttpMethod(context.getEffectiveMethod());
         persistenceContext.setApiVersionPlugin(context.getVersionPlugin());
         persistenceContext.setUserContext(context.getUserContext());
-        persistenceContext.setRequestedFields(buildFieldSet(context.getEndpointRequest().getFirstParameter("fields")));
+        persistenceContext.setRequestedFields(buildFieldSet(endpointRequest.getFirstParameter("fields")));
         persistenceContext.setAuthorizationContext(context.getAuthorizationContext());
         persistenceContext.setLocale(context.getLocale());
         persistenceContext.setMessageSource(messageSource);
+
+        Set<String> additionalParameters = entityPlugin.getAdditionalParameters();
+        if(additionalParameters != null && additionalParameters.size() > 0)
+            persistenceContext.setAdditionalParameters(endpointRequest.getParameterMap(additionalParameters));
 
         return persistenceContext;
     }

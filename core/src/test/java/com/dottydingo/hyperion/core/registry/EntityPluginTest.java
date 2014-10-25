@@ -129,4 +129,19 @@ public class EntityPluginTest
 
         Assert.assertTrue(entityPlugin.hasListeners());
     }
+
+    @Test
+    public void testIsReserved()
+    {
+        Assert.assertTrue(entityPlugin.isReserved("start"));
+        Assert.assertTrue(entityPlugin.isReserved("limit"));
+        Assert.assertTrue(entityPlugin.isReserved("fields"));
+        Assert.assertTrue(entityPlugin.isReserved("sort"));
+        Assert.assertTrue(entityPlugin.isReserved("query"));
+        Assert.assertTrue(entityPlugin.isReserved("trace"));
+        Assert.assertTrue(entityPlugin.isReserved("version"));
+        Assert.assertTrue(entityPlugin.isReserved("cid"));
+
+        Assert.assertFalse(entityPlugin.isReserved("foobar"));
+    }
 }

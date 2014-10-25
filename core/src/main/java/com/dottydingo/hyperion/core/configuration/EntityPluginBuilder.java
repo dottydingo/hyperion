@@ -58,6 +58,8 @@ public class EntityPluginBuilder
     protected Map<String,EntitySortBuilder> overrideSortBuilders = Collections.emptyMap();
     protected Map<String,EntityQueryBuilder> overrideQueryBuilders = Collections.emptyMap();
 
+    protected String[] additionalParameters = new String[0];
+
     protected List<ApiVersionPluginBuilder> versions;
 
 
@@ -96,6 +98,8 @@ public class EntityPluginBuilder
         entityPlugin.setDao(dao);
         entityPlugin.setPersistenceFilter(getPersistenceFilter(persistenceFilter));
 
+        if(additionalParameters != null && additionalParameters.length > 0)
+            entityPlugin.setAdditionalParameters(new LinkedHashSet<String>(Arrays.asList(additionalParameters)));
 
         if(historyEnabled != null)
             entityPlugin.setHistoryEnabled(historyEnabled);
@@ -436,5 +440,12 @@ public class EntityPluginBuilder
         this.versions = versions;
     }
 
-
+    /**
+     * Set any additional parameters that should be captured from the request
+     * @param additionalParameters The additional parameters
+     */
+    public void setAdditionalParameters(String[] additionalParameters)
+    {
+        this.additionalParameters = additionalParameters;
+    }
 }

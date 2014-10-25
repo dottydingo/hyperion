@@ -187,7 +187,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         EntityPlugin entityPlugin = context.getEntityPlugin();
         Dao<P,ID,?,?> dao = entityPlugin.getDao();
-        P existing = dao.find(entityPlugin.getEntityClass(),ids.get(0));
+        P existing = (P)dao.find(entityPlugin.getEntityClass(),ids.get(0));
 
         if(existing == null)
             throw new NotFoundException(

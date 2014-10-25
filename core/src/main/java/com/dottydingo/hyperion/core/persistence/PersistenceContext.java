@@ -6,6 +6,7 @@ import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;
+import com.dottydingo.service.endpoint.context.MultiMap;
 import com.dottydingo.service.endpoint.context.UserContext;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public class PersistenceContext
     private Locale locale;
     private HyperionMessageSource messageSource;
     private Map<Object,Set<String>> providedFields = Collections.emptyMap();
+    private MultiMap additionalParameters = new MultiMap();
 
     public PersistenceContext()
     {
@@ -52,6 +54,7 @@ public class PersistenceContext
         this.locale = other.locale;
         this.messageSource = other.messageSource;
         this.providedFields = other.providedFields;
+        this.additionalParameters = other.additionalParameters;
     }
 
 
@@ -211,5 +214,15 @@ public class PersistenceContext
     public void setMessageSource(HyperionMessageSource messageSource)
     {
         this.messageSource = messageSource;
+    }
+
+    public MultiMap getAdditionalParameters()
+    {
+        return additionalParameters;
+    }
+
+    public void setAdditionalParameters(MultiMap additionalParameters)
+    {
+        this.additionalParameters = additionalParameters;
     }
 }

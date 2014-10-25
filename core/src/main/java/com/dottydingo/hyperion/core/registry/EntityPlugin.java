@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.core.registry;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.exception.InternalException;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
 import com.dottydingo.hyperion.core.model.PersistentObject;
@@ -15,11 +16,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  */
 public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
 {
+    private static final Pattern RESERVED_PARAMETERS = Pattern.compile("start|limit|query|fields|sort|version|trace|cid",
+            Pattern.CASE_INSENSITIVE);
+
     private String endpointName;
     private Class<P> entityClass;
     private KeyConverter<ID> keyConverter;
@@ -38,6 +43,8 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
 
     private List<PersistentChangeListener<C,ID>> persistentChangeListeners = Collections.emptyList();
     private List<EntityChangeListener<C>> entityChangeListeners = Collections.emptyList();
+
+    private Set<String> additionalParameters = new HashSet<>();
 
     public String getEndpointName()
     {
@@ -196,5 +203,28 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     public boolean hasListeners()
     {
         return hasEntityChangeListeners() || hasPersistentChangeListeners();
+    }
+
+    public Set<String> getAdditionalParameters()
+    {
+        return additionalParameters;
+    }
+
+    public void setAdditionalParameters(Set<String> additionalParameters)
+    {
+        if(additionalParameters != null)
+        {
+            for (String additionalParameter : additionalParameters)
+            {
+                if(isReserved(additionalParameter))
+                    throw new InternalException(String.format("The %s parameter is reserved.",additionalParameter));
+            }
+        }
+        this.additionalParameters = additionalParameters;
+    }
+
+    protected boolean isReserved(String additionalParameter)
+    {
+        return RESERVED_PARAMETERS.matcher(additionalParameter).matches();
     }
 }

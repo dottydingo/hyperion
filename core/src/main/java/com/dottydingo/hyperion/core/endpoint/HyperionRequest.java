@@ -1,6 +1,9 @@
 package com.dottydingo.hyperion.core.endpoint;
 
 import com.dottydingo.service.endpoint.context.EndpointRequest;
+import com.dottydingo.service.endpoint.context.MultiMap;
+
+import java.util.Collection;
 
 /**
  */
@@ -16,5 +19,10 @@ public class HyperionRequest extends EndpointRequest
     public void setResourceUri(String resourceUri)
     {
         this.resourceUri = resourceUri;
+    }
+
+    public MultiMap getParameterMap(Collection<String> parameterNames)
+    {
+        return parameters.filter(parameterNames);
     }
 }

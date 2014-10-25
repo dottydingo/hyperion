@@ -41,4 +41,14 @@ public class ApiVersionRegistry<C extends ApiObject,P extends PersistentObject>
 
         return versionMap.get(effectiveVersion);
     }
+
+    public List<Integer> getVersions()
+    {
+        return new ArrayList<>(versions);
+    }
+
+    public Integer getLatestVersion()
+    {
+        return versions.last();
+    }
 }
