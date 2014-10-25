@@ -29,6 +29,7 @@ public class EndpointValidationPhase extends BaseHyperionPhase
     private static final String READ_ONLY_MODE = "ERROR_READ_ONLY_MODE";
     private static final String MISSING_VERSION_PARAMETER = "ERROR_MISSING_VERSION_PARAMETER";
     private static final String INVALID_VERSION = "ERROR_INVALID_VERSION";
+    private static final String UNKNOWN_VERSION = "ERROR_UNKNOWN_VERSION";
     private static final String NOT_AUTHORIZED = "ERROR_NOT_AUTHORIZED";
     public static final String ENC = "UTF-8";
 
@@ -126,6 +127,11 @@ public class EndpointValidationPhase extends BaseHyperionPhase
                         version));
             }
         }
+
+        if(version != null && configuration.isRequireValidVersion() && !plugin.getApiVersionRegistry().isValid(phaseContext.getVersion()))
+            throw  new BadRequestException(
+                    messageSource.getErrorMessage(UNKNOWN_VERSION, phaseContext.getLocale(),
+                            version));
 
         if(!validateMethod(httpMethod,uriRequestResult))
             throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED,phaseContext.getLocale(),httpMethod));

@@ -15,6 +15,7 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     protected int maxLimit = 1000;
     protected boolean includeErrorDetail = false;
     protected boolean trackProvidedFieldsOnUpdate = false;
+    protected boolean requireValidVersion = false;
 
     public String getVersionParameterName()
     {
@@ -104,5 +105,15 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     public void setTrackProvidedFieldsOnUpdate(boolean trackProvidedFieldsOnUpdate)
     {
         this.trackProvidedFieldsOnUpdate = trackProvidedFieldsOnUpdate;
+    }
+
+    public boolean isRequireValidVersion()
+    {
+        return requireValidVersion;
+    }
+
+    public void setRequireValidVersion(boolean requireValidVersion)
+    {
+        this.requireValidVersion = requireValidVersion;
     }
 }

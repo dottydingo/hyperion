@@ -42,6 +42,11 @@ public class ApiVersionRegistry<C extends ApiObject,P extends PersistentObject>
         return versionMap.get(effectiveVersion);
     }
 
+    public boolean isValid(Integer version)
+    {
+        return versions.contains(version);
+    }
+
     public List<Integer> getVersions()
     {
         return new ArrayList<>(versions);

@@ -31,6 +31,7 @@
         <property name="traceHeaderName" value="${endpoint.traceHeaderName}"/>
         <property name="traceParameterName" value="${endpoint.traceParameterName}"/>
         <property name="requireVersion" value="${endpoint.requireVersion}"/>
+        <property name="requireValidVersion" value="${endpoint.requireValidVersion}"/>
         <property name="versionHeaderName" value="${endpoint.versionHeaderName}"/>
         <property name="versionParameterName" value="${endpoint.versionParameterName}"/>
         <property name="forceConnectionClose" value="${endpoint.forceConnectionClose}"/>
