@@ -98,40 +98,45 @@ public class EndpointValidationPhase extends BaseHyperionPhase
 
         phaseContext.setEffectiveMethod(httpMethod);
 
-        // special case where version is in the URI
-        String version = uriRequestResult.getVersion();
-
-        if(version == null || version.length() == 0)
+        if(!uriRequestResult.isHistory())
         {
-            version = request.getFirstParameter(configuration.getVersionParameterName());
-            if(version == null || version.length() == 0)
-                version = request.getFirstHeader(configuration.getVersionHeaderName());
+            // special case where version is in the URI
+            String version = uriRequestResult.getVersion();
 
-            if(configuration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
-                    (version == null || version.length()==0))
+            if (version == null || version.length() == 0)
+            {
+                version = request.getFirstParameter(configuration.getVersionParameterName());
+                if (version == null || version.length() == 0)
+                    version = request.getFirstHeader(configuration.getVersionHeaderName());
+
+                if (configuration.isRequireVersion() && httpMethod != HttpMethod.DELETE &&
+                        (version == null || version.length() == 0))
+                    throw new BadRequestException(
+                            messageSource.getErrorMessage(MISSING_VERSION_PARAMETER, phaseContext.getLocale(),
+                                    configuration.getVersionParameterName()));
+            }
+
+
+            if (version != null)
+            {
+                try
+                {
+                    phaseContext.setVersion(Integer.parseInt(version));
+                }
+                catch (NumberFormatException e)
+                {
+                    throw new BadRequestException(
+                            messageSource.getErrorMessage(INVALID_VERSION, phaseContext.getLocale(),
+                                    version));
+                }
+            }
+
+            if (version != null && configuration.isRequireValidVersion() &&
+                    !plugin.getApiVersionRegistry().isValid(phaseContext.getVersion()))
                 throw new BadRequestException(
-                        messageSource.getErrorMessage(MISSING_VERSION_PARAMETER, phaseContext.getLocale(),
-                                configuration.getVersionParameterName()));
+                        messageSource.getErrorMessage(UNKNOWN_VERSION, phaseContext.getLocale(),
+                                version));
         }
-
-
-        if(version != null)
-        {
-            try
-            {
-                phaseContext.setVersion(Integer.parseInt(version));
-            }
-            catch(NumberFormatException e)
-            {
-                throw new BadRequestException(messageSource.getErrorMessage(INVALID_VERSION, phaseContext.getLocale(),
-                        version));
-            }
-        }
-
-        if(version != null && configuration.isRequireValidVersion() && !plugin.getApiVersionRegistry().isValid(phaseContext.getVersion()))
-            throw  new BadRequestException(
-                    messageSource.getErrorMessage(UNKNOWN_VERSION, phaseContext.getLocale(),
-                            version));
 
         if(!validateMethod(httpMethod,uriRequestResult))
             throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED,phaseContext.getLocale(),httpMethod));
