@@ -55,8 +55,11 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
     protected void afterConvert(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
                                 PersistenceContext context){}
 
-    protected void beforeCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
-                              PersistenceContext context){}
+    protected boolean beforeCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
+                              PersistenceContext context)
+    {
+        return false;
+    }
 
     @Override
     public boolean copyClient(C client, P persistent, PersistenceContext context)
@@ -65,7 +68,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         ObjectWrapper<P> persistentObjectWrapper = createPersistentObjectWrapper(persistent,context);
         ObjectWrapper<C> clientObjectWrapper = createClientObjectWrapper(client,context);
 
-        beforeCopy(clientObjectWrapper,persistentObjectWrapper,context);
+        dirty = beforeCopy(clientObjectWrapper,persistentObjectWrapper,context);
 
         AuthorizationContext authorizationContext = context.getAuthorizationContext();
         for (FieldMapper mapper : fieldMapperMap.values())
@@ -81,13 +84,17 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         if(dirty)
             context.setDirty();
 
-        afterCopy(clientObjectWrapper,persistentObjectWrapper,context);
+        if(afterCopy(clientObjectWrapper,persistentObjectWrapper,context))
+            context.setDirty();
 
         return dirty;
     }
 
-    protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
-                             PersistenceContext context){}
+    protected boolean afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper,
+                             PersistenceContext context)
+    {
+        return false;
+    }
 
     @Override
     public C convertPersistent(P persistent, PersistenceContext context)

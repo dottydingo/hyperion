@@ -38,9 +38,9 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
     }
 
     @Override
-    protected void afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
+    protected boolean afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
     {
-        super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
+        boolean dirty = super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
 
         if(context.isDirty())
         {
@@ -48,6 +48,8 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
             persistent.setModified(context.getCurrentTimestamp());
             persistent.setModifiedBy(context.getUserContext().getUserId()) ;
         }
+
+        return dirty;
     }
 
 }
