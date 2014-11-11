@@ -194,12 +194,12 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
                     context.getMessageSource().getErrorMessage(ITEM_NOT_FOUND, context.getLocale(),
                             context.getEntity(), ids.get(0)));
 
-        apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
-
         if(!entityPlugin.getPersistenceFilter().canUpdate(existing,context))
         {
             return null;
         }
+
+        apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
 
         AdminPersistenceContext adminPersistenceContext = null;
         if(entityPlugin.hasListeners())
