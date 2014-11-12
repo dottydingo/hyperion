@@ -85,7 +85,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
             context.setDirty();
 
         if(afterCopy(clientObjectWrapper,persistentObjectWrapper,context))
+        {
             context.setDirty();
+            dirty = true;
+        }
 
         return dirty;
     }

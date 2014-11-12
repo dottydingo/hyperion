@@ -42,7 +42,7 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
     {
         boolean dirty = super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
 
-        if(context.isDirty())
+        if(context.isDirty() || dirty)
         {
             P persistent = persistentObjectWrapper.getWrappedObject();
             persistent.setModified(context.getCurrentTimestamp());
