@@ -29,12 +29,13 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateCreateConflict(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ConflictException(buildMessage(persistenceContext,CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
-                    buildErrorDetails(errorContext,persistenceContext));
+            throw new ConflictException(
+                    buildMessage(persistenceContext, errorContext, CONFLICT,persistenceContext.getHttpMethod(),persistenceContext.getEntity()),
+                    buildErrorDetails(errorContext, persistenceContext));
 
         validateCreate(clientObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildMessage(persistenceContext, VALIDATION_ERROR),
+            throw new ValidationException(buildMessage(persistenceContext, errorContext, VALIDATION_ERROR),
                     buildErrorDetails(errorContext,persistenceContext));
     }
 
@@ -45,13 +46,13 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateUpdateConflict(clientObject,persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ConflictException(buildMessage(persistenceContext, CONFLICT, persistenceContext.getHttpMethod(),
+            throw new ConflictException(buildMessage(persistenceContext, errorContext, CONFLICT, persistenceContext.getHttpMethod(),
                     persistenceContext.getEntity()),
-                    buildErrorDetails(errorContext,persistenceContext));
+                    buildErrorDetails(errorContext, persistenceContext));
 
-        validateUpdate(clientObject,persistentObject,errorContext,persistenceContext);
+        validateUpdate(clientObject, persistentObject, errorContext, persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildMessage(persistenceContext, VALIDATION_ERROR),
+            throw new ValidationException(buildMessage(persistenceContext, errorContext, VALIDATION_ERROR),
                     buildErrorDetails(errorContext,persistenceContext));
     }
 
@@ -62,13 +63,13 @@ public class DefaultValidator<C,P> implements Validator<C, P>
 
         validateDeleteConflict(persistentObject,errorContext,persistenceContext);
         if(errorContext.hasErrors())
-            throw new ConflictException(buildMessage(persistenceContext, CONFLICT, persistenceContext.getHttpMethod(),
+            throw new ConflictException(buildMessage(persistenceContext, errorContext, CONFLICT, persistenceContext.getHttpMethod(),
                     persistenceContext.getEntity()),
-                    buildErrorDetails(errorContext,persistenceContext));
+                    buildErrorDetails(errorContext, persistenceContext));
 
-        validateDelete(persistentObject, errorContext,persistenceContext);
+        validateDelete(persistentObject, errorContext, persistenceContext);
         if(errorContext.hasErrors())
-            throw new ValidationException(buildMessage(persistenceContext,VALIDATION_ERROR),
+            throw new ValidationException(buildMessage(persistenceContext, errorContext, VALIDATION_ERROR),
                     buildErrorDetails(errorContext,persistenceContext));
     }
 
@@ -90,7 +91,8 @@ public class DefaultValidator<C,P> implements Validator<C, P>
         return errorDetails;
     }
 
-    protected String buildMessage(PersistenceContext persistenceContext,String key,Object... parameters)
+    protected String buildMessage(PersistenceContext persistenceContext, ValidationErrorContext errorContext,
+                                  String key, Object... parameters)
     {
         return persistenceContext.getMessageSource().getValidationMessage(key, persistenceContext.getLocale(),
                 parameters);
@@ -128,10 +130,11 @@ public class DefaultValidator<C,P> implements Validator<C, P>
             errorContext.addValidationError(FIELD_LENGTH, fieldName, fieldName, maxLength);
     }
 
-    protected void validateRevisionMatch(PersistenceContext context,String type, String fieldName, Integer clientRevision,Integer persistentRevision)
+    protected void validateRevisionMatch(PersistenceContext context,String type, String fieldName,
+                                         Integer clientRevision,Integer persistentRevision)
     {
         if(clientRevision != null && !clientRevision.equals(persistentRevision))
-            throw new ConflictException(buildMessage(context,REVISION_CONFLICT,type,fieldName,clientRevision,persistentRevision));
+            throw new ConflictException(buildMessage(context, null, REVISION_CONFLICT,type,fieldName,clientRevision,persistentRevision));
     }
 
     protected boolean valueChanged(Object clientValue,Object persistentValue)
