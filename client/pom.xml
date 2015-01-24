@@ -40,6 +40,10 @@
             <artifactId>slf4j-api</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
