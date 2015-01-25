@@ -50,33 +50,56 @@ public class DefaultArgumentParser  implements ArgumentParser
             {
                 return (T) argument;
             }
-            if (type.equals(Integer.class))
+            if (type.equals(Integer.class) || type.equals(int.class))
             {
                 return (T) Integer.valueOf(argument);
             }
-            if (type.equals(Boolean.class))
+            if (type.equals(Boolean.class) || type.equals(boolean.class))
             {
                 return (T) Boolean.valueOf(argument);
             }
-            if (type.isEnum())
-            {
-                return (T) Enum.valueOf((Class<Enum>) type, argument);
-            }
-            if (type.equals(Float.class))
+            if (type.equals(Float.class) || type.equals(float.class))
             {
                 return (T) Float.valueOf(argument);
             }
-            if (type.equals(Double.class))
+            if (type.equals(Double.class) || type.equals(double.class))
             {
                 return (T) Double.valueOf(argument);
             }
-            if (type.equals(Long.class))
+            if (type.equals(Long.class) || type.equals(long.class))
             {
                 return (T) Long.valueOf(argument);
             }
         }
         catch (IllegalArgumentException ex)
         {
+            throw new BadParameterException(createErrorMessage(argument, type, context));
+        }
+
+        // enums
+        if (type.isEnum())
+        {
+            // first try the simple case
+            try
+            {
+                return (T) Enum.valueOf((Class<Enum>) type, argument);
+            }
+            catch (Exception ignore){}
+
+            // try all upper
+            try
+            {
+                return (T) Enum.valueOf((Class<Enum>) type, argument.toUpperCase());
+            }
+            catch (Exception ignore){}
+
+            // try all lower
+            try
+            {
+                return (T) Enum.valueOf((Class<Enum>) type, argument.toLowerCase());
+            }
+            catch (Exception ignore){}
+
             throw new BadParameterException(createErrorMessage(argument, type, context));
         }
 
