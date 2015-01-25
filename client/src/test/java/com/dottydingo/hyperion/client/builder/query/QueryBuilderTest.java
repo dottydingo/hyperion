@@ -1,5 +1,7 @@
 package com.dottydingo.hyperion.client.builder.query;
 
+import com.dottydingo.hyperion.client.exception.ClientException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -294,5 +296,31 @@ public class QueryBuilderTest
                         qb.eq("foo","bar"),
                         qb.eq("baz","buzz")
                 ).build());
+    }
+
+    @Test
+    public void testWrap_String()
+    {
+        assertEquals("testme",qb.wrap("testme"));
+        assertEquals("'test me'",qb.wrap("test me"));
+        assertEquals("'test me='",qb.wrap("test me="));
+        assertEquals("'testme>'",qb.wrap("testme>"));
+        assertEquals("'testme<'",qb.wrap("testme<"));
+        assertEquals("'testme('",qb.wrap("testme("));
+        assertEquals("'testme)'",qb.wrap("testme)"));
+        assertEquals("'testme~'",qb.wrap("testme~"));
+        assertEquals("'testme!'",qb.wrap("testme!"));
+        assertEquals("'testme;'",qb.wrap("testme;"));
+        assertEquals("'testme,'",qb.wrap("testme,"));
+        assertEquals("'testme\"'",qb.wrap("testme\""));
+        assertEquals("\"testme'\"",qb.wrap("testme'"));
+
+        try
+        {
+            assertEquals("", qb.wrap("testme'\""));
+            fail();
+        }
+        catch (ClientException ignore){}
+
     }
 }

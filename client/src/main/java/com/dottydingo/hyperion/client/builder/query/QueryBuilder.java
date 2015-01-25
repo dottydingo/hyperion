@@ -1,9 +1,21 @@
 package com.dottydingo.hyperion.client.builder.query;
 
+import com.dottydingo.hyperion.client.exception.ClientException;
+
+import java.util.regex.Pattern;
+
 /**
  */
 public class QueryBuilder
 {
+    //'"' | "'" | "(" | ")" | ";" | "," | "=" | "!" | "~" | "<" | ">";
+    private static final Pattern RESERVED = Pattern.compile("[\"'();,=!~<> ]");
+
+    private static final String SINGLE_QUOTE = "'";
+    private static final String DOUBLE_QUOTE = "\"";
+    private static final String QUOTE_ERROR =
+            String.format("Query value can not contain both %s and %s characters.", SINGLE_QUOTE, DOUBLE_QUOTE);
+
     public QueryExpression eq(String propertyName,String value)
     {
         return new SimpleQueryExpression(propertyName, ComparisonOperator.EQUAL,wrap(value));
@@ -228,7 +240,28 @@ public class QueryBuilder
 
     protected String wrap(String value)
     {
-        return value.contains(" ") ? "'" + value + "'" : value;
+        if(value == null)
+            throw new ClientException("Value can not be null.");
+
+        if(!RESERVED.matcher(value).find())
+            return value;
+
+
+        if(value.contains(DOUBLE_QUOTE))
+        {
+            if(value.contains(SINGLE_QUOTE))
+                throw new ClientException(QUOTE_ERROR);
+            return SINGLE_QUOTE + value + SINGLE_QUOTE;
+        }
+        else if(value.contains(SINGLE_QUOTE))
+        {
+            if(value.contains(DOUBLE_QUOTE))
+                throw new ClientException(QUOTE_ERROR);
+
+            return DOUBLE_QUOTE + value + DOUBLE_QUOTE;
+        }
+
+        return SINGLE_QUOTE + value + SINGLE_QUOTE;
     }
 
     protected String[] wrap(String[] values)
