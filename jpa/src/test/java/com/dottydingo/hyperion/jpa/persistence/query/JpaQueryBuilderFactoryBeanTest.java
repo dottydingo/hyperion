@@ -3,7 +3,7 @@ package com.dottydingo.hyperion.jpa.persistence.query;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.jpa.configuration.JpaEntityQueryBuilderFactoryBean;
 import com.dottydingo.hyperion.jpa.persistence.SampleApiObject;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

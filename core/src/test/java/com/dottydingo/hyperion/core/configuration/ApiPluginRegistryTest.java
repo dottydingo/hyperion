@@ -2,7 +2,7 @@ package com.dottydingo.hyperion.core.configuration;
 
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.ApiVersionRegistry;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;

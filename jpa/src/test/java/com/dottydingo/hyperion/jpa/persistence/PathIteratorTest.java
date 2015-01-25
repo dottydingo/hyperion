@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.jpa.persistence;
 
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

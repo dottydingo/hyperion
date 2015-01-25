@@ -1,6 +1,6 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
