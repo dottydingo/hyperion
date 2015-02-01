@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 /**
  */
-public class DeserializerModifier extends BeanDeserializerModifier
+public class TrackingDeserializerModifier extends BeanDeserializerModifier
 {
     @Override
     public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc, BeanDeserializerBuilder builder)

@@ -28,6 +28,7 @@ public class EndpointMarshaller
         objectMapper = new ObjectMapper();
 
         baseConfigureObjectMapper(objectMapper);
+        objectMapper.registerModule(new CaseInsensitiveEnumModule());
 
         trackProvidedFieldsOnUpdate = configuration.isTrackProvidedFieldsOnUpdate();
         if(trackProvidedFieldsOnUpdate)
@@ -48,10 +49,14 @@ public class EndpointMarshaller
 
     private void baseConfigureObjectMapper(ObjectMapper objectMapper)
     {
+        // do extra bits first
+        configureObjectMapper(objectMapper);
+
+        // ensure that the settings we need are always in place
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.disable(SerializationFeature.CLOSE_CLOSEABLE);
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        configureObjectMapper(objectMapper);
+
     }
 
     /**

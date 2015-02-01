@@ -10,6 +10,6 @@ public class CollectorModule extends SimpleModule
     public void setupModule(SetupContext context)
     {
         super.setupModule(context);
-        context.addBeanDeserializerModifier(new DeserializerModifier());
+        context.addBeanDeserializerModifier(new TrackingDeserializerModifier());
     }
 }
