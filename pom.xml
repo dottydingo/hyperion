@@ -18,6 +18,7 @@
         <module>client</module>
         <module>core</module>
         <module>jpa</module>
+        <module>dependency</module>
     </modules>
 
     <name>Hyperion Parent POM</name>
@@ -46,10 +47,13 @@
     </developers>
 
     <properties>
-        <spring.version>4.0.5.RELEASE</spring.version>
-        <jackson.version>2.4.0</jackson.version>
-        <hibernate.version>4.1.7.Final</hibernate.version>
+        <spring.version>4.1.4.RELEASE</spring.version>
+        <jackson.version>2.5.0</jackson.version>
+        <hibernate.version>4.3.8.Final</hibernate.version>
         <endpoint.version>1.2.0</endpoint.version>
+        <pipeline.version>1.0.0</pipeline.version>
+        <tracelog.version>1.1.0</tracelog.version>
+        <slf4j.version>1.7.10</slf4j.version>
         <java.source.version>1.7</java.source.version>
         <java.target.version>1.7</java.target.version>
     </properties>
@@ -66,13 +70,25 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.5</version>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.dottydingo.service.endpoint</groupId>
                 <artifactId>service-endpoint</artifactId>
                 <version>${endpoint.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.dottydingo.service.pipeline</groupId>
+                <artifactId>service-pipeline</artifactId>
+                <version>${pipeline.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.dottydingo.tracelog</groupId>
+                <artifactId>service-tracelog</artifactId>
+                <version>${tracelog.version}</version>
             </dependency>
 
             <dependency>
@@ -101,7 +117,7 @@
             <dependency>
                 <groupId>com.fasterxml</groupId>
                 <artifactId>classmate</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.0</version>
             </dependency>
 
             <dependency>
@@ -134,8 +150,8 @@
 
             <dependency>
                 <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.0-api</artifactId>
-                <version>1.0.1.Final</version>
+                <artifactId>hibernate-jpa-2.1-api</artifactId>
+                <version>1.0.0.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
