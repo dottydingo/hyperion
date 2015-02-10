@@ -4,10 +4,13 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.exception.ConflictException;
 import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.api.HistoryEntry;
+import com.dottydingo.hyperion.api.exception.InternalException;
 import com.dottydingo.hyperion.api.exception.ServiceUnavailableException;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
+import com.mchange.v2.resourcepool.ResourcePoolException;
 import cz.jirutka.rsql.parser.ast.Node;
 import org.springframework.dao.*;
+import org.springframework.transaction.TransactionException;
 
 import java.io.Serializable;
 import java.util.List;
@@ -20,6 +23,8 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
     private static final String UNCAUGHT_CONFLICT = "ERROR_UNCAUGHT_CONFLICT";
     private static final String QUERY_TIMEOUT = "ERROR_QUERY_TIMEOUT";
     private static final String DATA_ACCESS_FAILURE = "ERROR_DATA_ACCESS_FAILURE";
+
+    private static boolean c3poDetected = detectC3p0();
 
     private PersistenceOperations<C,ID> delegate;
 
@@ -35,7 +40,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.findByIds(ids, context);
         }
-        catch (RuntimeException e)
+        catch (Exception e)
         {
             throw mapException(e, context);
         }
@@ -48,7 +53,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.query(query, start, limit, sort, context);
         }
-        catch (RuntimeException e)
+        catch (Exception e)
         {
             throw mapException(e, context);
         }
@@ -61,7 +66,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.createOrUpdateItem(item, context);
         }
-        catch (RuntimeException e)
+        catch (Exception e)
         {
             throw mapException(e, context);
         }
@@ -74,7 +79,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.updateItem(ids, item, context);
         }
-        catch (RuntimeException e)
+        catch (Exception e)
         {
             throw mapException(e, context);
         }
@@ -87,7 +92,7 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.deleteItem(ids, context);
         }
-        catch (RuntimeException e)
+        catch (Exception e)
         {
             throw mapException(e, context);
         }
@@ -100,22 +105,22 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.getHistory(id, start, limit, context);
         }
-        catch (RuntimeException e)
+        catch (Exception e)
         {
             throw mapException(e, context);
         }
     }
 
-    protected RuntimeException mapException(RuntimeException ex, PersistenceContext context)
+    protected RuntimeException mapException(Exception ex, PersistenceContext context)
     {
         RuntimeException convertedException = convertException(ex, context);
         if(convertedException != null)
             return convertedException;
 
-        return ex;
+        return new RuntimeException(ex);
     }
 
-    protected RuntimeException convertException(RuntimeException ex, PersistenceContext context)
+    protected RuntimeException convertException(Exception ex, PersistenceContext context)
     {
         if(ex instanceof ConcurrencyFailureException)
         {
@@ -134,7 +139,40 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(DATA_ACCESS_FAILURE,
                     context.getLocale()));
+        }else if(ex instanceof TransactionException)
+        {
+            return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(DATA_ACCESS_FAILURE,
+                    context.getLocale()));
         }
+        if(c3poDetected)
+        {
+            return convertC3p0Exception(ex, context);
+        }
+
         return null;
+    }
+
+    protected RuntimeException convertC3p0Exception(Exception ex, PersistenceContext context)
+    {
+        if(ex instanceof ResourcePoolException)
+            return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(DATA_ACCESS_FAILURE,
+                    context.getLocale()));
+
+        return null;
+    }
+
+    private static boolean detectC3p0()
+    {
+        try
+        {
+            ExceptionMappingDecorator.class.getClassLoader().loadClass("com.mchange.v2.c3p0.ComboPooledDataSource");
+            return true;
+
+        }
+        catch (ClassNotFoundException e)
+        {
+            return false;
+        }
+
     }
 }
