@@ -4,24 +4,56 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.HistoryEntry;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
 import cz.jirutka.rsql.parser.ast.Node;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.dao.support.ChainedPersistenceExceptionTranslator;
+import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  */
-public class TransactionalDecorator<C extends ApiObject, ID extends Serializable> implements PersistenceOperations<C, ID>
+public class TransactionalDecorator<C extends ApiObject, ID extends Serializable>
+        implements PersistenceOperations<C, ID>, BeanFactoryAware
 {
-    private PlatformTransactionManager transactionManager;
-    private PersistenceOperations<C,ID> delegate;
+    private PersistenceOperations<C, ID> delegate;
+
+    private TransactionTemplate readWriteTransactionTemplate;
+    private TransactionTemplate readOnlyTransactionTemplate;
+
+    private volatile PersistenceExceptionTranslator persistenceExceptionTranslator;
+
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException
+    {
+        if (!(beanFactory instanceof ListableBeanFactory))
+            throw new IllegalArgumentException(
+                    "Cannot use PersistenceExceptionTranslator autodetection without ListableBeanFactory");
+        persistenceExceptionTranslator = detectPersistenceExceptionTranslators((ListableBeanFactory) beanFactory);
+    }
 
     public void setTransactionManager(PlatformTransactionManager transactionManager)
     {
-        this.transactionManager = transactionManager;
+        if (transactionManager == null)
+        {
+            throw new RuntimeException("Transaction manager can not be null");
+        }
+
+        readWriteTransactionTemplate = new TransactionTemplate(transactionManager, getReadWriteTransaction());
+        readOnlyTransactionTemplate = new TransactionTemplate(transactionManager, getReadOnlyTransaction());
     }
 
     public void setDelegate(PersistenceOperations<C, ID> delegate)
@@ -30,103 +62,85 @@ public class TransactionalDecorator<C extends ApiObject, ID extends Serializable
     }
 
     @Override
-    public List<C> findByIds(List<ID> ids, PersistenceContext context)
+    public List<C> findByIds(final List<ID> ids, final PersistenceContext context)
     {
-        TransactionStatus status = transactionManager.getTransaction(getReadOnlyTransaction());
+        return readOnlyTransactionTemplate.execute(new MappingExceptionCallback<List<C>>()
+        {
+            @Override
+            public List<C> doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.findByIds(ids, context);
+            }
+        });
 
-        try
-        {
-            return delegate.findByIds(ids, context);
-        }
-        finally
-        {
-            transactionManager.commit(status);
-        }
     }
 
     @Override
-    public QueryResult<C> query(Node query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
+    public QueryResult<C> query(final Node query, final Integer start, final Integer limit, final EndpointSort sort,
+                                final PersistenceContext context)
     {
-        TransactionStatus status = transactionManager.getTransaction(getReadOnlyTransaction());
-        try
+        return readOnlyTransactionTemplate.execute(new MappingExceptionCallback<QueryResult<C>>()
         {
-            return delegate.query(query, start, limit, sort, context);
-        }
-        finally
-        {
-            transactionManager.commit(status);
-        }
+            @Override
+            public QueryResult<C> doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.query(query, start, limit, sort, context);
+            }
+        });
+
     }
 
     @Override
-    public C createOrUpdateItem(C item, PersistenceContext context)
+    public C createOrUpdateItem(final C item, final PersistenceContext context)
     {
-        TransactionStatus status = transactionManager.getTransaction(getReadWriteTransaction());
-        try
+        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<C>()
         {
-            return delegate.createOrUpdateItem(item, context);
-        }
-        catch (RuntimeException e)
-        {
-            status.setRollbackOnly();
-            throw e;
-        }
-        finally
-        {
-            transactionManager.commit(status);
-        }
+            @Override
+            public C doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.createOrUpdateItem(item, context);
+            }
+        });
     }
 
     @Override
-    public C updateItem(List<ID> ids, C item, PersistenceContext context)
+    public C updateItem(final List<ID> ids, final C item, final PersistenceContext context)
     {
-        TransactionStatus status = transactionManager.getTransaction(getReadWriteTransaction());
-        try
+        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<C>()
         {
-            return delegate.updateItem(ids, item, context);
-        }
-        catch (RuntimeException e)
-        {
-            status.setRollbackOnly();
-            throw e;
-        }
-        finally
-        {
-            transactionManager.commit(status);
-        }
+            @Override
+            public C doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.updateItem(ids, item, context);
+            }
+        });
     }
 
     @Override
-    public int deleteItem(List<ID> ids, PersistenceContext context)
+    public int deleteItem(final List<ID> ids, final PersistenceContext context)
     {
-        TransactionStatus status = transactionManager.getTransaction(getReadWriteTransaction());
-        try
+        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<Integer>()
         {
-            return delegate.deleteItem(ids, context);
-        }
-        catch (RuntimeException e)
-        {
-            status.setRollbackOnly();
-            throw e;
-        }
-        finally
-        {
-            transactionManager.commit(status);
-        }
+            @Override
+            public Integer doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.deleteItem(ids, context);
+            }
+        });
     }
 
     @Override
-    public QueryResult<HistoryEntry> getHistory(ID id, Integer start, Integer limit, PersistenceContext context)
+    public QueryResult<HistoryEntry> getHistory(final ID id, final Integer start, final Integer limit,
+                                                final PersistenceContext context)
     {
-        TransactionStatus status = transactionManager.getTransaction(getReadOnlyTransaction());
-        try
+        return readOnlyTransactionTemplate.execute(new MappingExceptionCallback<QueryResult<HistoryEntry>>()
         {
-            return delegate.getHistory(id, start, limit, context);
-        }
-        finally
-        {
-            transactionManager.commit(status);
-        }
+            @Override
+            public QueryResult<HistoryEntry> doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.getHistory(id, start, limit, context);
+            }
+        });
     }
 
     protected TransactionDefinition getReadOnlyTransaction()
@@ -143,5 +157,38 @@ public class TransactionalDecorator<C extends ApiObject, ID extends Serializable
         transactionDefinition.setReadOnly(false);
 
         return transactionDefinition;
+    }
+
+    protected PersistenceExceptionTranslator detectPersistenceExceptionTranslators(ListableBeanFactory beanFactory)
+    {
+        // adapted from org.springframework.dao.support.PersistenceExceptionTranslationInterceptor
+
+        // Find all translators, being careful not to activate FactoryBeans.
+        Map<String, PersistenceExceptionTranslator> pets = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+                beanFactory, PersistenceExceptionTranslator.class, false, false);
+        ChainedPersistenceExceptionTranslator cpet = new ChainedPersistenceExceptionTranslator();
+        for (PersistenceExceptionTranslator pet : pets.values())
+        {
+            cpet.addDelegate(pet);
+        }
+        return cpet;
+    }
+
+    private abstract class MappingExceptionCallback<T> implements TransactionCallback<T>
+    {
+        @Override
+        public T doInTransaction(TransactionStatus status)
+        {
+            try
+            {
+                return doInTransactionInternal(status);
+            }
+            catch (RuntimeException e)
+            {
+                throw DataAccessUtils.translateIfNecessary(e, persistenceExceptionTranslator);
+            }
+        }
+
+        abstract protected T doInTransactionInternal(TransactionStatus status);
     }
 }
