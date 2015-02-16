@@ -35,19 +35,24 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
         Throwable error = context.getError();
         if(error != null)
         {
+
             Throwable cause = getCause(error);
 
             int status = 500;
 
+            String message;
             if(error instanceof HyperionException)
             {
                 status = ((HyperionException)error).getStatusCode();
+                message = ((HyperionException) error).getDetailMessage();
             }
-
-            if(status == 500)
-                logger.error(cause.getMessage(),cause);
             else
-                logger.info(cause.getMessage());
+                message = error.getMessage();
+
+            if(status >= 500)
+                logger.error(message,cause);
+            else
+                logger.info(message);
 
 
             if(!context.isTimedOut())

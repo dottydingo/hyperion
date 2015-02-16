@@ -8,4 +8,10 @@ public class ServiceUnavailableException extends HyperionException
     {
         super(503, message);
     }
+
+    public ServiceUnavailableException(String message,Throwable cause)
+    {
+        super(503, message, cause);
+    }
 }
+

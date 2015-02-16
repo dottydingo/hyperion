@@ -46,4 +46,25 @@ public class HyperionException extends RuntimeException
     {
         this.errorDetails = errorDetails;
     }
+
+    public String getDetailMessage()
+    {
+        if(errorDetails == null || errorDetails.isEmpty())
+            return getMessage();
+
+        StringBuilder sb = new StringBuilder(512);
+        sb.append(getMessage());
+        sb.append(" [");
+
+        for (int i = 0; i < errorDetails.size(); i++)
+        {
+            ErrorDetail errorDetail = errorDetails.get(i);
+            if(i > 0)
+                sb.append(", ");
+            sb.append(errorDetail.getMessage());
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
 }

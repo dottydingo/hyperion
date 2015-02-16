@@ -40,6 +40,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.findByIds(ids, context);
         }
+        catch (HyperionException e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
             throw mapException(e, context);
@@ -52,6 +56,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         try
         {
             return delegate.query(query, start, limit, sort, context);
+        }
+        catch (HyperionException e)
+        {
+            throw e;
         }
         catch (Exception e)
         {
@@ -66,6 +74,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.createOrUpdateItem(item, context);
         }
+        catch (HyperionException e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
             throw mapException(e, context);
@@ -78,6 +90,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         try
         {
             return delegate.updateItem(ids, item, context);
+        }
+        catch (HyperionException e)
+        {
+            throw e;
         }
         catch (Exception e)
         {
@@ -92,6 +108,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.deleteItem(ids, context);
         }
+        catch (HyperionException e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
             throw mapException(e, context);
@@ -104,6 +124,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         try
         {
             return delegate.getHistory(id, start, limit, context);
+        }
+        catch (HyperionException e)
+        {
+            throw e;
         }
         catch (Exception e)
         {
@@ -133,16 +157,17 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         else if(ex instanceof DataIntegrityViolationException)
         {
             return new ConflictException(context.getMessageSource().getErrorMessage(UNCAUGHT_CONFLICT,
-                    context.getLocale(),ex.getMessage()));
+                    context.getLocale(),getCause(ex).getMessage(),ex));
+
         }
         else if(ex instanceof NonTransientDataAccessResourceException)
         {
             return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(DATA_ACCESS_FAILURE,
-                    context.getLocale()));
+                    context.getLocale(),ex));
         }else if(ex instanceof TransactionException)
         {
             return new ServiceUnavailableException(context.getMessageSource().getErrorMessage(DATA_ACCESS_FAILURE,
-                    context.getLocale()));
+                    context.getLocale(),ex));
         }
         if(c3poDetected)
         {
@@ -174,5 +199,16 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
             return false;
         }
 
+    }
+
+    private Throwable getCause(Throwable t)
+    {
+        Throwable cause = t;
+        while (cause.getCause() != null)
+        {
+            cause = cause.getCause();
+        }
+
+        return cause;
     }
 }
