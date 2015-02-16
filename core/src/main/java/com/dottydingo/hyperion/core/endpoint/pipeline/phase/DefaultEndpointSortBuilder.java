@@ -30,19 +30,29 @@ public class DefaultEndpointSortBuilder implements EndpointSortBuilder
         String[] split = sortString.split(",");
         for (String s1 : split)
         {
-            String[] props = s1.split(":");
-            String name = props[0].trim();
+            EndpointSort.EndpointOrder order = null;
+            String trimmed = s1.trim();
+            if(trimmed.startsWith("-"))
+            {
+                order = new EndpointSort.EndpointOrder(trimmed.length() > 1 ? trimmed.substring(1) : "",true);
+            }
+            else
+            {
+                String[] props = trimmed.split(":");
+                String name = props[0].trim();
+                boolean desc = props.length == 2 && props[1].equalsIgnoreCase("desc");
+                order = new EndpointSort.EndpointOrder(name,desc);
+            }
 
-            if(!validSorts.containsKey(name))
+            if(!validSorts.containsKey(order.getField()))
                 throw new BadRequestException(
-                        persistenceContext.getMessageSource().getErrorMessage(INVALID_SORT_FIELD,persistenceContext.getLocale(),name));
+                        persistenceContext.getMessageSource().getErrorMessage(INVALID_SORT_FIELD,
+                                persistenceContext.getLocale(),order.getField()));
 
-            if(name.equals("id"))
+            if(order.getField().equals("id"))
                 containsIdSort = true;
 
-            boolean desc = props.length == 2 && props[1].equalsIgnoreCase("desc");
-
-            sort.addOrder(name,desc);
+            sort.addOrder(order);
         }
 
         if(!containsIdSort && idSort != null)
@@ -50,4 +60,6 @@ public class DefaultEndpointSortBuilder implements EndpointSortBuilder
 
         return sort;
     }
+
+
 }
