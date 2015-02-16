@@ -13,6 +13,11 @@ public class ConflictException extends HyperionException
         super(409,message);
     }
 
+    public ConflictException(String message,Throwable cause)
+    {
+        super(409,message,cause);
+    }
+
     public ConflictException(String message,List<ErrorDetail> errorDetails)
     {
         super(409,message);
