@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.dottydingo.hyperion</groupId>
         <artifactId>hyperion-parent</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>hyperion-core</artifactId>
