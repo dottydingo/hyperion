@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.core.translation;
 
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;
+import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ public class TranslatorTest
         translator.init();
         context = new PersistenceContext();
         context.setAuthorizationContext(new TestAuthContext());
+        context.setEntityPlugin(new EntityPlugin());
     }
 
     @Test

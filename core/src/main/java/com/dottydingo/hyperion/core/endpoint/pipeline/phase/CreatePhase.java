@@ -9,10 +9,10 @@ import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
-import com.dottydingo.hyperion.core.persistence.WriteContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -52,20 +52,12 @@ public class CreatePhase extends BasePersistencePhase
         if(fieldSet != null)
             fieldSet.add("id");
 
-        ApiObject saved = plugin.getPersistenceOperations().createOrUpdateItem(clientObject, persistenceContext);
+        ApiObject saved = (ApiObject) plugin.getPersistenceOperations().createOrUpdateItems(Collections.singletonList(clientObject),
+                persistenceContext).get(0);
         if(saved != null)
         {
             processChangeEvents(phaseContext,persistenceContext);
-            if(persistenceContext.getWriteContext() == WriteContext.create)
-            {
-                response.setResponseCode(201);
-                String location = String.format("%s%s/%s",request.getBaseUrl(),request.getRequestUri(),saved.getId());
-                response.setHeader("Location", location);
-            }
-            else
-            {
-                response.setResponseCode(200);
-            }
+            response.setResponseCode(200);
             phaseContext.setResult(saved);
         }
         else

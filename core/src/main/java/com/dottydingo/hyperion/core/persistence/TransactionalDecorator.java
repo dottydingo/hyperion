@@ -91,27 +91,40 @@ public class TransactionalDecorator<C extends ApiObject, ID extends Serializable
     }
 
     @Override
-    public C createOrUpdateItem(final C item, final PersistenceContext context)
+    public List<C> createOrUpdateItems(final List<C> clientItems, final PersistenceContext context)
     {
-        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<C>()
+        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<List<C>>()
         {
             @Override
-            public C doInTransactionInternal(TransactionStatus status)
+            public List<C> doInTransactionInternal(TransactionStatus status)
             {
-                return delegate.createOrUpdateItem(item, context);
+                return delegate.createOrUpdateItems(clientItems, context);
             }
         });
     }
 
     @Override
-    public C updateItem(final List<ID> ids, final C item, final PersistenceContext context)
+    public List<C> updateItems(final List<C> clientItems, final PersistenceContext context)
+    {
+        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<List<C>>()
+        {
+            @Override
+            public List<C> doInTransactionInternal(TransactionStatus status)
+            {
+                return delegate.updateItems(clientItems, context);
+            }
+        });
+    }
+
+    @Override
+    public C updateItem(final ID id, final C item, final PersistenceContext context)
     {
         return readWriteTransactionTemplate.execute(new MappingExceptionCallback<C>()
         {
             @Override
             public C doInTransactionInternal(TransactionStatus status)
             {
-                return delegate.updateItem(ids, item, context);
+                return delegate.updateItem(id, item, context);
             }
         });
     }
