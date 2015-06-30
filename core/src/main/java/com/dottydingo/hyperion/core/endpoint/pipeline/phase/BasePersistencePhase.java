@@ -21,6 +21,7 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
 {
     protected static final String INVALID_INTEGER_PARAMETER = "ERROR_INVALID_INTEGER_PARAMETER";
     protected static final String ERROR_SINGLE_ID_REQUIRED = "ERROR_SINGLE_ID_REQUIRED";
+    protected static final String ERROR_ID_NOT_ALLOWED = "ERROR_ID_NOT_ALLOWED";
     protected static final String BAD_START_PARAMETER = "ERROR_BAD_START_PARAMETER";
     protected static final String BAD_LIMIT_PARAMETER = "ERROR_BAD_LIMIT_PARAMETER";
     protected static final String ERROR_READING_REQUEST = "ERROR_READING_REQUEST";
@@ -39,6 +40,15 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         }
 
         return fieldSet;
+    }
+
+    protected boolean getBooleanParameter(String name, boolean defaultValue, HyperionContext context)
+    {
+        String value = context.getEndpointRequest().getFirstParameter(name);
+        if(value == null)
+            return defaultValue;
+
+            return Boolean.parseBoolean(value);
     }
 
     protected Integer getIntegerParameter(String name, HyperionContext context)
@@ -106,5 +116,10 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         {
             throw new BadParameterException(messageSource.getErrorMessage(INVALID_ID,phaseContext.getLocale(),e.getValue()));
         }
+    }
+
+    protected boolean isCollection(HyperionContext phaseContext)
+    {
+        return getBooleanParameter("collection",false,phaseContext);
     }
 }

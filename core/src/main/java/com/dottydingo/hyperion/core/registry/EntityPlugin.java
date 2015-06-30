@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
 {
-    private static final Pattern RESERVED_PARAMETERS = Pattern.compile("start|limit|query|fields|sort|version|trace|cid",
+    private static final Pattern RESERVED_PARAMETERS = Pattern.compile("start|limit|query|fields|sort|version|trace|cid|collection",
             Pattern.CASE_INSENSITIVE);
 
     private String endpointName;

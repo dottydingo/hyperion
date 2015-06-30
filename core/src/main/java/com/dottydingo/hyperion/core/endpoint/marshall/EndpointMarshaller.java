@@ -2,16 +2,18 @@ package com.dottydingo.hyperion.core.endpoint.marshall;
 
 import com.dottydingo.hyperion.core.configuration.HyperionEndpointConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  */
@@ -80,6 +82,55 @@ public class EndpointMarshaller
         }
     }
 
+    public <T> List<T> unmarshallCollection(InputStream inputStream, Class<T> type) throws MarshallingException
+    {
+
+
+
+        try(JsonParser parser = objectMapper.getFactory().createParser(inputStream);)
+        {
+
+            advanceToEntries(parser);
+
+            List<T> returnValue = new ArrayList<>();
+            MappingIterator<T> mappingIterator = objectMapper.readValues(parser, type);
+            while (mappingIterator.hasNext())
+            {
+                returnValue.add(mappingIterator.next());
+            }
+
+            return returnValue;
+        }
+        catch (MarshallingException e)
+        {
+            throw e;
+        }
+        catch (Exception e)
+        {
+            throw new MarshallingException(e);
+        }
+
+    }
+
+    private void advanceToEntries(JsonParser parser) throws IOException
+    {
+        if (parser.nextToken() != JsonToken.START_OBJECT)
+            throw new MarshallingException("Missing start object token");
+
+        if(parser.nextToken() != JsonToken.END_OBJECT)
+        {
+            if(!parser.getCurrentName().equals("entries"))
+                throw new MarshallingException("Payload missing \"entries\" field");
+
+            if(parser.nextToken() != JsonToken.START_ARRAY)
+                throw new MarshallingException("The \"entries\" field must be an array");
+
+            parser.nextToken();
+        }
+        else
+            throw new MarshallingException("Empty request payload");
+    }
+
     public <T> RequestContext<T> unmarshallWithContext(InputStream inputStream, Class<T> type)  throws MarshallingException
     {
 
@@ -104,6 +155,43 @@ public class EndpointMarshaller
 
 
             return new RequestContext<T>(value,providedFieldsMap);
+        }
+        catch (Exception e)
+        {
+            throw new MarshallingException(e);
+        }
+    }
+
+    public <T> RequestContext<List<T>> unmarshallCollectionWithContext(InputStream inputStream, Class<T> type)  throws MarshallingException
+    {
+
+        if(!trackProvidedFieldsOnUpdate)
+        {
+            List<T> items = unmarshallCollection(inputStream, type);
+            return new RequestContext<>(items,null);
+        }
+
+        try
+        {
+            Map<Object,Set<String>> providedFieldsMap = new IdentityHashMap<>();
+
+            ContextAttributes attrs = trackingObjectMapper
+                    .getDeserializationConfig()
+                    .getAttributes()
+                    .withPerCallAttribute(TrackingSettableBeanProperty.PROVIDED_FIELDS_MAP, providedFieldsMap);
+
+            JsonParser parser = trackingObjectMapper.getFactory().createParser(inputStream);
+            advanceToEntries(parser);
+
+            List<T> returnValue = new ArrayList<>();
+            Iterator<T> mappingIterator = trackingObjectMapper.reader(attrs).readValues(parser, type);
+            while (mappingIterator.hasNext())
+            {
+                returnValue.add(mappingIterator.next());
+            }
+
+
+            return new RequestContext<List<T>>(returnValue,providedFieldsMap);
         }
         catch (Exception e)
         {

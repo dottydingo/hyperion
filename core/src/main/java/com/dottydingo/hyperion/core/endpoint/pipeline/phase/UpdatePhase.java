@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
@@ -31,6 +32,15 @@ public class UpdatePhase extends BasePersistencePhase
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
+        boolean isCollection = isCollection(phaseContext);
+        if(isCollection)
+            processCollection((phaseContext));
+        else
+            processSingleItem(phaseContext);
+    }
+
+    private void processSingleItem(HyperionContext phaseContext)
+    {
         EndpointRequest request = phaseContext.getEndpointRequest();
         EndpointResponse response = phaseContext.getEndpointResponse();
 
@@ -38,6 +48,10 @@ public class UpdatePhase extends BasePersistencePhase
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
+
+        Set<String> fieldSet = persistenceContext.getRequestedFields();
+        if(fieldSet != null)
+            fieldSet.add("id");
 
         RequestContext<ApiObject> requestContext = null;
         try
@@ -57,14 +71,12 @@ public class UpdatePhase extends BasePersistencePhase
 
         persistenceContext.setProvidedFields(requestContext.getProvidedFields());
 
-        Set<String> fieldSet = persistenceContext.getRequestedFields();
-        if(fieldSet != null)
-            fieldSet.add("id");
 
         ApiObject saved = plugin.getPersistenceOperations().updateItem(ids.get(0), clientObject, persistenceContext);
 
         processChangeEvents(phaseContext,persistenceContext);
 
+        // todo fix this
         if(saved != null)
         {
             response.setResponseCode(200);
@@ -72,5 +84,46 @@ public class UpdatePhase extends BasePersistencePhase
         }
         else
             response.setResponseCode(304);
+    }
+
+    private void processCollection(HyperionContext phaseContext)
+    {
+        EndpointRequest request = phaseContext.getEndpointRequest();
+
+        ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
+        EntityPlugin plugin = phaseContext.getEntityPlugin();
+
+        List<Serializable> ids = convertIds(phaseContext, plugin);
+        if(ids.size() > 0)
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
+
+        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
+
+        Set<String> fieldSet = persistenceContext.getRequestedFields();
+        if(fieldSet != null)
+            fieldSet.add("id");
+
+        RequestContext<List<ApiObject>> requestContext = null;
+        try
+        {
+            requestContext = marshaller.unmarshallCollectionWithContext(request.getInputStream(),
+                    apiVersionPlugin.getApiClass());
+        }
+        catch (MarshallingException e)
+        {
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST, phaseContext.getLocale(),
+                    e.getMessage()),e);
+        }
+        List<ApiObject> clientObjects = requestContext.getRequestObject();
+
+        persistenceContext.setProvidedFields(requestContext.getProvidedFields());
+
+        List<ApiObject> saved = plugin.getPersistenceOperations().updateItems(clientObjects, persistenceContext);
+
+        processChangeEvents(phaseContext,persistenceContext);
+
+        EntityResponse<ApiObject> entityResponse = new EntityResponse<>();
+        entityResponse.setEntries(saved);
+        phaseContext.setResult(entityResponse);
     }
 }
