@@ -1,10 +1,12 @@
 package com.dottydingo.hyperion.core.translation;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.exception.InternalException;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -77,16 +79,13 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
                     && mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context))
             {
                 dirty = true;
-                context.addChangedField(mapper.getClientFieldName());
+                if(context.getEntityPlugin().hasListeners())
+                    context.addChangedField(context.getEntity(),persistent.getId(),mapper.getClientFieldName());
             }
         }
 
-        if(dirty)
-            context.setDirty();
-
         if(afterCopy(clientObjectWrapper,persistentObjectWrapper,context))
         {
-            context.setDirty();
             dirty = true;
         }
 
@@ -140,6 +139,14 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
     }
 
 
+    @Override
+    public <ID extends Serializable> ID convertId(C client, PersistenceContext context)
+    {
+        // we've already validated that this will be an instance of IdFieldMap
+        IdFieldMapper<C,P> idFieldMapper = (IdFieldMapper<C, P>) fieldMapperMap.get("id");
+        return idFieldMapper.convertId(createClientObjectWrapper(client,context),context);
+    }
+
     private void initializeDefaultFieldMappers()
     {
         Set<String> clientFields =  clientTypeMapper.getFieldNames();
@@ -149,7 +156,10 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
             Class persistentType = persistentTypeMapper.getFieldType(clientField);
             if(persistentType != null && clientType.equals(persistentType))
             {
-                fieldMapperMap.put(clientField,new DefaultFieldMapper(clientField));
+                if(clientField.equals("id"))
+                    fieldMapperMap.put(clientField,new DefaultIdFieldMapper());
+                else
+                    fieldMapperMap.put(clientField,new DefaultFieldMapper(clientField));
             }
         }
     }
@@ -161,6 +171,13 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         {
             fieldMapperMap.put(mapper.getClientFieldName(),mapper);
         }
+
+        // verify that we have a valid id field mapper defined
+        FieldMapper idMapper = fieldMapperMap.get("id");
+        if(idMapper == null)
+            throw new InternalException("No mapper defined for the id field.");
+        if(!(idMapper instanceof IdFieldMapper))
+            throw new InternalException("Mapper for the id field must be an instance of IdFieldMapper");
     }
 
     protected List<FieldMapper> getCustomFieldMappers()

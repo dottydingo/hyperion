@@ -22,10 +22,8 @@ public class PersistenceContext
     private ApiVersionPlugin apiVersionPlugin;
     private HttpMethod httpMethod;
     private UserContext userContext;
-    private WriteContext writeContext;
-    private boolean dirty = false;
     private Date currentTimestamp;
-    private Set<String> changedFields = new HashSet<String>();
+    private Map<ItemChangeKey,Set<String>> itemChangedFieldsMap = new HashMap<>();
     private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
     private AuthorizationContext authorizationContext;
     private Locale locale;
@@ -45,10 +43,8 @@ public class PersistenceContext
         this.apiVersionPlugin = other.apiVersionPlugin;
         this.httpMethod = other.httpMethod;
         this.userContext = other.userContext;
-        this.writeContext = other.writeContext;
-        this.dirty = other.dirty;
         this.currentTimestamp = other.currentTimestamp;
-        this.changedFields = other.changedFields;
+        this.itemChangedFieldsMap = other.itemChangedFieldsMap;
         this.entityChangeEvents = other.entityChangeEvents;
         this.authorizationContext = other.authorizationContext;
         this.locale = other.locale;
@@ -118,34 +114,27 @@ public class PersistenceContext
         this.userContext = userContext;
     }
 
-    public WriteContext getWriteContext()
+
+    public void addChangedField(String entity,Object id,String fieldName)
     {
-        return writeContext;
+        ItemChangeKey key = new ItemChangeKey(entity, id);
+        Set<String> fields = itemChangedFieldsMap.get(key);
+        if(fields == null)
+        {
+            fields = new HashSet<>();
+            itemChangedFieldsMap.put(key,fields);
+        }
+        fields.add(fieldName);
     }
 
-    public void setWriteContext(WriteContext writeContext)
+    public Set<String> getChangedFields(String entity,Object id)
     {
-        this.writeContext = writeContext;
-    }
+        ItemChangeKey key = new ItemChangeKey(entity, id);
+        Set<String> fields = itemChangedFieldsMap.get(key);
+        if(fields == null)
+            return Collections.emptySet();
 
-    public void setDirty()
-    {
-        this.dirty = true;
-    }
-
-    public boolean isDirty()
-    {
-        return dirty;
-    }
-
-    public void addChangedField(String fieldName)
-    {
-        changedFields.add(fieldName);
-    }
-
-    public Set<String> getChangedFields()
-    {
-        return changedFields;
+        return fields;
     }
 
     public void setCurrentTimestamp(Date currentTimestamp)

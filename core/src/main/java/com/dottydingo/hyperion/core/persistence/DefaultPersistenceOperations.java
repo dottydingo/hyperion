@@ -18,6 +18,7 @@ import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilder;
 import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilderFactory;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.translation.Translator;
+import com.dottydingo.hyperion.core.validation.Validator;
 import cz.jirutka.rsql.parser.ast.Node;
 
 import java.io.Serializable;
@@ -30,6 +31,8 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 {
 
     private static final String ID_MISMATCH = "VALIDATION_ID_MISMATCH";
+    private static final String ID_MISSING = "VALIDATION_ID_MISSING";
+    private static final String IDS_NOT_FOUND = "ERROR_ITEMS_NOT_FOUND";
     private static final String ITEM_NOT_FOUND = "ERROR_ITEM_NOT_FOUND";
 
     protected PersistentQueryBuilderFactory persistentQueryBuilderFactory;
@@ -116,60 +119,71 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     }
 
     @Override
-    public C createOrUpdateItem(C item, PersistenceContext context)
+    public List<C> createOrUpdateItems(List<C> clientItems, PersistenceContext context)
     {
 
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
         CreateKeyProcessor<C,ID> createKeyProcessor = apiVersionPlugin.getCreateKeyProcessor();
-        if(createKeyProcessor != null)
-        {
-            ID id = createKeyProcessor.lookup(item,context);
-            if(id != null)
-                return updateItem(Collections.singletonList(id),item,context);
-        }
-
-        apiVersionPlugin.getValidator().validateCreate(item, context);
-
+        Validator<C, P> validator = apiVersionPlugin.getValidator();
         EntityPlugin entityPlugin = context.getEntityPlugin();
         Dao dao = entityPlugin.getDao();
+        Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
 
-        Translator<C,P> translator = apiVersionPlugin.getTranslator();
-        P persistent = translator.convertClient(item, context);
 
-        if(!entityPlugin.getPersistenceFilter().canCreate(persistent,context))
-            return null;
-
-        P saved = doCreate(persistent,context);
-
-
-        C toReturn = translator.convertPersistent(saved,context);
-        context.setWriteContext(WriteContext.create);
-
+        AdminPersistenceContext adminPersistenceContext = null;
 
         if(entityPlugin.hasListeners())
-        {
-            AdminPersistenceContext adminPersistenceContext = new AdminPersistenceContext(context);
-            C newObject = translator.convertPersistent(saved,adminPersistenceContext);
-            PersistentChangeEvent<C, ID> entityChangeEvent =
-                    new PersistentChangeEvent<C, ID>(null, newObject, null,
-                            context, saved.getId(), EntityChangeAction.CREATE);
+            adminPersistenceContext = new AdminPersistenceContext(context);
 
-            if(entityPlugin.hasPersistentChangeListeners())
+        List<C> toReturn = new ArrayList<>(clientItems.size());
+
+        for (C item : clientItems)
+        {
+            if(createKeyProcessor != null)
             {
-                processPersistentChangeEvents(context, Collections.singletonList(entityChangeEvent));
+                ID id = createKeyProcessor.lookup(item,context);
+                if(id != null)
+                {
+                    toReturn.add(updateItem(id, item, context));
+                    continue;
+                }
             }
 
-            if(entityPlugin.hasEntityChangeListeners())
-                context.addEntityChangeEvent(entityChangeEvent);
+            validator.validateCreate(item, context);
 
+            P persistent = translator.convertClient(item, context);
+
+            if(!entityPlugin.getPersistenceFilter().canCreate(persistent,context))
+                continue;  // todo fix this
+
+            P saved = doCreate(persistent, context);
+
+            // reload the item from the db
+            saved = (P) dao.find(entityPlugin.getEntityClass(), saved.getId());
+            toReturn.add(translator.convertPersistent(saved, context));
+
+            if(entityPlugin.hasListeners())
+            {
+
+                C newObject = translator.convertPersistent(saved,adminPersistenceContext);
+                PersistentChangeEvent<C, ID> entityChangeEvent =
+                        new PersistentChangeEvent<C, ID>(null, newObject, null,
+                                context, saved.getId(), EntityChangeAction.CREATE);
+
+                if(entityPlugin.hasPersistentChangeListeners())
+                {
+                    processPersistentChangeEvents(context, Collections.singletonList(entityChangeEvent));
+                }
+
+                if(entityPlugin.hasEntityChangeListeners())
+                    context.addEntityChangeEvent(entityChangeEvent);
+            }
         }
 
         return toReturn;
     }
-
-
 
     protected P doCreate(P persistent,PersistenceContext context)
     {
@@ -177,9 +191,8 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         return dao.create(persistent);
     }
 
-
     @Override
-    public C updateItem(List<ID> ids, C item, PersistenceContext context)
+    public List<C> updateItems(List<C> clientItems, PersistenceContext context)
     {
         ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
 
@@ -187,23 +200,59 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         EntityPlugin entityPlugin = context.getEntityPlugin();
         Dao<P,ID,?,?> dao = entityPlugin.getDao();
-        P existing = (P)dao.find(entityPlugin.getEntityClass(),ids.get(0));
 
-        if(existing == null)
-            throw new NotFoundException(
-                    context.getMessageSource().getErrorMessage(ITEM_NOT_FOUND, context.getLocale(),
-                            context.getEntity(), ids.get(0)));
-
-        if(!entityPlugin.getPersistenceFilter().canUpdate(existing,context))
+        Map<ID,C> mappedClients = new LinkedHashMap<>(clientItems.size());
+        for (C item : clientItems)
         {
-            return null;
+            ID id = translator.convertId(item,context);
+            if(id == null)
+                throw new ValidationException(
+                        context.getMessageSource().getErrorMessage(ID_MISSING, context.getLocale(),
+                                context.getEntity()));
+            mappedClients.put(id, item);
         }
 
-        apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
+        List<P> existingPersistent = dao.findAll(entityPlugin.getEntityClass(), new ArrayList<>(mappedClients.keySet()));
+        if(existingPersistent.size() != mappedClients.size())
+        {
+            throw new NotFoundException(
+                    context.getMessageSource().getErrorMessage(IDS_NOT_FOUND, context.getLocale(),
+                            context.getEntity(),findMissing(new ArrayList<>(mappedClients.keySet()), existingPersistent)));
+        }
 
         AdminPersistenceContext adminPersistenceContext = null;
         if(entityPlugin.hasListeners())
             adminPersistenceContext = new AdminPersistenceContext(context);
+
+        context.setCurrentTimestamp(dao.getCurrentTimestamp());
+
+        List<C> toReturn = new LinkedList<>();
+        Map<ID,P> mappedPersistentItems = buildMap(existingPersistent);
+        for (Map.Entry<ID, C> entry : mappedClients.entrySet())
+        {
+            P existing = mappedPersistentItems.get(entry.getKey());
+            C item = entry.getValue();
+
+            P updated = updateItem(context, adminPersistenceContext, existing, item);
+
+            toReturn.add(translator.convertPersistent(updated,context));
+        }
+
+        return toReturn;
+
+    }
+
+    protected P updateItem(PersistenceContext context, AdminPersistenceContext adminPersistenceContext, P existing, C item)
+    {
+        ApiVersionPlugin<C, P> apiVersionPlugin = context.getApiVersionPlugin();
+        Translator<C, P> translator = apiVersionPlugin.getTranslator();
+        EntityPlugin entityPlugin = context.getEntityPlugin();
+        Dao<P, ID, ?, ?> dao = entityPlugin.getDao();
+
+        if(!entityPlugin.getPersistenceFilter().canUpdate(existing,context))
+            return existing;
+
+        apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
 
         // only capture the original if there is a listener
         C originalItem = null;
@@ -211,47 +260,91 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         {
             originalItem = translator.convertPersistent(existing,adminPersistenceContext);
         }
-        context.setCurrentTimestamp(dao.getCurrentTimestamp());
-
-        // todo this needs a better implementation...
-        ID oldId = existing.getId();
 
         boolean dirty = translator.copyClient(item, existing,context);
-
-        if(oldId != null && !oldId.equals(existing.getId()))
-            throw new ValidationException(
-                    context.getMessageSource().getValidationMessage(ID_MISMATCH,context.getLocale()));
-
-        context.setWriteContext(WriteContext.update);
         if(dirty)
         {
             P persistent = doUpdate(context, existing);
 
-            C toReturn = translator.convertPersistent(persistent, context);
+            // refresh the saved item
+            persistent = dao.find(entityPlugin.getEntityClass(), persistent.getId());
 
             if(entityPlugin.hasListeners())
             {
                 C updatedItem = translator.convertPersistent(persistent,adminPersistenceContext);
                 PersistentChangeEvent<C,ID> entityChangeEvent = new PersistentChangeEvent<>(originalItem,
-                        updatedItem, context.getChangedFields(), context,persistent.getId(),EntityChangeAction.MODIFY);
+                        updatedItem, context.getChangedFields(context.getEntity(),persistent.getId()),
+                        context,persistent.getId(), EntityChangeAction.MODIFY);
 
                 if(entityPlugin.hasPersistentChangeListeners())
                     processPersistentChangeEvents(context, Collections.singletonList(entityChangeEvent));
 
                 if(entityPlugin.hasEntityChangeListeners())
                     context.addEntityChangeEvent(entityChangeEvent);
-            }
 
-            return toReturn;
+            }
+            return persistent;
         }
         else
+            return dao.reset(existing);
+    }
+
+    @Override
+    public C updateItem(ID id, C item, PersistenceContext context)
+    {
+        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+
+        Translator<C,P> translator = apiVersionPlugin.getTranslator();
+
+        if(item.getId() != null)
         {
-            // make sure we don't persist anything unintentionally
-            existing = dao.reset(existing);
-            return translator.convertPersistent(existing, context);
+            if(!id.equals(translator.convertId(item,context)))
+            throw new ValidationException(
+                    context.getMessageSource().getValidationMessage(ID_MISMATCH,context.getLocale()));
+
         }
 
+        EntityPlugin entityPlugin = context.getEntityPlugin();
+        Dao<P,ID,?,?> dao = entityPlugin.getDao();
+        P existing = (P)dao.find(entityPlugin.getEntityClass(),id);
+
+        if(existing == null)
+            throw new NotFoundException(
+                    context.getMessageSource().getErrorMessage(ITEM_NOT_FOUND, context.getLocale(),
+                            context.getEntity(), id));
+
+        AdminPersistenceContext adminPersistenceContext = null;
+        if(entityPlugin.hasListeners())
+            adminPersistenceContext = new AdminPersistenceContext(context);
+
+        P updated = updateItem(context,adminPersistenceContext,existing,item);
+
+        return translator.convertPersistent(updated, context);
+
     }
+
+    protected Map<ID,P> buildMap(List<P> found)
+    {
+        Map<ID,P> map = new HashMap<>();
+        for (P p : found)
+        {
+            map.put(p.getId(),p);
+        }
+
+        return map;
+    }
+
+    protected List<ID> findMissing(List<ID> ids,List<P> found)
+    {
+        Set<ID> notFound = new HashSet<>(ids);
+        for (P p : found)
+        {
+            notFound.remove(p.getId());
+        }
+
+        return new ArrayList<>(notFound);
+    }
+
 
     protected P doUpdate(PersistenceContext context, P existing)
     {

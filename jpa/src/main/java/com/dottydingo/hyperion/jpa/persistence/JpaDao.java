@@ -140,8 +140,6 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
     public P create(P entity)
     {
         em.persist(entity);
-        em.flush();
-        em.refresh(entity);
         return entity;
     }
 
@@ -149,8 +147,6 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
     public P update(P entity)
     {
         em.merge(entity);
-        em.flush();
-        em.refresh(entity);
         return entity;
     }
 

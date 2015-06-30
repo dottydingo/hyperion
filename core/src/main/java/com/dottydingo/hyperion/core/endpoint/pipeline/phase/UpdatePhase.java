@@ -13,6 +13,7 @@ import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class UpdatePhase extends BasePersistencePhase
         }
         ApiObject clientObject = requestContext.getRequestObject();
 
-        List ids = convertIds(phaseContext, plugin);
+        List<Serializable> ids = convertIds(phaseContext, plugin);
         if(ids.size() != 1)
             throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 
@@ -60,7 +61,7 @@ public class UpdatePhase extends BasePersistencePhase
         if(fieldSet != null)
             fieldSet.add("id");
 
-        ApiObject saved = plugin.getPersistenceOperations().updateItem(ids, clientObject, persistenceContext);
+        ApiObject saved = plugin.getPersistenceOperations().updateItem(ids.get(0), clientObject, persistenceContext);
 
         processChangeEvents(phaseContext,persistenceContext);
 

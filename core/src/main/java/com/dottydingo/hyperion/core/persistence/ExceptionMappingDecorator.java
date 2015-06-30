@@ -60,11 +60,11 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
     }
 
     @Override
-    public C createOrUpdateItem(C item, PersistenceContext context)
+    public List<C> createOrUpdateItems(List<C> clientItems, PersistenceContext context)
     {
         try
         {
-            return delegate.createOrUpdateItem(item, context);
+            return delegate.createOrUpdateItems(clientItems, context);
         }
         catch (Exception e)
         {
@@ -73,11 +73,24 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
     }
 
     @Override
-    public C updateItem(List<ID> ids, C item, PersistenceContext context)
+    public List<C> updateItems(List<C> clientItems, PersistenceContext context)
     {
         try
         {
-            return delegate.updateItem(ids, item, context);
+            return delegate.updateItems(clientItems, context);
+        }
+        catch (Exception e)
+        {
+            throw mapException(e, context);
+        }
+    }
+
+    @Override
+    public C updateItem(ID id, C item, PersistenceContext context)
+    {
+        try
+        {
+            return delegate.updateItem(id, item, context);
         }
         catch (Exception e)
         {

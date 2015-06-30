@@ -16,9 +16,11 @@ public interface PersistenceOperations<C extends ApiObject, ID extends Serializa
 
     QueryResult<C> query(Node query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context);
 
-    C createOrUpdateItem(C item, PersistenceContext context);
+    List<C> createOrUpdateItems(List<C> clientItems, PersistenceContext context);
 
-    C updateItem(List<ID> ids, C item, PersistenceContext context);
+    List<C> updateItems(List<C> clientItems, PersistenceContext context);
+
+    C updateItem(ID id, C item, PersistenceContext context);
 
     int deleteItem(List<ID> ids, PersistenceContext context);
 
