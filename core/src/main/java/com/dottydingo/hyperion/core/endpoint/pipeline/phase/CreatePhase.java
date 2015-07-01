@@ -3,13 +3,13 @@ package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
+import com.dottydingo.hyperion.core.endpoint.HyperionContext;
+import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
+import com.dottydingo.hyperion.core.model.PersistentObject;
+import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
-import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
-import com.dottydingo.hyperion.core.model.PersistentObject;
-import com.dottydingo.hyperion.core.endpoint.HyperionContext;
-import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
@@ -69,15 +69,9 @@ public class CreatePhase extends BasePersistencePhase
                 Collections.singletonList(clientObject),
                 persistenceContext).get(0);
 
-        // todo
-        if(saved != null)
-        {
-            processChangeEvents(phaseContext,persistenceContext);
-            response.setResponseCode(200);
-            phaseContext.setResult(saved);
-        }
-        else
-            response.setResponseCode(304);
+        processChangeEvents(phaseContext, persistenceContext);
+        response.setResponseCode(200);
+        phaseContext.setResult(saved);
     }
 
     private void processCollection(HyperionContext phaseContext)

@@ -126,7 +126,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         CreateKeyProcessor<C,ID> createKeyProcessor = apiVersionPlugin.getCreateKeyProcessor();
         Validator<C, P> validator = apiVersionPlugin.getValidator();
         EntityPlugin entityPlugin = context.getEntityPlugin();
-        Dao dao = entityPlugin.getDao();
+        Dao<P,ID,?,?> dao = entityPlugin.getDao();
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
         context.setCurrentTimestamp(dao.getCurrentTimestamp());
@@ -154,9 +154,6 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
             validator.validateCreate(item, context);
 
             P persistent = translator.convertClient(item, context);
-
-            if(!entityPlugin.getPersistenceFilter().canCreate(persistent,context))
-                continue;  // todo fix this
 
             P saved = doCreate(persistent, context);
 
@@ -250,7 +247,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
         Dao<P, ID, ?, ?> dao = entityPlugin.getDao();
 
         if(!entityPlugin.getPersistenceFilter().canUpdate(existing,context))
-            return existing;
+            return existing; // todo revisit this behavior
 
         apiVersionPlugin.getValidator().validateUpdate(item,existing, context);
 

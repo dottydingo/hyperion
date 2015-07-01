@@ -4,9 +4,7 @@ package com.dottydingo.hyperion.core.persistence;
 import com.dottydingo.hyperion.core.persistence.query.PersistentQueryBuilder;
 
 /**
- * User: mark
- * Date: 10/7/12
- * Time: 2:54 PM
+ * No-op implementation allowing all access.
  */
 public class EmptyPersistenceFilter<P> implements PersistenceFilter<P>
 {
@@ -18,12 +16,6 @@ public class EmptyPersistenceFilter<P> implements PersistenceFilter<P>
 
     @Override
     public boolean isVisible(P persistentObject, PersistenceContext persistenceContext)
-    {
-        return true;
-    }
-
-    @Override
-    public boolean canCreate(P persistentObject, PersistenceContext persistenceContext)
     {
         return true;
     }

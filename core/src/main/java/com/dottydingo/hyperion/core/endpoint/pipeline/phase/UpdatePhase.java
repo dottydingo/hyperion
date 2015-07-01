@@ -76,14 +76,9 @@ public class UpdatePhase extends BasePersistencePhase
 
         processChangeEvents(phaseContext,persistenceContext);
 
-        // todo fix this
-        if(saved != null)
-        {
-            response.setResponseCode(200);
-            phaseContext.setResult(saved);
-        }
-        else
-            response.setResponseCode(304);
+        response.setResponseCode(200);
+        phaseContext.setResult(saved);
+
     }
 
     private void processCollection(HyperionContext phaseContext)

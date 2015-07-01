@@ -133,7 +133,16 @@ public class JpaDao<P extends PersistentObject,ID extends Serializable>
     @Override
     public P find(Class<P> entityClass, ID id)
     {
-        return em.find(entityClass,id);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<P> criteriaQuery = cb.createQuery(entityClass);
+        Root<P> root = criteriaQuery.from(entityClass);
+        criteriaQuery.where(cb.equal(root.get("id"),id));
+
+        TypedQuery<P> query = em.createQuery(criteriaQuery);
+        List<P> results = query.getResultList();
+        if(results.size() == 1)
+            return results.get(0);
+        return null;
     }
 
     @Override
