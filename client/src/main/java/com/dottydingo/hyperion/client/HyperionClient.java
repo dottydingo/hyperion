@@ -118,9 +118,21 @@ public class HyperionClient
         return executeRequest(request,objectMapper.getTypeFactory().constructType(request.getEntityType()));
     }
 
+    public <T extends ApiObject> EntityResponse<T> createCollection(Request<T> request)
+    {
+        return executeRequest(request,objectMapper.getTypeFactory()
+                .constructParametricType(EntityResponse.class, request.getEntityType()));
+    }
+
     public <T extends ApiObject> T update(Request<T> request)
     {
         return executeRequest(request, objectMapper.getTypeFactory().constructType(request.getEntityType()));
+    }
+
+    public <T extends ApiObject> EntityResponse<T> updateCollection(Request<T> request)
+    {
+        return executeRequest(request,objectMapper.getTypeFactory()
+                .constructParametricType(EntityResponse.class, request.getEntityType()));
     }
 
     protected <R> R executeRequest(Request request, JavaType javaType)

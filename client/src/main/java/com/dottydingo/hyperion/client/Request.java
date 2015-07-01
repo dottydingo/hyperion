@@ -12,7 +12,7 @@ public class Request<T extends ApiObject>
     private String entityName;
     private RequestMethod requestMethod;
     private String path;
-    private T requestBody;
+    private Object requestBody;
 
     public MultiMap getHeaders()
     {
@@ -74,12 +74,12 @@ public class Request<T extends ApiObject>
         this.path = path;
     }
 
-    public T getRequestBody()
+    public Object getRequestBody()
     {
         return requestBody;
     }
 
-    public void setRequestBody(T requestBody)
+    public void setRequestBody(Object requestBody)
     {
         this.requestBody = requestBody;
     }
