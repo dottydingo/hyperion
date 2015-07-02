@@ -14,12 +14,13 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.*;
 
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.URLEncoder;
+import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,18 +42,26 @@ public class HyperionClient
 
     public HyperionClient(String baseUrl)
     {
+        this(baseUrl,false);
+    }
+
+    public HyperionClient(String baseUrl, boolean trustAllCertificates)
+    {
         this.baseUrl = baseUrl;
         if (!baseUrl.endsWith("/"))
             this.baseUrl+="/";
 
-        client = new OkHttpClient();
-        // do not pool connections
-        client.setConnectionPool(new ConnectionPool(0,1000));
+        client = buildClient(trustAllCertificates);
     }
 
     public HyperionClient(String baseUrl, AuthorizationFactory authorizationFactory)
     {
-        this(baseUrl);
+        this(baseUrl,authorizationFactory,false);
+    }
+
+    public HyperionClient(String baseUrl, AuthorizationFactory authorizationFactory,boolean trustAllCertificates)
+    {
+        this(baseUrl,trustAllCertificates);
         this.authorizationFactory = authorizationFactory;
     }
 
@@ -73,14 +82,21 @@ public class HyperionClient
 
     public void setProxy(Proxy proxy)
     {
-        java.net.Proxy p = new java.net.Proxy(java.net.Proxy.Type.HTTP,
-                new InetSocketAddress(proxy.getHost(),proxy.getPort()));
-        client.setProxy(p);
+        if(proxy != null)
+        {
+            java.net.Proxy p = new java.net.Proxy(java.net.Proxy.Type.HTTP,
+                    new InetSocketAddress(proxy.getHost(), proxy.getPort()));
+            client.setProxy(p);
+        }
+        else
+            client.setProxy(java.net.Proxy.NO_PROXY);
     }
 
-    protected void setClient(OkHttpClient client)
+    public void setKeepAliveConfiguration(KeepAliveConfiguration keepAliveConfiguration)
     {
-        this.client = client;
+        if(keepAliveConfiguration != null)
+            client.setConnectionPool(new ConnectionPool(keepAliveConfiguration.getMaxIdleConnections(),
+                    keepAliveConfiguration.getKeepAliveDurationMs()));
     }
 
     public void setClientEventListener(ClientEventListener clientEventListener)
@@ -366,6 +382,66 @@ public class HyperionClient
         {
             throw new ClientException(500,"Error encoding parameter.",e);
         }
+    }
+
+    protected OkHttpClient buildClient(boolean trustAllCertificates)
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        if( trustAllCertificates)
+        {
+            try
+            {
+                // Create a trust manager that does not validate certificate chains
+                final TrustManager[] trustAllCerts = new TrustManager[]{
+                        new X509TrustManager()
+                        {
+                            @Override
+                            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                                    throws CertificateException
+                            {
+                            }
+
+                            @Override
+                            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType)
+                                    throws
+                                    CertificateException
+                            {
+                            }
+
+                            @Override
+                            public java.security.cert.X509Certificate[] getAcceptedIssuers()
+                            {
+                                return null;
+                            }
+                        }
+                };
+
+                // Install the all-trusting trust manager
+                final SSLContext sslContext = SSLContext.getInstance("SSL");
+                sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+                // Create an ssl socket factory with our all-trusting manager
+                final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+                okHttpClient.setSslSocketFactory(sslSocketFactory);
+                okHttpClient.setHostnameVerifier(new HostnameVerifier()
+                {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session)
+                    {
+                        return true;
+                    }
+                });
+
+                return okHttpClient;
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return okHttpClient;
+
     }
 
     private static class ObjectMapperBuilder
