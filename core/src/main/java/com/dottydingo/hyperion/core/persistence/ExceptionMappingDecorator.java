@@ -91,6 +91,10 @@ public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializa
         {
             return delegate.updateItems(clientItems, context);
         }
+        catch (HyperionException e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
             throw mapException(e, context);
