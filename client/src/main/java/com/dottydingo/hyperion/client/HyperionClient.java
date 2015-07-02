@@ -1,18 +1,18 @@
 package com.dottydingo.hyperion.client;
 
 import com.dottydingo.hyperion.api.*;
+import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.dottydingo.hyperion.client.event.ClientEvent;
 import com.dottydingo.hyperion.client.event.ClientEventListener;
 import com.dottydingo.hyperion.client.exception.ClientConnectionException;
 import com.dottydingo.hyperion.client.exception.ClientException;
 import com.dottydingo.hyperion.client.exception.ClientMarshallingException;
-import com.dottydingo.hyperion.api.exception.HyperionException;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.ConnectionPool;
-import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,6 +27,8 @@ import java.util.Map;
  */
 public class HyperionClient
 {
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapperBuilder().getObjectMapper();
     protected String baseUrl;
     protected OkHttpClient client;
@@ -131,15 +133,14 @@ public class HyperionClient
         return executeRequest(request,objectMapper.getTypeFactory()
                 .constructParametricType(EntityList.class, request.getEntityType()));
     }
-
     protected <R> R executeRequest(Request request, JavaType javaType)
     {
         long start = System.currentTimeMillis();
         boolean error = true;
         try
         {
-            HttpURLConnection connection = executeRequest(request);
-            R r = readResponse(connection, javaType);
+            Response response = executeRequest(request);
+            R r = readResponse(response, javaType);
             error = false;
             return r;
         }
@@ -154,46 +155,41 @@ public class HyperionClient
         }
     }
 
-    protected <T> T readResponse(HttpURLConnection connection,JavaType javaType)
+    protected com.squareup.okhttp.Request buildHttpRequest(Request request)
     {
-        try
-        {
-            return objectMapper.readValue(connection.getInputStream(),javaType);
-        }
-        catch (IOException e)
-        {
-            throw new ClientMarshallingException("Error reading results.",e);
-        }
-        finally
-        {
-            connection.disconnect();
-        }
+        RequestBody requestBody = null;
+        if(request.getRequestMethod().isBodyRequest())
+            requestBody = RequestBody.create(JSON, serializeBody(request));
+
+        return new com.squareup.okhttp.Request.Builder()
+                .url(buildUrl(request))
+                .headers(getHeaders(request))
+                .method(request.getRequestMethod().name(),requestBody)
+                .build();
     }
 
-    protected HttpURLConnection executeRequest(Request request)
+
+    protected Response executeRequest(Request request)
     {
         try
         {
-            HttpURLConnection connection = client.open(URI.create(buildUrl(request)).toURL());
-            executeRequest(request, connection);
+            com.squareup.okhttp.Request httpRequest = buildHttpRequest(request);
+            Response response = client.newCall(httpRequest).execute();
 
-            if(connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED && authorizationFactory != null
+            if(response.code() == HttpURLConnection.HTTP_UNAUTHORIZED && authorizationFactory != null
                     && authorizationFactory.retryOnAuthenticationError())
             {
                 if(authorizationFactory instanceof ResettableAuthorizationFactory)
                     ((ResettableAuthorizationFactory) authorizationFactory).reset();
 
-                connection.disconnect();
-                connection = client.open(URI.create(buildUrl(request)).toURL());
-                executeRequest(request, connection);
-
+                response = client.newCall(httpRequest).execute();
             }
-            if (connection.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST)
+            if (response.code() >= HttpURLConnection.HTTP_BAD_REQUEST)
             {
-                throw readException(connection);
+                throw readException(response);
             }
 
-            return connection;
+            return response;
         }
         catch (IOException e)
         {
@@ -202,63 +198,72 @@ public class HyperionClient
 
     }
 
-    private void executeRequest(Request request, HttpURLConnection connection) throws IOException
-    {
-        setHeaders(connection, request);
-        connection.setRequestMethod(request.getRequestMethod().name());
 
-        if(request.getRequestMethod().isBodyRequest())
-        {
-            connection.addRequestProperty("Content-type","application/json");
-            objectMapper.writeValue(connection.getOutputStream(),request.getRequestBody());
-        }
-    }
-
-    protected HyperionException readException(HttpURLConnection connection) throws IOException
+    protected <T> T readResponse(Response response,JavaType javaType)
     {
         try
         {
-            ErrorResponse errorResponse = null;
+            return objectMapper.readValue(response.body().byteStream(), javaType);
+        }
+        catch (IOException e)
+        {
+            throw new ClientMarshallingException("Error reading results.",e);
+        }
+    }
+
+    protected String serializeBody(Request request)
+    {
+        try
+        {
+            return objectMapper.writeValueAsString(request.getRequestBody());
+        }
+        catch (JsonProcessingException e)
+        {
+            throw new ClientMarshallingException("Error writing request.",e);
+        }
+    }
+
+
+    protected HyperionException readException(Response response) throws IOException
+    {
+        ErrorResponse errorResponse = null;
+        try
+        {
+            errorResponse = objectMapper.readValue(response.body().byteStream(), ErrorResponse.class);
+        }
+        catch (Exception ignore)
+        {
+        }
+
+        HyperionException resolvedException = null;
+        if (errorResponse != null)
+        {
             try
             {
-                errorResponse = objectMapper.readValue(connection.getErrorStream(), ErrorResponse.class);
+                Class exceptionClass = Class.forName(errorResponse.getType());
+                resolvedException = (HyperionException) exceptionClass.getConstructor(String.class)
+                        .newInstance(errorResponse.getMessage());
             }
             catch (Exception ignore)
             {
             }
 
-            HyperionException resolvedException = null;
-            if (errorResponse != null)
+            if (resolvedException == null)
             {
-                try
-                {
-                    Class exceptionClass = Class.forName(errorResponse.getType());
-                    resolvedException = (HyperionException) exceptionClass.getConstructor(String.class)
-                            .newInstance(errorResponse.getMessage());
-                }
-                catch (Exception ignore)
-                {
-                }
-
-                if (resolvedException == null)
-                {
-                    resolvedException =
-                            new HyperionException(errorResponse.getStatusCode(), errorResponse.getMessage());
-                }
-
-                resolvedException.setErrorDetails(errorResponse.getErrorDetails());
+                resolvedException =
+                        new HyperionException(errorResponse.getStatusCode(), errorResponse.getMessage());
             }
 
-            if (resolvedException == null)
-                resolvedException =
-                        new HyperionException(connection.getResponseCode(), connection.getResponseMessage());
+            resolvedException.setErrorDetails(errorResponse.getErrorDetails());
+        }
 
-            return resolvedException;
-        }
-        finally
+        if (resolvedException == null)
         {
-            connection.disconnect();
+            resolvedException =
+                    new HyperionException(response.code(), response.message());
         }
+
+        return resolvedException;
 
     }
 
@@ -318,8 +323,9 @@ public class HyperionClient
         return sb.toString();
     }
 
-    protected void setHeaders(HttpURLConnection connection,Request request)
+    protected Headers getHeaders(Request request)
     {
+        Headers.Builder headers = new Headers.Builder();
         MultiMap resolvedHeaders = null;
         if(headerFactory != null)
             resolvedHeaders = headerFactory.getHeaders();
@@ -337,16 +343,18 @@ public class HyperionClient
         }
 
         if(resolvedHeaders.getFirst("user-agent") == null)
-            connection.addRequestProperty("user-agent",userAgent);
+            headers.add("user-agent",userAgent);
 
         for (Map.Entry<String, List<String>> entry : resolvedHeaders.entries())
         {
             for (String value : entry.getValue())
             {
-                connection.addRequestProperty(entry.getKey(),value);
+                headers.add(entry.getKey(), value);
             }
         }
+        return headers.build();
     }
+
 
     protected String encode(String value)
     {
