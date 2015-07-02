@@ -28,6 +28,7 @@ public class EndpointMarshallerTest
     {
         endpointMarshaller = new EndpointMarshaller();
         HyperionEndpointConfiguration configuration = new HyperionEndpointConfiguration();
+        configuration.setWriteLimit(2);
         endpointMarshaller.setConfiguration(configuration);
         endpointMarshaller.init();
 
@@ -49,6 +50,31 @@ public class EndpointMarshallerTest
         assertEquals(2,response.size());
         assertEquals(new Long(1),response.get(0).getId());
         assertEquals(new Long(2),response.get(1).getId());
+
+    }
+
+    @Test
+    public void testUnmarshallCollection_WriteLimit() throws Exception
+    {
+        EntityList<SampleClient> entityResponse = new EntityList<>();
+        List<SampleClient> entries = new ArrayList<>();
+        entityResponse.setEntries(entries);
+        entries.add(buildClient(1L,"field1","field2"));
+        entries.add(buildClient(2L,"field3","field4"));
+        entries.add(buildClient(3L,"field5","field6"));
+
+        String json =  objectMapper.writeValueAsString(entityResponse);
+        ByteArrayInputStream is = new ByteArrayInputStream(json.getBytes());
+
+        try
+        {
+            endpointMarshaller.unmarshallCollection(is,SampleClient.class);
+        }
+        catch (WriteLimitException e)
+        {
+            assertEquals(2,e.getWriteLimit());
+        }
+
 
     }
 

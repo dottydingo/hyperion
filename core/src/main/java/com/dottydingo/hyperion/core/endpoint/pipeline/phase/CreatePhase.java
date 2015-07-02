@@ -7,6 +7,7 @@ import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
+import com.dottydingo.hyperion.core.endpoint.marshall.WriteLimitException;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
@@ -86,6 +87,10 @@ public class CreatePhase extends BasePersistencePhase
         try
         {
             clientObjects = marshaller.unmarshallCollection(request.getInputStream(), apiVersionPlugin.getApiClass());
+        }
+        catch (WriteLimitException e)
+        {
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_WRITE_LIMIT,phaseContext.getLocale(),e.getWriteLimit()),e);
         }
         catch (MarshallingException e)
         {

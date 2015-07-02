@@ -90,12 +90,17 @@ public class EndpointMarshaller
         try(JsonParser parser = objectMapper.getFactory().createParser(inputStream);)
         {
 
+            int writeLimit = configuration.getWriteLimit();
+
             advanceToEntries(parser);
 
             List<T> returnValue = new ArrayList<>();
             MappingIterator<T> mappingIterator = objectMapper.readValues(parser, type);
             while (mappingIterator.hasNext())
             {
+                if(returnValue.size() >= writeLimit)
+                    throw new WriteLimitException(writeLimit);
+
                 returnValue.add(mappingIterator.next());
             }
 
@@ -173,6 +178,7 @@ public class EndpointMarshaller
 
         try
         {
+            int writeLimit = configuration.getWriteLimit();
             Map<Object,Set<String>> providedFieldsMap = new IdentityHashMap<>();
 
             ContextAttributes attrs = trackingObjectMapper
@@ -187,11 +193,18 @@ public class EndpointMarshaller
             Iterator<T> mappingIterator = trackingObjectMapper.reader(attrs).readValues(parser, type);
             while (mappingIterator.hasNext())
             {
+                if(returnValue.size() >= writeLimit)
+                    throw new WriteLimitException(writeLimit);
+
                 returnValue.add(mappingIterator.next());
             }
 
 
             return new RequestContext<List<T>>(returnValue,providedFieldsMap);
+        }
+        catch (MarshallingException e)
+        {
+            throw e;
         }
         catch (Exception e)
         {

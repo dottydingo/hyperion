@@ -43,6 +43,7 @@
         <property name="enableResponseCompression" value="${endpoint.enableResponseCompression}"/>
         <property name="responseCompressionThreshold" value="${endpoint.responseCompressionThreshold}"/>
         <property name="trackProvidedFieldsOnUpdate" value="${endpoint.trackProvidedFieldsOnUpdate}"/>
+        <property name="writeLimit" value="${endpoint.writeLimit}"/>
     </bean>
 
     <bean id="hyperionRequestLogHandler" class="com.dottydingo.hyperion.core.endpoint.NoOpRequestLogHandler"/>

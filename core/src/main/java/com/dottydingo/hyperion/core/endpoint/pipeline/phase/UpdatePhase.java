@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
+import com.dottydingo.hyperion.core.endpoint.marshall.WriteLimitException;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
@@ -104,6 +105,10 @@ public class UpdatePhase extends BasePersistencePhase
         {
             requestContext = marshaller.unmarshallCollectionWithContext(request.getInputStream(),
                     apiVersionPlugin.getApiClass());
+        }
+        catch (WriteLimitException e)
+        {
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_WRITE_LIMIT,phaseContext.getLocale(),e.getWriteLimit()),e);
         }
         catch (MarshallingException e)
         {
