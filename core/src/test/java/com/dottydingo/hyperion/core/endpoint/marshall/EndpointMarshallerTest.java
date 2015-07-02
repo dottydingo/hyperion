@@ -86,7 +86,7 @@ public class EndpointMarshallerTest
         valdateError("{}","Empty request payload");
         valdateError("{\"foo\": 1}","Payload missing \"entries\" field");
         valdateError("{\"entries\": 1}","The \"entries\" field must be an array");
-        //valdateError("{\"entries\": []}","The \"entries\" field must be an array");
+        valdateError("{\"entries\": []}","The \"entries\" field must not be empty");
     }
 
     private void valdateError(String input,String message)

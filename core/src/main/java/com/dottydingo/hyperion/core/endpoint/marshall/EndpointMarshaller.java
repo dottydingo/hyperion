@@ -130,8 +130,12 @@ public class EndpointMarshaller
             if(parser.nextToken() != JsonToken.START_ARRAY)
                 throw new MarshallingException("The \"entries\" field must be an array");
 
-            parser.nextToken();
+            if(parser.nextToken() == JsonToken.END_ARRAY)
+                throw new MarshallingException("The \"entries\" field must not be empty");
+
+
         }
+
         else
             throw new MarshallingException("Empty request payload");
     }
