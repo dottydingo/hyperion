@@ -1,9 +1,6 @@
 package com.dottydingo.hyperion.client;
 
-import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.api.DeleteResponse;
-import com.dottydingo.hyperion.api.EntityResponse;
-import com.dottydingo.hyperion.api.ErrorResponse;
+import com.dottydingo.hyperion.api.*;
 import com.dottydingo.hyperion.client.event.ClientEvent;
 import com.dottydingo.hyperion.client.event.ClientEventListener;
 import com.dottydingo.hyperion.client.exception.ClientConnectionException;
@@ -118,10 +115,10 @@ public class HyperionClient
         return executeRequest(request,objectMapper.getTypeFactory().constructType(request.getEntityType()));
     }
 
-    public <T extends ApiObject> EntityResponse<T> createCollection(Request<T> request)
+    public <T extends ApiObject> EntityList<T> createCollection(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
-                .constructParametricType(EntityResponse.class, request.getEntityType()));
+                .constructParametricType(EntityList.class, request.getEntityType()));
     }
 
     public <T extends ApiObject> T update(Request<T> request)
@@ -129,10 +126,10 @@ public class HyperionClient
         return executeRequest(request, objectMapper.getTypeFactory().constructType(request.getEntityType()));
     }
 
-    public <T extends ApiObject> EntityResponse<T> updateCollection(Request<T> request)
+    public <T extends ApiObject> EntityList<T> updateCollection(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
-                .constructParametricType(EntityResponse.class, request.getEntityType()));
+                .constructParametricType(EntityList.class, request.getEntityType()));
     }
 
     protected <R> R executeRequest(Request request, JavaType javaType)

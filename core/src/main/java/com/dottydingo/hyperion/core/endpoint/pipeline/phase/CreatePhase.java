@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
@@ -101,7 +102,7 @@ public class CreatePhase extends BasePersistencePhase
 
         processChangeEvents(phaseContext,persistenceContext);
 
-        EntityResponse<ApiObject> entityResponse = new EntityResponse<>();
+        EntityList<ApiObject> entityResponse = new EntityList<>();
         entityResponse.setEntries(saved);
         phaseContext.setResult(entityResponse);
 

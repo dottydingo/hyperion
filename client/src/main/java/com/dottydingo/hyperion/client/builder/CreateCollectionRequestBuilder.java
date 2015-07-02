@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.api.EntityResponse;
+import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.client.*;
 
 import java.io.Serializable;
@@ -72,7 +72,7 @@ public class CreateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends S
     public Request<T> build()
     {
         Request<T> request = super.build();
-        EntityResponse<T> entityResponse = new EntityResponse<>();
+        EntityList<T> entityResponse = new EntityList<>();
         entityResponse.setEntries(entries);
         request.setRequestBody(entityResponse);
         request.setRequestMethod(RequestMethod.POST);
@@ -81,7 +81,7 @@ public class CreateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends S
 
     public List<T> execute(HyperionClient client)
     {
-        EntityResponse<T> response = client.createCollection(build());
+        EntityList<T> response = client.createCollection(build());
         return response.getEntries();
     }
 }

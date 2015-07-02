@@ -204,7 +204,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
             ID id = translator.convertId(item,context);
             if(id == null)
                 throw new ValidationException(
-                        context.getMessageSource().getErrorMessage(ID_MISSING, context.getLocale(),
+                        context.getMessageSource().getValidationMessage(ID_MISSING, context.getLocale(),
                                 context.getEntity()));
             mappedClients.put(id, item);
         }

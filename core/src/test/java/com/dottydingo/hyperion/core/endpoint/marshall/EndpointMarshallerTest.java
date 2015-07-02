@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.core.endpoint.marshall;
 
+import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.core.configuration.HyperionEndpointConfiguration;
 import com.dottydingo.service.endpoint.configuration.EndpointConfiguration;
@@ -34,7 +35,7 @@ public class EndpointMarshallerTest
     @Test
     public void testUnmarshallCollection() throws Exception
     {
-        EntityResponse<SampleClient> entityResponse = new EntityResponse<>();
+        EntityList<SampleClient> entityResponse = new EntityList<>();
         List<SampleClient> entries = new ArrayList<>();
         entityResponse.setEntries(entries);
         entries.add(buildClient(1L,"field1","field2"));
@@ -59,6 +60,7 @@ public class EndpointMarshallerTest
         valdateError("{}","Empty request payload");
         valdateError("{\"foo\": 1}","Payload missing \"entries\" field");
         valdateError("{\"entries\": 1}","The \"entries\" field must be an array");
+        //valdateError("{\"entries\": []}","The \"entries\" field must be an array");
     }
 
     private void valdateError(String input,String message)
