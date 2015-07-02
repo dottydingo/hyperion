@@ -141,6 +141,9 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         for (C item : clientItems)
         {
+            // explicity clear the ID field
+            item.setId(null);
+
             if(createKeyProcessor != null)
             {
                 ID id = createKeyProcessor.lookup(item,context);
