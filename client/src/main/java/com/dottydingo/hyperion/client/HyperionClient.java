@@ -13,10 +13,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.*;
+import okio.Buffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URLEncoder;
@@ -28,9 +30,11 @@ import java.util.Map;
  */
 public class HyperionClient
 {
+    private static final long DEFAULT_MAX_LOGGED_BODY_SIZE = 1024 * 1000;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapperBuilder().getObjectMapper();
+
+    protected Logger logger = LoggerFactory.getLogger(HyperionClient.class);
     protected String baseUrl;
     protected OkHttpClient client;
     protected ObjectMapper objectMapper = DEFAULT_OBJECT_MAPPER;
@@ -39,6 +43,7 @@ public class HyperionClient
     protected AuthorizationFactory authorizationFactory;
     protected ClientEventListener clientEventListener;
     protected String userAgent = "hyperionClient";
+    protected long maxLoggedBodySize = DEFAULT_MAX_LOGGED_BODY_SIZE;
 
     public HyperionClient(String baseUrl)
     {
@@ -107,6 +112,17 @@ public class HyperionClient
     public void setUserAgent(String userAgent)
     {
         this.userAgent = userAgent;
+    }
+
+    public void setLogger(String logger)
+    {
+        if(logger != null && logger.trim().length() > 0)
+            this.logger = LoggerFactory.getLogger(logger);
+    }
+
+    public void setMaxLoggedBodySize(long maxLoggedBodySize)
+    {
+        this.maxLoggedBodySize = maxLoggedBodySize;
     }
 
     public <T extends ApiObject> EntityResponse<T> get(Request<T> request)
@@ -190,6 +206,23 @@ public class HyperionClient
         try
         {
             com.squareup.okhttp.Request httpRequest = buildHttpRequest(request);
+
+            if(logger.isInfoEnabled())
+                logger.info("Sending request: {} {}",httpRequest.method(),httpRequest.urlString());
+
+            if(logger.isDebugEnabled() && request.getRequestMethod().isBodyRequest())
+            {
+                Buffer buffer = new Buffer();
+                httpRequest.body().writeTo(buffer);
+                if(maxLoggedBodySize == -1 || buffer.size() <= maxLoggedBodySize )
+                    logger.debug("Request body: {}", buffer.readUtf8());
+                else
+                    logger.debug("Request body not captured: too large. ");
+            }
+
+            if(logger.isTraceEnabled())
+                logger.trace("Request headers: {}",httpRequest.headers().toString());
+
             Response response = client.newCall(httpRequest).execute();
 
             if(response.code() == HttpURLConnection.HTTP_UNAUTHORIZED && authorizationFactory != null
@@ -199,6 +232,23 @@ public class HyperionClient
                     ((ResettableAuthorizationFactory) authorizationFactory).reset();
 
                 response = client.newCall(httpRequest).execute();
+            }
+
+            logger.info("Response code: {}",response.code());
+
+            if(logger.isTraceEnabled())
+                logger.trace("Response headers: {}",response.headers().toString());
+
+            if(logger.isDebugEnabled())
+            {
+                ByteArrayOutputStream copy = new ByteArrayOutputStream();
+                copy(response.body().byteStream(),copy);
+                response = response.newBuilder().body(ResponseBody.create(response.body().contentType(),copy.toByteArray())).build();
+
+                if(maxLoggedBodySize == -1 || copy.size() <= maxLoggedBodySize)
+                    logger.debug("Response body: {}",copy.toString());
+                else
+                    logger.debug("Response body not captured: too large.");
             }
             if (response.code() >= HttpURLConnection.HTTP_BAD_REQUEST)
             {
@@ -458,6 +508,16 @@ public class HyperionClient
         private ObjectMapper getObjectMapper()
         {
             return objectMapper;
+        }
+    }
+
+    private void copy(InputStream is, OutputStream os) throws IOException
+    {
+        byte[] buffer = new byte[4096];
+        int n = 0;
+        while (-1 != (n = is.read(buffer)))
+        {
+            os.write(buffer, 0, n);
         }
     }
 
