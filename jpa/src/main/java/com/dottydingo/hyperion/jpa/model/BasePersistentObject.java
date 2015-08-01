@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 /**
  * An abstract base class that can be used for persistent objects.
- * @param <ID>
+ * @param <ID> serializable identifier
  */
 @MappedSuperclass
 public abstract class BasePersistentObject<ID extends Serializable> implements PersistentObject<ID>
