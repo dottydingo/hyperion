@@ -10,6 +10,7 @@ import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class DeletePhase extends BasePersistencePhase
         EndpointRequest request = phaseContext.getEndpointRequest();
         EndpointResponse response = phaseContext.getEndpointResponse();
 
-        ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);

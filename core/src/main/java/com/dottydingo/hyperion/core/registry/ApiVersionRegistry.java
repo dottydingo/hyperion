@@ -4,18 +4,19 @@ package com.dottydingo.hyperion.core.registry;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  */
-public class ApiVersionRegistry<C extends ApiObject,P extends PersistentObject>
+public class ApiVersionRegistry<C extends ApiObject<ID>, P extends PersistentObject<ID>, ID extends Serializable>
 {
-    private Map<Integer,ApiVersionPlugin<C,P>> versionMap = new HashMap<Integer, ApiVersionPlugin<C,P>>();
+    private Map<Integer,ApiVersionPlugin<C,P,ID>> versionMap = new HashMap<>();
     private NavigableSet<Integer> versions = new TreeSet<Integer>();
 
-    public void setPlugins(List<ApiVersionPlugin<C,P>> apiVersionPlugins)
+    public void setPlugins(List<ApiVersionPlugin<C,P,ID>> apiVersionPlugins)
     {
-        for (ApiVersionPlugin<C,P> plugin : apiVersionPlugins)
+        for (ApiVersionPlugin<C,P,ID> plugin : apiVersionPlugins)
         {
             if(versionMap.put(plugin.getVersion(), plugin) != null)
                 throw new RuntimeException(String.format(
@@ -24,7 +25,7 @@ public class ApiVersionRegistry<C extends ApiObject,P extends PersistentObject>
         }
     }
 
-    public ApiVersionPlugin<C,P> getPluginForVersion(Integer version)
+    public ApiVersionPlugin<C,P,ID> getPluginForVersion(Integer version)
     {
         Integer effectiveVersion = null;
         if(version == null)

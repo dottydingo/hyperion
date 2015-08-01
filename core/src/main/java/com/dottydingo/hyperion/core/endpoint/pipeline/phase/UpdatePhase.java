@@ -46,7 +46,7 @@ public class UpdatePhase extends BasePersistencePhase
         EndpointRequest request = phaseContext.getEndpointRequest();
         EndpointResponse response = phaseContext.getEndpointResponse();
 
-        ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
@@ -55,7 +55,7 @@ public class UpdatePhase extends BasePersistencePhase
         if(fieldSet != null)
             fieldSet.add("id");
 
-        RequestContext<ApiObject> requestContext = null;
+        RequestContext<ApiObject<Serializable>> requestContext = null;
         try
         {
             requestContext = marshaller.unmarshallWithContext(request.getInputStream(), apiVersionPlugin.getApiClass());
@@ -87,7 +87,7 @@ public class UpdatePhase extends BasePersistencePhase
     {
         EndpointRequest request = phaseContext.getEndpointRequest();
 
-        ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
         List<Serializable> ids = convertIds(phaseContext, plugin);
@@ -100,7 +100,7 @@ public class UpdatePhase extends BasePersistencePhase
         if(fieldSet != null)
             fieldSet.add("id");
 
-        RequestContext<List<ApiObject>> requestContext = null;
+        RequestContext<List<ApiObject<Serializable>>> requestContext = null;
         try
         {
             requestContext = marshaller.unmarshallCollectionWithContext(request.getInputStream(),
@@ -115,7 +115,7 @@ public class UpdatePhase extends BasePersistencePhase
             throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST, phaseContext.getLocale(),
                     e.getMessage()),e);
         }
-        List<ApiObject> clientObjects = requestContext.getRequestObject();
+        List<ApiObject<Serializable>> clientObjects = requestContext.getRequestObject();
 
         persistenceContext.setProvidedFields(requestContext.getProvidedFields());
 

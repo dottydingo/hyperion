@@ -6,11 +6,12 @@ import com.dottydingo.hyperion.core.persistence.CreateKeyProcessor;
 import com.dottydingo.hyperion.core.translation.Translator;
 import com.dottydingo.hyperion.core.validation.Validator;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  */
-public class ApiVersionPlugin<C extends ApiObject,P extends PersistentObject>
+public class ApiVersionPlugin<C extends ApiObject<ID>,P extends PersistentObject<ID>, ID extends Serializable>
 {
     private Integer version;
     private Translator<C,P> translator;

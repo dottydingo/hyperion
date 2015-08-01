@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  */
-public class JpaDao<P extends PersistentObject,ID extends Serializable>
+public class JpaDao<P extends PersistentObject<ID>,ID extends Serializable>
         implements Dao<P,ID,JpaPersistentQueryBuilder,JpaPersistentOrderBuilder>
 {
     @PersistenceContext(unitName = "hyperionEntityManager")
