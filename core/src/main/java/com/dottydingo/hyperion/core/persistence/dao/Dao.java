@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.core.persistence.dao;
 ;
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
+import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.query.PersistentQueryBuilder;
 import com.dottydingo.hyperion.core.persistence.sort.PersistentOrderBuilder;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * Date: 1/27/13
  * Time: 9:30 AM
  */
-public interface Dao<P,ID extends Serializable,QB extends PersistentQueryBuilder,SB extends PersistentOrderBuilder>
+public interface Dao<P extends PersistentObject<ID>, ID extends Serializable,QB extends PersistentQueryBuilder,SB extends PersistentOrderBuilder>
 {
     List<P> findAll(Class<P> entityClass, List<ID> ids);
 

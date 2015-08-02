@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 /**
  */
-public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID extends Serializable>
+public class EntityPlugin<C extends ApiObject<ID>,P extends PersistentObject<ID>,ID extends Serializable>
 {
     private static final Pattern RESERVED_PARAMETERS = Pattern.compile("start|limit|query|fields|sort|version|trace|cid|collection",
             Pattern.CASE_INSENSITIVE);
@@ -39,7 +39,7 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
     private boolean historyEnabled = false;
     private Class<? extends PersistentHistoryEntry> historyType;
 
-    private ApiVersionRegistry<C,P> apiVersionRegistry;
+    private ApiVersionRegistry<C,P,ID> apiVersionRegistry;
 
     private List<PersistentChangeListener<C,ID>> persistentChangeListeners = Collections.emptyList();
     private List<EntityChangeListener<C>> entityChangeListeners = Collections.emptyList();
@@ -76,12 +76,12 @@ public class EntityPlugin<C extends ApiObject,P extends PersistentObject,ID exte
         this.persistenceOperations = persistenceOperations;
     }
 
-    public ApiVersionRegistry<C,P> getApiVersionRegistry()
+    public ApiVersionRegistry<C,P,ID> getApiVersionRegistry()
     {
         return apiVersionRegistry;
     }
 
-    public void setApiVersionRegistry(ApiVersionRegistry<C,P> apiVersionRegistry)
+    public void setApiVersionRegistry(ApiVersionRegistry<C,P,ID> apiVersionRegistry)
     {
         this.apiVersionRegistry = apiVersionRegistry;
     }

@@ -26,7 +26,7 @@ import java.util.*;
 
 /**
  */
-public class DefaultPersistenceOperations<C extends ApiObject, P extends PersistentObject<ID>, ID extends Serializable>
+public class DefaultPersistenceOperations<C extends ApiObject<ID>, P extends PersistentObject<ID>, ID extends Serializable>
         implements PersistenceOperations<C,ID>
 {
 
@@ -58,7 +58,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     public List<C> findByIds(List<ID> ids, PersistenceContext context)
     {
 
-        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
 
 
         List<P> iterable = context.getEntityPlugin().getDao().findAll(context.getEntityPlugin().getEntityClass(),ids);
@@ -76,7 +76,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     @Override
     public QueryResult<C> query(Node query, Integer start, Integer limit, EndpointSort sort, PersistenceContext context)
     {
-        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
 
         int size = limit;
         int pageStart = start == null ? 0 : start - 1;
@@ -122,7 +122,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     public List<C> createOrUpdateItems(List<C> clientItems, PersistenceContext context)
     {
 
-        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
         CreateKeyProcessor<C,ID> createKeyProcessor = apiVersionPlugin.getCreateKeyProcessor();
         Validator<C, P> validator = apiVersionPlugin.getValidator();
         EntityPlugin entityPlugin = context.getEntityPlugin();
@@ -194,7 +194,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     @Override
     public List<C> updateItems(List<C> clientItems, PersistenceContext context)
     {
-        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
@@ -244,9 +244,9 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
     protected P updateItem(PersistenceContext context, AdminPersistenceContext adminPersistenceContext, P existing, C item)
     {
-        ApiVersionPlugin<C, P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C, P, ID> apiVersionPlugin = context.getApiVersionPlugin();
         Translator<C, P> translator = apiVersionPlugin.getTranslator();
-        EntityPlugin entityPlugin = context.getEntityPlugin();
+        EntityPlugin<C, P, ID> entityPlugin = context.getEntityPlugin();
         Dao<P, ID, ?, ?> dao = entityPlugin.getDao();
 
         if(!entityPlugin.getPersistenceFilter().canUpdate(existing,context))
@@ -292,7 +292,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
     @Override
     public C updateItem(ID id, C item, PersistenceContext context)
     {
-        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
 
@@ -358,7 +358,7 @@ public class DefaultPersistenceOperations<C extends ApiObject, P extends Persist
 
         EntityPlugin entityPlugin = context.getEntityPlugin();
         Dao<P,ID,?,?> dao = entityPlugin.getDao();
-        ApiVersionPlugin<C,P> apiVersionPlugin = context.getApiVersionPlugin();
+        ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
 
         Translator<C,P> translator = apiVersionPlugin.getTranslator();
         List<P> persistentItems = dao.findAll(entityPlugin.getEntityClass(),ids);

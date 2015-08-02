@@ -15,6 +15,7 @@ import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +49,7 @@ public class CreatePhase extends BasePersistencePhase
         EndpointRequest request = phaseContext.getEndpointRequest();
         EndpointResponse response = phaseContext.getEndpointResponse();
 
-        ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
         ApiObject clientObject = null;
@@ -80,10 +81,10 @@ public class CreatePhase extends BasePersistencePhase
     {
         EndpointRequest request = phaseContext.getEndpointRequest();
 
-        ApiVersionPlugin<ApiObject,PersistentObject> apiVersionPlugin = phaseContext.getVersionPlugin();
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
 
-        List<ApiObject> clientObjects = null;
+        List<ApiObject<Serializable>> clientObjects = null;
         try
         {
             clientObjects = marshaller.unmarshallCollection(request.getInputStream(), apiVersionPlugin.getApiClass());

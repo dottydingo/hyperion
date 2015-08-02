@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  */
-public class TransactionalDecorator<C extends ApiObject, ID extends Serializable>
+public class TransactionalDecorator<C extends ApiObject<ID>, ID extends Serializable>
         implements PersistenceOperations<C, ID>, BeanFactoryAware
 {
     private PersistenceOperations<C, ID> delegate;

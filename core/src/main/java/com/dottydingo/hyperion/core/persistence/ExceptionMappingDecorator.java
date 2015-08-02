@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  */
-public class ExceptionMappingDecorator<C extends ApiObject, ID extends Serializable> implements PersistenceOperations<C, ID>
+public class ExceptionMappingDecorator<C extends ApiObject<ID>, ID extends Serializable> implements PersistenceOperations<C, ID>
 {
     private static final String ITEM_CHANGED = "ERROR_ITEM_CHANGED";
     private static final String UNCAUGHT_CONFLICT = "ERROR_UNCAUGHT_CONFLICT";

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  */
-public interface PersistenceOperations<C extends ApiObject, ID extends Serializable>
+public interface PersistenceOperations<C extends ApiObject<ID>, ID extends Serializable>
 {
     List<C> findByIds(List<ID> ids, PersistenceContext context);
 
