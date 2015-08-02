@@ -31,10 +31,9 @@ public abstract class AbstractEntityJpaQueryBuilder<T> implements JpaEntityQuery
     /**
      * Delegate creating of a Predicate to an appropriate method according to
      * operator.
-     * <p/>
      *
-     *
-     * @param query
+     * @param root         root
+     * @param query        query
      * @param propertyName property name
      * @param operator     comparison operator
      * @param argument     argument
