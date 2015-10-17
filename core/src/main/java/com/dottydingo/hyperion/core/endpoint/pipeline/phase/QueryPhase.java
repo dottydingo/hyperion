@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
+import com.dottydingo.hyperion.api.Page;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
@@ -63,9 +64,13 @@ public class QueryPhase extends BasePersistencePhase
 
         EntityResponse entityResponse = new EntityResponse();
         entityResponse.setEntries(queryResult.getItems());
-        entityResponse.setResponseCount(queryResult.getResponseCount());
-        entityResponse.setStart(queryResult.getStart());
-        entityResponse.setTotalCount(queryResult.getTotalCount());
+
+        Page page = new Page();
+        page.setResponseCount(queryResult.getResponseCount());
+        page.setStart(queryResult.getStart());
+        page.setTotalCount(queryResult.getTotalCount());
+
+        entityResponse.setPage(page);
 
         phaseContext.setResult(entityResponse);
 

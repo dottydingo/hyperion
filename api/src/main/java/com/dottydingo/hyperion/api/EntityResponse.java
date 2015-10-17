@@ -6,41 +6,18 @@ import java.util.List;
 
 /**
  */
-@JsonPropertyOrder({"start","responseCount","totalCount","entries"})
+@JsonPropertyOrder({"page","entries"})
 public class EntityResponse<T extends ApiObject> extends EntityList<T>
 {
-    private Integer start;
-    private Integer responseCount;
-    private Long totalCount;
+    private Page page;
 
-    public Integer getStart()
+    public Page getPage()
     {
-        return start;
+        return page;
     }
 
-    public void setStart(Integer start)
+    public void setPage(Page page)
     {
-        this.start = start;
+        this.page = page;
     }
-
-    public Integer getResponseCount()
-    {
-        return responseCount;
-    }
-
-    public void setResponseCount(Integer responseCount)
-    {
-        this.responseCount = responseCount;
-    }
-
-    public Long getTotalCount()
-    {
-        return totalCount;
-    }
-
-    public void setTotalCount(Long totalCount)
-    {
-        this.totalCount = totalCount;
-    }
-
 }

@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
+import com.dottydingo.hyperion.api.Page;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
@@ -46,9 +47,13 @@ public class HistoryPhase extends BasePersistencePhase
 
         HistoryResponse historyResponse = new HistoryResponse();
         historyResponse.setEntries(entries.getItems());
-        historyResponse.setTotalCount(entries.getTotalCount());
-        historyResponse.setStart(entries.getStart());
-        historyResponse.setResponseCount(entries.getResponseCount());
+
+        Page page = new Page();
+        page.setTotalCount(entries.getTotalCount());
+        page.setStart(entries.getStart());
+        page.setResponseCount(entries.getResponseCount());
+
+        historyResponse.setPage(page);
 
         phaseContext.setResult(historyResponse);
 

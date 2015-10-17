@@ -1,5 +1,6 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
+import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
@@ -22,13 +23,9 @@ public class GetPhase extends BasePersistencePhase
 
         List converted = plugin.getPersistenceOperations().findByIds(ids, persistenceContext);
 
-        EntityResponse entityResponse = new EntityResponse();
-        entityResponse.setEntries(converted);
-        entityResponse.setResponseCount(converted.size());
-        entityResponse.setStart(1);
-        entityResponse.setTotalCount(new Long(converted.size()));
-
-        phaseContext.setResult(entityResponse);
+        EntityList entityList = new EntityList();
+        entityList.setEntries(converted);
+        phaseContext.setResult(entityList);
 
         EndpointResponse response = phaseContext.getEndpointResponse();
         response.setResponseCode(200);
