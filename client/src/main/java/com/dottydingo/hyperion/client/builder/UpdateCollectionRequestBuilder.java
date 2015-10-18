@@ -9,21 +9,19 @@ import java.util.List;
 
 /**
  */
-public class UpdateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
+public class UpdateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends Serializable>
+        extends UpdateRequestBuilder<T,ID>
 {
-    private List<T> entries;
 
     public UpdateCollectionRequestBuilder(int version, Class<T> objectType, String entityName, List<T> entries)
     {
-        super(version, objectType, entityName);
+        super(version, objectType, entityName, entries);
 
-        this.entries = entries;
-        setParameter("collection","true");
     }
 
     public UpdateCollectionRequestBuilder<T, ID> returnFields(String... fields)
     {
-        setParameter("fields",join(fields));
+        super.returnFields(fields);
         return this;
     }
 
@@ -69,20 +67,9 @@ public class UpdateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends S
         return this;
     }
 
-    @Override
-    public Request<T> build()
-    {
-        Request<T> request = super.build();
-        EntityList<T> entityResponse = new EntityList<>();
-        entityResponse.setEntries(entries);
-        request.setRequestBody(entityResponse);
-        request.setRequestMethod(RequestMethod.PUT);
-        return request;
-    }
-
     public List<T> execute(HyperionClient client)
     {
-        EntityList<T> entityResponse = client.updateCollection(build());
+        EntityList<T> entityResponse = client.update(build());
         return entityResponse.getEntries();
     }
 }

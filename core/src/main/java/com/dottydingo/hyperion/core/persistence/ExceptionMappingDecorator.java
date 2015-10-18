@@ -102,23 +102,6 @@ public class ExceptionMappingDecorator<C extends ApiObject<ID>, ID extends Seria
     }
 
     @Override
-    public C updateItem(ID id, C item, PersistenceContext context)
-    {
-        try
-        {
-            return delegate.updateItem(id, item, context);
-        }
-        catch (HyperionException e)
-        {
-            throw e;
-        }
-        catch (Exception e)
-        {
-            throw mapException(e, context);
-        }
-    }
-
-    @Override
     public int deleteItem(List<ID> ids, PersistenceContext context)
     {
         try

@@ -117,19 +117,6 @@ public class TransactionalDecorator<C extends ApiObject<ID>, ID extends Serializ
     }
 
     @Override
-    public C updateItem(final ID id, final C item, final PersistenceContext context)
-    {
-        return readWriteTransactionTemplate.execute(new MappingExceptionCallback<C>()
-        {
-            @Override
-            public C doInTransactionInternal(TransactionStatus status)
-            {
-                return delegate.updateItem(id, item, context);
-            }
-        });
-    }
-
-    @Override
     public int deleteItem(final List<ID> ids, final PersistenceContext context)
     {
         return readWriteTransactionTemplate.execute(new MappingExceptionCallback<Integer>()

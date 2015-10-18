@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.api.Endpoint;
 import com.dottydingo.hyperion.client.builder.query.QueryExpression;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,14 +31,14 @@ public class RequestFactory<T extends ApiObject<ID>,ID extends Serializable>
         this.entityName = entityName;
     }
 
-    public CreateRequestBuilder<T,ID> create(T item)
+    public CreateSingleRequestBuilder<T,ID> create(T item)
     {
-        return new CreateRequestBuilder<T, ID>(version,type,entityName,item);
+        return new CreateSingleRequestBuilder<>(version,type,entityName,item);
     }
 
     public CreateCollectionRequestBuilder<T,ID> create(List<T> items)
     {
-        return new CreateCollectionRequestBuilder<T, ID>(version,type,entityName,items);
+        return new CreateCollectionRequestBuilder<T,ID>(version,type,entityName,items);
     }
 
     public DeleteRequestBuilder<T,ID> delete(ID... ids)
@@ -70,9 +71,9 @@ public class RequestFactory<T extends ApiObject<ID>,ID extends Serializable>
         return new GetRequestBuilder<T, ID>(version,type,entityName,ids);
     }
 
-    public UpdateRequestBuilder<T,ID> update(T item)
+    public UpdateSingleRequestBuilder<T,ID> update(T item)
     {
-        return new UpdateRequestBuilder<T, ID>(version,type,entityName,item);
+        return new UpdateSingleRequestBuilder<>(version,type,entityName,item);
     }
 
     public UpdateCollectionRequestBuilder<T,ID> update(List<T> items)

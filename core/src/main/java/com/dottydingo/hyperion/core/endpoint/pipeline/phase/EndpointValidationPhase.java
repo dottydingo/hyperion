@@ -232,9 +232,8 @@ public class EndpointValidationPhase extends BaseHyperionPhase
             case DELETE:
                 return (requestResult.getId() != null && !requestResult.isHistory());
             case POST:
-                return (requestResult.getId() == null && !requestResult.isHistory());
             case PUT:
-                return (!requestResult.isHistory());
+                return (requestResult.getId() == null && !requestResult.isHistory());
             case GET:
                 return (requestResult.isHistory() && requestResult.getId() != null) || !requestResult.isHistory();
             case OPTIONS:

@@ -289,8 +289,7 @@ public class DefaultPersistenceOperations<C extends ApiObject<ID>, P extends Per
             return dao.reset(existing);
     }
 
-    @Override
-    public C updateItem(ID id, C item, PersistenceContext context)
+    protected C updateItem(ID id, C item, PersistenceContext context)
     {
         ApiVersionPlugin<C,P,ID> apiVersionPlugin = context.getApiVersionPlugin();
 

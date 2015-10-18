@@ -125,10 +125,10 @@ public class HyperionClient
         this.maxLoggedBodySize = maxLoggedBodySize;
     }
 
-    public <T extends ApiObject> EntityResponse<T> get(Request<T> request)
+    public <T extends ApiObject> EntityList<T> get(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
-                .constructParametricType(EntityResponse.class, request.getEntityType()));
+                .constructParametricType(EntityList.class, request.getEntityType()));
     }
 
     public <T extends ApiObject> EntityResponse<T> query(Request<T> request)
@@ -144,27 +144,18 @@ public class HyperionClient
         return response.getCount();
     }
 
-    public <T extends ApiObject> T create(Request<T> request)
-    {
-        return executeRequest(request,objectMapper.getTypeFactory().constructType(request.getEntityType()));
-    }
-
-    public <T extends ApiObject> EntityList<T> createCollection(Request<T> request)
+    public <T extends ApiObject> EntityList<T> create(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
                 .constructParametricType(EntityList.class, request.getEntityType()));
     }
 
-    public <T extends ApiObject> T update(Request<T> request)
-    {
-        return executeRequest(request, objectMapper.getTypeFactory().constructType(request.getEntityType()));
-    }
-
-    public <T extends ApiObject> EntityList<T> updateCollection(Request<T> request)
+    public <T extends ApiObject> EntityList<T> update(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
                 .constructParametricType(EntityList.class, request.getEntityType()));
     }
+
     protected <R> R executeRequest(Request request, JavaType javaType)
     {
         long start = System.currentTimeMillis();

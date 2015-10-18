@@ -35,50 +35,6 @@ public class CreatePhase extends BasePersistencePhase
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
-        boolean isCollection = isCollection(phaseContext);
-
-        if(isCollection)
-            processCollection(phaseContext);
-        else
-            processSingle(phaseContext);
-
-    }
-
-    private void processSingle(HyperionContext phaseContext)
-    {
-        EndpointRequest request = phaseContext.getEndpointRequest();
-        EndpointResponse response = phaseContext.getEndpointResponse();
-
-        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
-        EntityPlugin plugin = phaseContext.getEntityPlugin();
-
-        ApiObject clientObject = null;
-        try
-        {
-            clientObject = marshaller.unmarshall(request.getInputStream(),apiVersionPlugin.getApiClass());
-        }
-        catch (MarshallingException e)
-        {
-            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST,phaseContext.getLocale(),e.getMessage()),e);
-        }
-        clientObject.setId(null);
-
-        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
-        Set<String> fieldSet = persistenceContext.getRequestedFields();
-        if(fieldSet != null)
-            fieldSet.add("id");
-
-        ApiObject saved = (ApiObject) plugin.getPersistenceOperations().createOrUpdateItems(
-                Collections.singletonList(clientObject),
-                persistenceContext).get(0);
-
-        processChangeEvents(phaseContext, persistenceContext);
-        response.setResponseCode(200);
-        phaseContext.setResult(saved);
-    }
-
-    private void processCollection(HyperionContext phaseContext)
-    {
         EndpointRequest request = phaseContext.getEndpointRequest();
 
         ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
@@ -111,6 +67,5 @@ public class CreatePhase extends BasePersistencePhase
         EntityList<ApiObject> entityResponse = new EntityList<>();
         entityResponse.setEntries(saved);
         phaseContext.setResult(entityResponse);
-
     }
 }

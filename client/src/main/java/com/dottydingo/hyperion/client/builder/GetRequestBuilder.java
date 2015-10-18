@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.client.*;
 
@@ -75,7 +76,7 @@ public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> 
         return request;
     }
 
-    public EntityResponse<T> execute(HyperionClient client)
+    public EntityList<T> execute(HyperionClient client)
     {
         return client.get(build());
     }

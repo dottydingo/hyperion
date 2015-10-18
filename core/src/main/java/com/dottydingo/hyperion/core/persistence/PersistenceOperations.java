@@ -20,8 +20,6 @@ public interface PersistenceOperations<C extends ApiObject<ID>, ID extends Seria
 
     List<C> updateItems(List<C> clientItems, PersistenceContext context);
 
-    C updateItem(ID id, C item, PersistenceContext context);
-
     int deleteItem(List<ID> ids, PersistenceContext context);
 
     QueryResult<HistoryEntry> getHistory(ID id,Integer start, Integer limit,PersistenceContext context);

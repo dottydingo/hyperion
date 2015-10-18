@@ -34,65 +34,10 @@ public class UpdatePhase extends BasePersistencePhase
     @Override
     protected void executePhase(HyperionContext phaseContext) throws Exception
     {
-        boolean isCollection = isCollection(phaseContext);
-        if(isCollection)
-            processCollection((phaseContext));
-        else
-            processSingleItem(phaseContext);
-    }
-
-    private void processSingleItem(HyperionContext phaseContext)
-    {
-        EndpointRequest request = phaseContext.getEndpointRequest();
-        EndpointResponse response = phaseContext.getEndpointResponse();
-
-        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
-        EntityPlugin plugin = phaseContext.getEntityPlugin();
-
-        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
-
-        Set<String> fieldSet = persistenceContext.getRequestedFields();
-        if(fieldSet != null)
-            fieldSet.add("id");
-
-        RequestContext<ApiObject<Serializable>> requestContext = null;
-        try
-        {
-            requestContext = marshaller.unmarshallWithContext(request.getInputStream(), apiVersionPlugin.getApiClass());
-        }
-        catch (MarshallingException e)
-        {
-            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST, phaseContext.getLocale(),
-                    e.getMessage()),e);
-        }
-        ApiObject clientObject = requestContext.getRequestObject();
-
-        List<Serializable> ids = convertIds(phaseContext, plugin);
-        if(ids.size() != 1)
-            throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
-
-        persistenceContext.setProvidedFields(requestContext.getProvidedFields());
-
-
-        ApiObject saved = plugin.getPersistenceOperations().updateItem(ids.get(0), clientObject, persistenceContext);
-
-        processChangeEvents(phaseContext,persistenceContext);
-
-        response.setResponseCode(200);
-        phaseContext.setResult(saved);
-
-    }
-
-    private void processCollection(HyperionContext phaseContext)
-    {
         EndpointRequest request = phaseContext.getEndpointRequest();
 
         ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
         EntityPlugin plugin = phaseContext.getEntityPlugin();
-
-        List<Serializable> ids = convertIds(phaseContext, plugin);
-        if(ids.size() > 0)
-            throw new BadRequestException(messageSource.getErrorMessage(ERROR_SINGLE_ID_REQUIRED,phaseContext.getLocale()));
 
         PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
 
@@ -127,4 +72,5 @@ public class UpdatePhase extends BasePersistencePhase
         entityResponse.setEntries(saved);
         phaseContext.setResult(entityResponse);
     }
+
 }

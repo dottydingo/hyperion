@@ -2,27 +2,26 @@ package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.EntityList;
-import com.dottydingo.hyperion.client.*;
+import com.dottydingo.hyperion.client.HeaderFactory;
+import com.dottydingo.hyperion.client.HyperionClient;
+import com.dottydingo.hyperion.client.ParameterFactory;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
  */
-public class CreateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
+public class CreateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends Serializable>  extends CreateRequestBuilder<T,ID>
 {
-    private List<T> entries;
-
     public CreateCollectionRequestBuilder(int version, Class<T> objectType, String entityName, List<T> entries)
     {
-        super(version, objectType, entityName);
-        this.entries = entries;
-        setParameter("collection","true");
+        super(version, objectType, entityName, entries);
     }
 
+    @Override
     public CreateCollectionRequestBuilder<T, ID> returnFields(String... fields)
     {
-        setParameter("fields",join(fields));
+        super.returnFields(fields);
         return this;
     }
 
@@ -68,20 +67,9 @@ public class CreateCollectionRequestBuilder<T extends ApiObject<ID>,ID extends S
         return this;
     }
 
-    @Override
-    public Request<T> build()
-    {
-        Request<T> request = super.build();
-        EntityList<T> entityResponse = new EntityList<>();
-        entityResponse.setEntries(entries);
-        request.setRequestBody(entityResponse);
-        request.setRequestMethod(RequestMethod.POST);
-        return request;
-    }
-
     public List<T> execute(HyperionClient client)
     {
-        EntityList<T> response = client.createCollection(build());
+        EntityList<T> response = client.create(build());
         return response.getEntries();
     }
 }
