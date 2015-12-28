@@ -50,8 +50,8 @@
         <spring.version>4.1.4.RELEASE</spring.version>
         <jackson.version>2.5.0</jackson.version>
         <hibernate.version>4.3.8.Final</hibernate.version>
-        <endpoint.version>1.3.0-SNAPSHOT</endpoint.version>
-        <pipeline.version>1.1.0-SNAPSHOT</pipeline.version>
+        <endpoint.version>1.3.0</endpoint.version>
+        <pipeline.version>1.1.0</pipeline.version>
         <tracelog.version>1.1.0</tracelog.version>
         <slf4j.version>1.7.12</slf4j.version>
         <java.source.version>1.7</java.source.version>
