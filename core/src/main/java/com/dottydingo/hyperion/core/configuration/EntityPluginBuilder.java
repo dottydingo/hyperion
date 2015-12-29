@@ -49,18 +49,18 @@ public class EntityPluginBuilder
 
     protected CreateKeyProcessor defaultCreateKeyProcessor;
 
-    protected List<PersistentChangeListener> persistentChangeListeners = Collections.emptyList();
-    protected List<EntityChangeListener> entityChangeListeners = Collections.emptyList();
+    protected List<PersistentChangeListener> persistentChangeListeners = new ArrayList<>();
+    protected List<EntityChangeListener> entityChangeListeners = new ArrayList<>();
 
-    protected Map<String,EntitySortBuilder> defaultSortBuilders = Collections.emptyMap();
-    protected Map<String,EntityQueryBuilder> defaultQueryBuilders = Collections.emptyMap();
+    protected Map<String,EntitySortBuilder> defaultSortBuilders = new HashMap<>();
+    protected Map<String,EntityQueryBuilder> defaultQueryBuilders = new HashMap<>();
 
-    protected Map<String,EntitySortBuilder> overrideSortBuilders = Collections.emptyMap();
-    protected Map<String,EntityQueryBuilder> overrideQueryBuilders = Collections.emptyMap();
+    protected Map<String,EntitySortBuilder> overrideSortBuilders = new HashMap<>();
+    protected Map<String,EntityQueryBuilder> overrideQueryBuilders = new HashMap<>();
 
     protected String[] additionalParameters = new String[0];
 
-    protected List<ApiVersionPluginBuilder> versions;
+    protected List<ApiVersionPluginBuilder> versions = new ArrayList<>();
 
 
     public EntityPlugin build(ServiceRegistryBuilder serviceRegistryBuilder) throws Exception
@@ -204,9 +204,10 @@ public class EntityPluginBuilder
      * Set the endpoint name for the entity
      * @param endpointName the endpoint name
      */
-    public void setEndpointName(String endpointName)
+    public EntityPluginBuilder setEndpointName(String endpointName)
     {
         this.endpointName = endpointName;
+        return this;
     }
 
     protected Class<? extends PersistentObject> getEntityClass()
@@ -218,9 +219,10 @@ public class EntityPluginBuilder
      * Set the entity persistent object type
      * @param entityClass the entity persistent object type
      */
-    public void setEntityClass(Class<? extends PersistentObject> entityClass)
+    public EntityPluginBuilder setEntityClass(Class<? extends PersistentObject> entityClass)
     {
         this.entityClass = entityClass;
+        return this;
     }
 
     protected KeyConverter getKeyConverter()
@@ -232,9 +234,10 @@ public class EntityPluginBuilder
      * Set the key converter for the entity
      * @param keyConverter the key converter
      */
-    public void setKeyConverter(KeyConverter keyConverter)
+    public EntityPluginBuilder setKeyConverter(KeyConverter keyConverter)
     {
         this.keyConverter = keyConverter;
+        return this;
     }
 
     protected HttpMethod[] getLimitMethods()
@@ -246,9 +249,10 @@ public class EntityPluginBuilder
      * Set the methods that will be allowed on the endpoint. No setting this enables all request methods.
      * @param limitMethods The methods
      */
-    public void setLimitMethods(HttpMethod[] limitMethods)
+    public EntityPluginBuilder setLimitMethods(HttpMethod... limitMethods)
     {
         this.limitMethods = limitMethods;
+        return this;
     }
 
     protected int getCacheMaxAge()
@@ -260,9 +264,10 @@ public class EntityPluginBuilder
      * Set the maximum cache age to set for this entity. Defaults to 0.
      * @param cacheMaxAge the maximum cache age
      */
-    public void setCacheMaxAge(int cacheMaxAge)
+    public EntityPluginBuilder setCacheMaxAge(int cacheMaxAge)
     {
         this.cacheMaxAge = cacheMaxAge;
+        return this;
     }
 
     protected PersistenceOperations getPersistenceOperations()
@@ -274,9 +279,10 @@ public class EntityPluginBuilder
      * Set the persistence operations instance to use for this entity
      * @param persistenceOperations the persistence operations instance
      */
-    public void setPersistenceOperations(PersistenceOperations persistenceOperations)
+    public EntityPluginBuilder setPersistenceOperations(PersistenceOperations persistenceOperations)
     {
         this.persistenceOperations = persistenceOperations;
+        return this;
     }
 
     protected Dao getDao()
@@ -288,9 +294,10 @@ public class EntityPluginBuilder
      * Set the Dao to use for this entity
      * @param dao the dao
      */
-    public void setDao(Dao dao)
+    public EntityPluginBuilder setDao(Dao dao)
     {
         this.dao = dao;
+        return this;
     }
 
     protected PersistenceFilter<PersistentObject> getPersistenceFilter()
@@ -302,9 +309,10 @@ public class EntityPluginBuilder
      * Set the persistence filter to use for this entity
      * @param persistenceFilter the persistence filter
      */
-    public void setPersistenceFilter(PersistenceFilter<PersistentObject> persistenceFilter)
+    public EntityPluginBuilder setPersistenceFilter(PersistenceFilter<PersistentObject> persistenceFilter)
     {
         this.persistenceFilter = persistenceFilter;
+        return this;
     }
 
     protected CreateKeyProcessor getDefaultCreateKeyProcessor()
@@ -317,9 +325,10 @@ public class EntityPluginBuilder
      * used unless one is specified for a specific version.
      * @param defaultCreateKeyProcessor the create key processor
      */
-    public void setDefaultCreateKeyProcessor(CreateKeyProcessor defaultCreateKeyProcessor)
+    public EntityPluginBuilder setDefaultCreateKeyProcessor(CreateKeyProcessor defaultCreateKeyProcessor)
     {
         this.defaultCreateKeyProcessor = defaultCreateKeyProcessor;
+        return this;
     }
 
     protected List<PersistentChangeListener> getPersistentChangeListeners()
@@ -332,9 +341,10 @@ public class EntityPluginBuilder
      * persistentChangeListeners specified at the registry level.
      * @param persistentChangeListeners the entity change listeners
      */
-    public void setPersistentChangeListeners(List<PersistentChangeListener> persistentChangeListeners)
+    public EntityPluginBuilder setPersistentChangeListeners(List<PersistentChangeListener> persistentChangeListeners)
     {
         this.persistentChangeListeners = persistentChangeListeners;
+        return this;
     }
 
     protected List<EntityChangeListener> getEntityChangeListeners()
@@ -347,9 +357,10 @@ public class EntityPluginBuilder
      * persistentChangeListeners specified at the registry level.
      * @param entityChangeListeners the entity change listeners
      */
-    public void setEntityChangeListeners(List<EntityChangeListener> entityChangeListeners)
+    public EntityPluginBuilder setEntityChangeListeners(List<EntityChangeListener> entityChangeListeners)
     {
         this.entityChangeListeners = entityChangeListeners;
+        return this;
     }
 
     protected List<ApiVersionPluginBuilder> getVersions()
@@ -371,6 +382,12 @@ public class EntityPluginBuilder
         this.defaultSortBuilders = defaultSortBuilders;
     }
 
+    public EntityPluginBuilder addDefaultSortBuilder(String name,EntitySortBuilder builder)
+    {
+        defaultSortBuilders.put(name,builder);
+        return this;
+    }
+
     protected Map<String, EntityQueryBuilder> getDefaultQueryBuilders()
     {
         return defaultQueryBuilders;
@@ -383,6 +400,12 @@ public class EntityPluginBuilder
     public void setDefaultQueryBuilders(Map<String, EntityQueryBuilder> defaultQueryBuilders)
     {
         this.defaultQueryBuilders = defaultQueryBuilders;
+    }
+
+    public EntityPluginBuilder addDefaultQueryBuilder(String name,EntityQueryBuilder builder)
+    {
+        defaultQueryBuilders.put(name,builder);
+        return this;
     }
 
     public Map<String, EntitySortBuilder> getOverrideSortBuilders()
@@ -399,6 +422,12 @@ public class EntityPluginBuilder
         this.overrideSortBuilders = overrideSortBuilders;
     }
 
+    public EntityPluginBuilder addOverrideSortBuilder(String name,EntitySortBuilder builder)
+    {
+        overrideSortBuilders.put(name,builder);
+        return this;
+    }
+
     public Map<String, EntityQueryBuilder> getOverrideQueryBuilders()
     {
         return overrideQueryBuilders;
@@ -408,9 +437,14 @@ public class EntityPluginBuilder
      * Set the override query builders be to used across all versions of the entity
      * @param overrideQueryBuilders the query builders
      */
-    public void setOverrideQueryBuilders(Map<String, EntityQueryBuilder> overrideQueryBuilders)
     {
         this.overrideQueryBuilders = overrideQueryBuilders;
+    }
+
+    public EntityPluginBuilder addOverrideQueryBuilder(String name,EntityQueryBuilder builder)
+    {
+        overrideQueryBuilders.put(name,builder);
+        return this;
     }
 
     /**
@@ -426,9 +460,10 @@ public class EntityPluginBuilder
      * Set the history type to use. Must be specified if history is enabled.
      * @param historyType the type
      */
-    public void setHistoryType(Class<? extends PersistentHistoryEntry> historyType)
+    public EntityPluginBuilder setHistoryType(Class<? extends PersistentHistoryEntry> historyType)
     {
         this.historyType = historyType;
+        return this;
     }
 
     /**
@@ -440,12 +475,19 @@ public class EntityPluginBuilder
         this.versions = versions;
     }
 
+    public EntityPluginBuilder addVersion(ApiVersionPluginBuilder versionPluginBuilder)
+    {
+        versions.add(versionPluginBuilder);
+        return this;
+    }
+
     /**
      * Set any additional parameters that should be captured from the request
      * @param additionalParameters The additional parameters
      */
-    public void setAdditionalParameters(String[] additionalParameters)
+    public EntityPluginBuilder setAdditionalParameters(String... additionalParameters)
     {
         this.additionalParameters = additionalParameters;
+        return this;
     }
 }

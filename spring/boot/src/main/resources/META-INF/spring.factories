@@ -1,0 +1,4 @@
+# Initializers
+
+org.springframework.boot.SpringApplicationRunListener=\
+com.dottydingo.hyperion.spring.boot.HyperionInitializer

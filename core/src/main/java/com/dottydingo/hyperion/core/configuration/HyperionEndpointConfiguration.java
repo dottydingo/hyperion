@@ -17,6 +17,7 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     protected boolean trackProvidedFieldsOnUpdate = false;
     protected boolean requireValidVersion = false;
     protected int writeLimit;
+    protected String endpointPath;
 
     public String getVersionParameterName()
     {
@@ -126,6 +127,16 @@ public class HyperionEndpointConfiguration extends EndpointConfiguration
     public void setWriteLimit(int writeLimit)
     {
         this.writeLimit = writeLimit;
+    }
+
+    public String getEndpointPath()
+    {
+        return endpointPath;
+    }
+
+    public void setEndpointPath(String endpointPath)
+    {
+        this.endpointPath = endpointPath;
     }
 }
 

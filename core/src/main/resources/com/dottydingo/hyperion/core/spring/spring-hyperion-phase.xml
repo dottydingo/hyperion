@@ -66,11 +66,11 @@
     </bean>
 
     <bean id="hyperionMessageSource" class="com.dottydingo.hyperion.core.message.HyperionMessageSource" init-method="init">
-        <property name="defaultEncoding" value="${message.defaultEncoding}"/>
-        <property name="baseErrorResourceBundles" value="${message.error.baseBundles}"/>
-        <property name="additionalErrorResourceBundles" value="${message.error.additionalBundles}"/>
-        <property name="baseValidationResourceBundles" value="${message.validation.baseBundles}"/>
-        <property name="additionalValidationResourceBundles" value="${message.validation.additionalBundles}"/>
+        <property name="defaultEncoding" value="${hyperion.message.defaultEncoding}"/>
+        <property name="baseErrorResourceBundles" value="${hyperion.message.error.baseBundles}"/>
+        <property name="additionalErrorResourceBundles" value="${hyperion.message.error.additionalBundles}"/>
+        <property name="baseValidationResourceBundles" value="${hyperion.message.validation.baseBundles}"/>
+        <property name="additionalValidationResourceBundles" value="${hyperion.message.validation.additionalBundles}"/>
     </bean>
 
 </beans>

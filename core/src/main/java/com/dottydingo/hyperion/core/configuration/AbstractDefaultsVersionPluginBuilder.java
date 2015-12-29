@@ -1,7 +1,11 @@
 package com.dottydingo.hyperion.core.configuration;
 
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.core.persistence.CreateKeyProcessor;
 import com.dottydingo.hyperion.core.registry.EntityQueryBuilder;
 import com.dottydingo.hyperion.core.registry.EntitySortBuilder;
+import com.dottydingo.hyperion.core.translation.Translator;
+import com.dottydingo.hyperion.core.validation.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +27,10 @@ public abstract class AbstractDefaultsVersionPluginBuilder extends ApiVersionPlu
     protected String[] sortExcludeFields = new String[0];
     protected Map<String,String> sortFieldNameRemapping = new HashMap<String, String>();
 
-    public void setQueryExcludeFields(String[] queryExcludeFields)
+    public AbstractDefaultsVersionPluginBuilder setQueryExcludeFields(String... queryExcludeFields)
     {
         this.queryExcludeFields = queryExcludeFields;
+        return this;
     }
 
     public void setQueryFieldNameRemapping(Map<String, String> queryFieldNameRemapping)
@@ -33,14 +38,69 @@ public abstract class AbstractDefaultsVersionPluginBuilder extends ApiVersionPlu
         this.queryFieldNameRemapping = queryFieldNameRemapping;
     }
 
-    public void setSortExcludeFields(String[] sortExcludeFields)
+    public AbstractDefaultsVersionPluginBuilder addQueryFieldRemapping(String propertyName,String mappedPropertyName)
+    {
+        queryFieldNameRemapping.put(propertyName,mappedPropertyName);
+        return this;
+    }
+
+    public AbstractDefaultsVersionPluginBuilder setSortExcludeFields(String... sortExcludeFields)
     {
         this.sortExcludeFields = sortExcludeFields;
+        return this;
     }
 
     public void setSortFieldNameRemapping(Map<String, String> sortFieldNameRemapping)
     {
         this.sortFieldNameRemapping = sortFieldNameRemapping;
+    }
+
+    public AbstractDefaultsVersionPluginBuilder addSortFieldRemapping(String propertyName,String mappedPropertyName)
+    {
+        sortFieldNameRemapping.put(propertyName, mappedPropertyName);
+        return this;
+    }
+
+    @Override
+    public AbstractDefaultsVersionPluginBuilder setApiClass(Class<? extends ApiObject> apiClass)
+    {
+        super.setApiClass(apiClass);
+        return this;
+    }
+
+    @Override
+    public AbstractDefaultsVersionPluginBuilder setTranslator(Translator translator)
+    {
+        super.setTranslator(translator);
+        return this;
+    }
+
+    @Override
+    public AbstractDefaultsVersionPluginBuilder setValidator(Validator validator)
+    {
+        super.setValidator(validator);
+        return this;
+    }
+
+    @Override
+    public AbstractDefaultsVersionPluginBuilder addSortBuilder(String name, EntitySortBuilder builder)
+    {
+        super.addSortBuilder(name, builder);
+        return this;
+    }
+
+    @Override
+    public AbstractDefaultsVersionPluginBuilder addQueryBuilder(String name, EntityQueryBuilder builder)
+    {
+        super.addQueryBuilder(name, builder);
+        return this;
+    }
+
+    @Override
+    public AbstractDefaultsVersionPluginBuilder setCreateKeyProcessor(CreateKeyProcessor createKeyProcessor)
+    {
+        super.setCreateKeyProcessor(createKeyProcessor);
+        return this;
     }
 
     @Override

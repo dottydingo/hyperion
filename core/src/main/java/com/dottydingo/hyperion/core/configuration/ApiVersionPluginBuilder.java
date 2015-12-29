@@ -25,8 +25,8 @@ public class ApiVersionPluginBuilder
     protected Translator translator;
     protected Validator validator;
 
-    protected Map<String,EntitySortBuilder> sortBuilders = Collections.emptyMap();
-    protected Map<String,EntityQueryBuilder> queryBuilders = Collections.emptyMap();
+    protected Map<String,EntitySortBuilder> sortBuilders = new HashMap<>();
+    protected Map<String,EntityQueryBuilder> queryBuilders = new HashMap<>();
     protected CreateKeyProcessor createKeyProcessor;
 
     public ApiVersionPlugin build(EntityPluginBuilder entityPluginBuilder) throws Exception
@@ -102,27 +102,30 @@ public class ApiVersionPluginBuilder
      * Set the API class for this version
      * @param apiClass the API class
      */
-    public void setApiClass(Class<? extends ApiObject> apiClass)
+    public ApiVersionPluginBuilder setApiClass(Class<? extends ApiObject> apiClass)
     {
         this.apiClass = apiClass;
+        return this;
     }
 
     /**
      * Set the translator for this version
      * @param translator the translator
      */
-    public void setTranslator(Translator translator)
+    public ApiVersionPluginBuilder setTranslator(Translator translator)
     {
         this.translator = translator;
+        return this;
     }
 
     /**
      * Set the validator for this version
      * @param validator the validator
      */
-    public void setValidator(Validator validator)
+    public ApiVersionPluginBuilder setValidator(Validator validator)
     {
         this.validator = validator;
+        return this;
     }
 
     /**
@@ -134,6 +137,12 @@ public class ApiVersionPluginBuilder
         this.sortBuilders = sortBuilders;
     }
 
+    public ApiVersionPluginBuilder addSortBuilder(String name,EntitySortBuilder builder)
+    {
+        sortBuilders.put(name,builder);
+        return this;
+    }
+
     /**
      * Set the query builders for this version
      * @param queryBuilders the query builders
@@ -143,12 +152,19 @@ public class ApiVersionPluginBuilder
         this.queryBuilders = queryBuilders;
     }
 
+    public ApiVersionPluginBuilder addQueryBuilder(String name,EntityQueryBuilder builder)
+    {
+        queryBuilders.put(name,builder);
+        return this;
+    }
+
     /**
      * Set an optional create key processor for this version
      * @param createKeyProcessor the create key processor
      */
-    public void setCreateKeyProcessor(CreateKeyProcessor createKeyProcessor)
+    public ApiVersionPluginBuilder setCreateKeyProcessor(CreateKeyProcessor createKeyProcessor)
     {
         this.createKeyProcessor = createKeyProcessor;
+        return this;
     }
 }

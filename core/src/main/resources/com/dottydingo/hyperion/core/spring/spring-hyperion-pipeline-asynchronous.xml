@@ -9,7 +9,7 @@
                 <property name="nextPhase" ref="hyperionEndpointValidationExecutor"/>
             </bean>
         </property>
-        <property name="timeout" value="${endpoint.asynchronousTimeout}"/>
+        <property name="timeout" value="${hyperion.endpoint.asynchronousTimeout}"/>
     </bean>
 
     <bean id="hyperionBaseExecutor" class="com.dottydingo.service.endpoint.pipeline.EndpointAsynchronousExecutor" abstract="true">
@@ -35,13 +35,13 @@
     </bean>
 
     <bean id="hyperionEndpointValidationTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.endpointValidationPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.endpointValidationPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.endpointValidationPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.endpointValidationPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg >
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.endpointValidationPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.endpointValidationPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -72,13 +72,13 @@
     </bean>
 
     <bean id="hyperionQueryTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.queryPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.queryPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.queryPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.queryPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.queryPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.queryPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -101,13 +101,13 @@
     </bean>
 
     <bean id="hyperionGetTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.getPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.getPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.getPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.getPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.getPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.getPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -130,13 +130,13 @@
     </bean>
 
     <bean id="hyperionCreateTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.createPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.createPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.createPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.createPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.createPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.createPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -159,13 +159,13 @@
     </bean>
 
     <bean id="hyperionUpdateTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.updatePhase.minThreads}"/>
-        <constructor-arg value="${pipeline.updatePhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.updatePhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.updatePhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.updatePhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.updatePhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -188,13 +188,13 @@
     </bean>
 
     <bean id="hyperionDeleteTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.deletePhase.minThreads}"/>
-        <constructor-arg value="${pipeline.deletePhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.deletePhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.deletePhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.deletePhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.deletePhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -217,13 +217,13 @@
     </bean>
 
     <bean id="hyperionHistoryTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.historyPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.historyPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.historyPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.historyPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.historyPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.historyPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -247,13 +247,13 @@
     </bean>
 
     <bean id="hyperionOptionsTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.optionsPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.optionsPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.optionsPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.optionsPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg >
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.optionsPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.optionsPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg >
@@ -276,13 +276,13 @@
     </bean>
 
     <bean id="hyperionMarhallTpExecutor" class="java.util.concurrent.ThreadPoolExecutor" destroy-method="shutdown">
-        <constructor-arg value="${pipeline.responseMarshallerPhase.minThreads}"/>
-        <constructor-arg value="${pipeline.responseMarshallerPhase.maxThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.responseMarshallerPhase.minThreads}"/>
+        <constructor-arg value="${hyperion.pipeline.responseMarshallerPhase.maxThreads}"/>
         <constructor-arg value="60"/>
         <constructor-arg value="SECONDS"/>
         <constructor-arg>
             <bean class="java.util.concurrent.LinkedBlockingQueue">
-                <constructor-arg type="int" value="${pipeline.responseMarshallerPhase.maxQueueSize}"/>
+                <constructor-arg type="int" value="${hyperion.pipeline.responseMarshallerPhase.maxQueueSize}"/>
             </bean>
         </constructor-arg>
         <constructor-arg>

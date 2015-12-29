@@ -23,10 +23,10 @@ public class ServiceRegistryBuilder
     private Dao defaultDao;
     private Boolean defaultHistoryEnabled;
     private Class<? extends PersistentHistoryEntry> defaultHistoryType;
-    private List<PersistentChangeListener> persistentChangeListeners = Collections.emptyList();
-    private List<EntityChangeListener> entityChangeListeners = Collections.emptyList();
+    private List<PersistentChangeListener> persistentChangeListeners = new ArrayList<>();
+    private List<EntityChangeListener> entityChangeListeners = new ArrayList<>();
 
-    private List<EntityPluginBuilder> entities;
+    private List<EntityPluginBuilder> entities = new ArrayList<>();
 
     public ServiceRegistry build() throws Exception
     {
@@ -66,9 +66,10 @@ public class ServiceRegistryBuilder
      * that doesn't specify a key converter
      * @param defaultKeyConverter the key converter
      */
-    public void setDefaultKeyConverter(KeyConverter defaultKeyConverter)
+    public ServiceRegistryBuilder setDefaultKeyConverter(KeyConverter defaultKeyConverter)
     {
         this.defaultKeyConverter = defaultKeyConverter;
+        return this;
     }
 
     protected KeyConverter getDefaultKeyConverter()
@@ -81,9 +82,10 @@ public class ServiceRegistryBuilder
      * that doesn't specify a persistence operations instance
      * @param defaultPersistenceOperations the persistence operations instance
      */
-    public void setDefaultPersistenceOperations(PersistenceOperations defaultPersistenceOperations)
+    public ServiceRegistryBuilder setDefaultPersistenceOperations(PersistenceOperations defaultPersistenceOperations)
     {
         this.defaultPersistenceOperations = defaultPersistenceOperations;
+        return this;
     }
 
     protected PersistenceOperations getDefaultPersistenceOperations()
@@ -96,9 +98,10 @@ public class ServiceRegistryBuilder
      * a Dao instance.
      * @param defaultDao the dao
      */
-    public void setDefaultDao(Dao defaultDao)
+    public ServiceRegistryBuilder setDefaultDao(Dao defaultDao)
     {
         this.defaultDao = defaultDao;
+        return this;
     }
 
     protected Dao getDefaultDao()
@@ -110,9 +113,10 @@ public class ServiceRegistryBuilder
      * Set the transactional entity change listeners to apply to all entities
      * @param persistentChangeListeners The change listeners
      */
-    public void setPersistentChangeListeners(List<PersistentChangeListener> persistentChangeListeners)
+    public ServiceRegistryBuilder setPersistentChangeListeners(List<PersistentChangeListener> persistentChangeListeners)
     {
         this.persistentChangeListeners = persistentChangeListeners;
+        return this;
     }
 
     protected List<PersistentChangeListener> getPersistentChangeListeners()
@@ -124,9 +128,10 @@ public class ServiceRegistryBuilder
      * Set the post transaction entity change listeners to apply to all entities
      * @param entityChangeListeners the change listeners
      */
-    public void setEntityChangeListeners(List<EntityChangeListener> entityChangeListeners)
+    public ServiceRegistryBuilder setEntityChangeListeners(List<EntityChangeListener> entityChangeListeners)
     {
         this.entityChangeListeners = entityChangeListeners;
+        return this;
     }
 
     protected List<EntityChangeListener> getEntityChangeListeners()
@@ -144,9 +149,10 @@ public class ServiceRegistryBuilder
      * does not specify it explicitly.
      * @param defaultHistoryEnabled the flag
      */
-    public void setDefaultHistoryEnabled(Boolean defaultHistoryEnabled)
+    public ServiceRegistryBuilder setDefaultHistoryEnabled(Boolean defaultHistoryEnabled)
     {
         this.defaultHistoryEnabled = defaultHistoryEnabled;
+        return this;
     }
 
     protected Class<? extends PersistentHistoryEntry> getDefaultHistoryType()
@@ -159,9 +165,10 @@ public class ServiceRegistryBuilder
      * does not specify it explicitly.
      * @param defaultHistoryType the history entry type
      */
-    public void setDefaultHistoryType(Class<? extends PersistentHistoryEntry> defaultHistoryType)
+    public ServiceRegistryBuilder setDefaultHistoryType(Class<? extends PersistentHistoryEntry> defaultHistoryType)
     {
         this.defaultHistoryType = defaultHistoryType;
+        return this;
     }
 
     /**
@@ -171,5 +178,11 @@ public class ServiceRegistryBuilder
     public void setEntities(List<EntityPluginBuilder> entities)
     {
         this.entities = entities;
+    }
+
+    public ServiceRegistryBuilder addEntity(EntityPluginBuilder entityPluginBuilder)
+    {
+        entities.add(entityPluginBuilder);
+        return this;
     }
 }
