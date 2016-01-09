@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.core.translation;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
+import com.dottydingo.service.endpoint.context.UserContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,6 +124,12 @@ public class TranslatorTest
 
     private class TestAuthContext implements AuthorizationContext
     {
+        @Override
+        public UserContext getUserContext()
+        {
+            return null;
+        }
+
         @Override
         public boolean isAuthorized()
         {

@@ -11,7 +11,7 @@ public class AdminPersistenceContext extends PersistenceContext
     public AdminPersistenceContext(PersistenceContext other)
     {
         super(other);
-        setAuthorizationContext(new NoOpAuthorizationContext());
+        setAuthorizationContext(new NoOpAuthorizationContext(other.getUserContext()));
         setRequestedFields(null);
     }
 }

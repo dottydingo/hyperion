@@ -93,7 +93,7 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         persistenceContext.setEntity(entityPlugin.getEndpointName());
         persistenceContext.setHttpMethod(context.getEffectiveMethod());
         persistenceContext.setApiVersionPlugin(context.getVersionPlugin());
-        persistenceContext.setUserContext(context.getUserContext());
+        persistenceContext.setUserContext(context.getAuthorizationContext().getUserContext());
         persistenceContext.setRequestedFields(buildFieldSet(endpointRequest.getFirstParameter("fields")));
         persistenceContext.setAuthorizationContext(context.getAuthorizationContext());
         persistenceContext.setLocale(context.getLocale());

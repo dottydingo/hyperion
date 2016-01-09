@@ -10,6 +10,6 @@ public class NoOpAuthorizationProvider implements AuthorizationProvider
     @Override
     public AuthorizationContext authorize(HyperionContext context) throws AuthorizationException
     {
-        return new NoOpAuthorizationContext();
+        return new NoOpAuthorizationContext(context.getUserContext());
     }
 }
