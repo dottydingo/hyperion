@@ -7,17 +7,21 @@ import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
 import com.dottydingo.service.endpoint.CompletionCallback;
 import com.dottydingo.service.endpoint.context.EndpointResponse;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  */
 public class HyperionCompletionCallback implements CompletionCallback<HyperionContext>
 {
     private Logger logger = LoggerFactory.getLogger(HyperionCompletionCallback.class);
+    private DateTimeFormatter dateFormat = ISODateTimeFormat.basicDateTimeNoMillis();
 
     private EndpointMarshaller endpointMarshaller;
 
@@ -63,7 +67,9 @@ public class HyperionCompletionCallback implements CompletionCallback<HyperionCo
                 response.setContentType("application/json");
 
                 ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setRequestId(context.getRequestCorrelationId());
                 errorResponse.setStatusCode(response.getResponseCode());
+                errorResponse.setErrorTime(dateFormat.print(System.currentTimeMillis()));
                 errorResponse.setMessage(error.getMessage());
                 if (status == 500 || context.getShowErrorDetail())
                     errorResponse.setStackTrace(buildStackTrace(cause));

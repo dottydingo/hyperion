@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class HyperionException extends RuntimeException
 {
+    private String requestId;
+    private String errorTime;
     private int statusCode;
     private List<ErrorDetail> errorDetails;
 
@@ -35,6 +37,26 @@ public class HyperionException extends RuntimeException
     public void setStatusCode(int statusCode)
     {
         this.statusCode = statusCode;
+    }
+
+    public String getRequestId()
+    {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId)
+    {
+        this.requestId = requestId;
+    }
+
+    public String getErrorTime()
+    {
+        return errorTime;
+    }
+
+    public void setErrorTime(String errorTime)
+    {
+        this.errorTime = errorTime;
     }
 
     public List<ErrorDetail> getErrorDetails()

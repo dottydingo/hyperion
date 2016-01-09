@@ -312,6 +312,8 @@ public class HyperionClient
             }
 
             resolvedException.setErrorDetails(errorResponse.getErrorDetails());
+            resolvedException.setErrorTime(errorResponse.getErrorTime());
+            resolvedException.setRequestId(errorResponse.getRequestId());
         }
 
         if (resolvedException == null)

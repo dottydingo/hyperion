@@ -7,14 +7,26 @@ import java.util.List;
 /**
  *
  */
-@JsonPropertyOrder({"statusCode","type","message","errorDetail"})
+@JsonPropertyOrder({"requestId","statusCode","type","errorTime","message","errorDetail","stackTrace"})
 public class ErrorResponse
 {
+    private String requestId;
     private int statusCode;
+    private String errorTime;
     private String message;
     private String type;
     private List<ErrorDetail> errorDetails;
     private String stackTrace;
+
+    public String getRequestId()
+    {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId)
+    {
+        this.requestId = requestId;
+    }
 
     public int getStatusCode()
     {
@@ -24,6 +36,16 @@ public class ErrorResponse
     public void setStatusCode(int statusCode)
     {
         this.statusCode = statusCode;
+    }
+
+    public String getErrorTime()
+    {
+        return errorTime;
+    }
+
+    public void setErrorTime(String errorTime)
+    {
+        this.errorTime = errorTime;
     }
 
     public String getMessage()
