@@ -45,7 +45,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         AuthorizationContext authorizationContext = context.getAuthorizationContext();
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            if(authorizationContext.isWritable(mapper.getClientFieldName()))
+            if(authorizationContext.isWritableOnCreate(client,mapper.getClientFieldName()))
                 mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context);
         }
 
@@ -75,7 +75,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         AuthorizationContext authorizationContext = context.getAuthorizationContext();
         for (FieldMapper mapper : fieldMapperMap.values())
         {
-            if(authorizationContext.isWritable(mapper.getClientFieldName())
+            if(authorizationContext.isWritableOnUpdate(client, persistent,mapper.getClientFieldName())
                     && mapper.convertToPersistent(clientObjectWrapper,persistentObjectWrapper,context))
             {
                 dirty = true;
@@ -112,7 +112,7 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
         for (Map.Entry<String, FieldMapper> entry : fieldMapperMap.entrySet())
         {
             if((requestedFields == null || requestedFields.contains(entry.getKey()))
-                    && authorizationContext.isReadable(entry.getKey()))
+                    && authorizationContext.isReadable(persistent,entry.getKey()))
             {
 
                 entry.getValue().convertToClient(persistentObjectWrapper,clientObjectWrapper,context);

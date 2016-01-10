@@ -6,6 +6,7 @@ import com.dottydingo.hyperion.api.exception.InternalException;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
 import com.dottydingo.hyperion.core.endpoint.marshall.MarshallingException;
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
+import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 
@@ -57,7 +58,18 @@ public class HistorySerializer
                     context.getLocale(), context.getEntity()));
         }
 
-        C copy = beanFilter.copy(apiEntry,context.getAuthorizationContext());
+        // recreate the persistent object for filtering
+        PersistentObject persistentObject;
+        try
+        {
+            persistentObject = savedVersion.getTranslator().convertClient(apiEntry,context);
+        }
+        catch (Exception e)
+        {
+            throw new InternalException(context.getMessageSource().getErrorMessage(READING_HISTORY,
+                    context.getLocale(), context.getEntity()));
+        }
+        C copy = beanFilter.copy(apiEntry,persistentObject,context.getAuthorizationContext());
         return copy;
     }
 

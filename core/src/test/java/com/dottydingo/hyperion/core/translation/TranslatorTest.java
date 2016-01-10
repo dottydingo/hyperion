@@ -1,5 +1,7 @@
 package com.dottydingo.hyperion.core.translation;
 
+import com.dottydingo.hyperion.core.endpoint.pipeline.auth.NoOpAuthorizationContext;
+import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
@@ -25,7 +27,7 @@ public class TranslatorTest
                 SimplePersistentObject.class);
         translator.init();
         context = new PersistenceContext();
-        context.setAuthorizationContext(new TestAuthContext());
+        context.setAuthorizationContext(new NoOpAuthorizationContext(null));
         context.setEntityPlugin(new EntityPlugin());
     }
 
@@ -120,32 +122,5 @@ public class TranslatorTest
         Assert.assertEquals(new Integer(5),clientObject.getNumber());
         Assert.assertNull(clientObject.getDifferentType());
         Assert.assertNull(clientObject.getClientOnly());
-    }
-
-    private class TestAuthContext implements AuthorizationContext
-    {
-        @Override
-        public UserContext getUserContext()
-        {
-            return null;
-        }
-
-        @Override
-        public boolean isAuthorized()
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isReadable(String propertyName)
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isWritable(String propertyName)
-        {
-            return true;
-        }
     }
 }

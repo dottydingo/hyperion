@@ -1,5 +1,7 @@
 package com.dottydingo.hyperion.core.endpoint.pipeline.auth;
 
+import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.service.endpoint.context.UserContext;
 
 /**
@@ -26,13 +28,19 @@ public class NoOpAuthorizationContext implements AuthorizationContext
     }
 
     @Override
-    public boolean isReadable(String propertyName)
+    public boolean isReadable(PersistentObject persistent, String propertyName)
     {
         return true;
     }
 
     @Override
-    public boolean isWritable(String propertyName)
+    public boolean isWritableOnCreate(ApiObject client, String propertyName)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isWritableOnUpdate(ApiObject client, PersistentObject persistent, String propertyName)
     {
         return true;
     }

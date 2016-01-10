@@ -12,6 +12,7 @@ import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationProvider
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.core.endpoint.status.ServiceStatus;
 import com.dottydingo.service.endpoint.context.EndpointRequest;
+import com.dottydingo.service.endpoint.context.UserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,6 +158,11 @@ public class EndpointValidationPhase extends BaseHyperionPhase
 
         AuthorizationContext authorizationContext = authorizationProvider.authorize(phaseContext);
         phaseContext.setAuthorizationContext(authorizationContext);
+
+        // if a user context is returned with the authorization context then override the original user context
+        UserContext authUserContext = authorizationContext.getUserContext();
+        if(authUserContext != null )
+            phaseContext.setUserContext(authUserContext);
 
         if(!authorizationContext.isAuthorized())
             throw new AuthorizationException(messageSource.getErrorMessage(NOT_AUTHORIZED,phaseContext.getLocale()));

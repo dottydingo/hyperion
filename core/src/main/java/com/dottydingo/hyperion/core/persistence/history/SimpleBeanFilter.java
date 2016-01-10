@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.core.persistence.history;
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.exception.InternalException;
 import com.dottydingo.hyperion.core.endpoint.pipeline.auth.AuthorizationContext;;
+import com.dottydingo.hyperion.core.model.PersistentObject;
 import net.sf.cglib.beans.BeanMap;
 
 import java.util.HashMap;
@@ -15,14 +16,14 @@ public class SimpleBeanFilter
 {
     private Map<Class,BeanMap> beanMapMap = new HashMap<Class, BeanMap>();
 
-    public <C extends ApiObject> C copy(C original, AuthorizationContext authorizationContext)
+    public <C extends ApiObject> C copy(C original, PersistentObject persistentObject, AuthorizationContext authorizationContext)
     {
         C copy = (C) createInstance(original.getClass());
         BeanMap beanMap = getBeanMap(copy);
         Set<String> set = beanMap.keySet();
         for (String propertyName : set)
         {
-            if(authorizationContext.isReadable(propertyName))
+            if(authorizationContext.isReadable(persistentObject,propertyName))
                 beanMap.put(copy,propertyName,beanMap.get(original,propertyName));
         }
 
