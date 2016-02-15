@@ -3,8 +3,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        ">
 
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
-
     <bean id="hyperionHistorySerializer" class="com.dottydingo.hyperion.core.persistence.history.HistorySerializer">
         <property name="endpointMarshaller" ref="hyperionEndpointMarshaller"/>
     </bean>

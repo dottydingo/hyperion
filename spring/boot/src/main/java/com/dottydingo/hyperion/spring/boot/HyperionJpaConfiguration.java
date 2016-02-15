@@ -14,6 +14,7 @@ import javax.servlet.Servlet;
  */
 @Configuration
 @ImportResource({
+        "classpath:com/dottydingo/hyperion/spring/boot/spring-hyperion-boot.xml",
         "classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-data.xml",
         "classpath:com/dottydingo/hyperion/jpa/spring/spring-hyperion-data-jpa.xml",
         "classpath:com/dottydingo/hyperion/core/spring/spring-hyperion-endpoint.xml",
