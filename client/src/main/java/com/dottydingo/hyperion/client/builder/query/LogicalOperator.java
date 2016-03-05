@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client.builder.query;
 
 /**
+ * Logical operators
  */
 public enum LogicalOperator
 {

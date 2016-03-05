@@ -11,9 +11,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * A request builder for creating a single item
  */
 public class CreateSingleRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends CreateRequestBuilder<T,ID>
 {
+    /**
+     * Create the request builder using the specified parameters
+     * @param version The entity version
+     * @param objectType The API type
+     * @param entityName The entity name
+     * @param entry The entry to create
+     */
     public CreateSingleRequestBuilder(int version, Class<T> objectType, String entityName, T entry)
     {
         super(version, objectType, entityName, Collections.singletonList(entry));
@@ -68,6 +76,11 @@ public class CreateSingleRequestBuilder<T extends ApiObject<ID>,ID extends Seria
         return this;
     }
 
+    /**
+     * Execute the request using the supplied client
+     * @param client the client
+     * @return The request
+     */
     public T execute(HyperionClient client)
     {
         EntityList<T> response = client.create(build());

@@ -6,11 +6,19 @@ import com.dottydingo.hyperion.client.*;
 import java.io.Serializable;
 
 /**
+ * A request builder for deletes
  */
 public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
     private ID[] ids;
 
+    /**
+     * Create the request builder using the specified parameters
+     * @param version The entity version
+     * @param objectType The API type
+     * @param entityName The entity name
+     * @param ids The ids to delete
+     */
     public DeleteRequestBuilder(int version, Class<T> objectType, String entityName, ID[] ids)
     {
         super(version, objectType, entityName);
@@ -68,6 +76,11 @@ public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
         return request;
     }
 
+    /**
+     * Execute the request using the supplied client
+     * @param client the client
+     * @return The request
+     */
     public int execute(HyperionClient client)
     {
         return client.delete(build());

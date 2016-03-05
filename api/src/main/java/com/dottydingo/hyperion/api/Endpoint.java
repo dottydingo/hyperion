@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * An endpoint
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

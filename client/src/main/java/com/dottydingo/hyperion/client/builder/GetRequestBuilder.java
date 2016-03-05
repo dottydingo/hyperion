@@ -8,17 +8,30 @@ import com.dottydingo.hyperion.client.*;
 import java.io.Serializable;
 
 /**
+ * A request builder for finds
  */
 public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
     private ID[] ids;
 
+    /**
+     * Create the request builder using the specified parameters
+     * @param version The entity version
+     * @param objectType The API type
+     * @param entityName The entity name
+     * @param ids The ids to add
+     */
     public GetRequestBuilder(int version, Class<T> objectType, String entityName, ID[] ids)
     {
         super(version, objectType, entityName);
         this.ids = ids;
     }
 
+    /**
+     * Set the fields to return in the request. The default is all fields.
+     * @param fields The fields to return
+     * @return The request builder
+     */
     public GetRequestBuilder<T, ID> returnFields(String... fields)
     {
         setParameter("fields",join(fields));
@@ -76,6 +89,11 @@ public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> 
         return request;
     }
 
+    /**
+     * Execute the request using the supplied client
+     * @param client the client
+     * @return The request
+     */
     public EntityList<T> execute(HyperionClient client)
     {
         return client.get(build());

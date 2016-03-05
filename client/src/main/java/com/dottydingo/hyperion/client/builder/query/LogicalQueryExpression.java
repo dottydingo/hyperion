@@ -1,12 +1,18 @@
 package com.dottydingo.hyperion.client.builder.query;
 
 /**
+ * A logical query expression
  */
 public class LogicalQueryExpression implements QueryExpression
 {
     private QueryExpression[] expressions;
     private LogicalOperator operator;
 
+    /**
+     * Create the query expression with the supplied values
+     * @param operator The logical operator to use to tie the expressions together
+     * @param expressions The expressions
+     */
     public LogicalQueryExpression(LogicalOperator operator, QueryExpression[] expressions)
     {
         this.expressions = expressions;

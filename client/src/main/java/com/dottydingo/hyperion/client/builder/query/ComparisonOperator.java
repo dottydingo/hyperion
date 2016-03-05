@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client.builder.query;
 
 /**
+ * Comparison operators
  */
 public enum ComparisonOperator
 {

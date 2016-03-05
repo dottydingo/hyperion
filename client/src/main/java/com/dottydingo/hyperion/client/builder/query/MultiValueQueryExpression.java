@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client.builder.query;
 
 /**
+ * A query expression that supports multiple values
  */
 public class MultiValueQueryExpression implements QueryExpression
 {
@@ -8,6 +9,12 @@ public class MultiValueQueryExpression implements QueryExpression
     private ComparisonOperator comparisonOperator;
     private String[] values;
 
+    /**
+     * Create the query expression with the supplied values
+     * @param propertyName The propery name
+     * @param comparisonOperator The comparison operator
+     * @param values The values
+     */
     public MultiValueQueryExpression(String propertyName, ComparisonOperator comparisonOperator, String[] values)
     {
         this.propertyName = propertyName;
