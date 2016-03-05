@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client;
 
 /**
+ * Request methods
  */
 public enum RequestMethod
 {

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Client for making requests to Hyperion 2.x services. The client is thread safe and a single instance should generally
+ * be used to access all endpoints on a service.
  */
 public class HyperionClient
 {
@@ -45,11 +47,21 @@ public class HyperionClient
     protected String userAgent = "hyperionClient";
     protected long maxLoggedBodySize = DEFAULT_MAX_LOGGED_BODY_SIZE;
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     */
     public HyperionClient(String baseUrl)
     {
         this(baseUrl,false);
     }
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     * @param trustAllCertificates A flag indicating if all certificates should be trusted. This should only
+     *                             be set to true when calling a service using a self signed certificate.
+     */
     public HyperionClient(String baseUrl, boolean trustAllCertificates)
     {
         this.baseUrl = baseUrl;
@@ -59,32 +71,60 @@ public class HyperionClient
         client = buildClient(trustAllCertificates);
     }
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     * @param authorizationFactory The authorization factory to use for making requests
+     */
     public HyperionClient(String baseUrl, AuthorizationFactory authorizationFactory)
     {
         this(baseUrl,authorizationFactory,false);
     }
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     * @param authorizationFactory The authorization factory to use for making requests
+     * @param trustAllCertificates A flag indicating if all certificates should be trusted. This should only
+     *                             be set to true when calling a service using a self signed certificate.
+     */
     public HyperionClient(String baseUrl, AuthorizationFactory authorizationFactory,boolean trustAllCertificates)
     {
         this(baseUrl,trustAllCertificates);
         this.authorizationFactory = authorizationFactory;
     }
 
+    /**
+     * Set a parameter factory to use.
+     * @param parameterFactory The parameter factory
+     */
     public void setParameterFactory(ParameterFactory parameterFactory)
     {
         this.parameterFactory = parameterFactory;
     }
 
+    /**
+     * Set a header factory to use.
+     * @param headerFactory The parameter factory
+     */
     public void setHeaderFactory(HeaderFactory headerFactory)
     {
         this.headerFactory = headerFactory;
     }
 
+    /**
+     * Set an alternate object mapper to use for marshalling and unmarshalling JSON.
+     * @param objectMapper An object mapper.
+     */
     public void setObjectMapper(ObjectMapper objectMapper)
     {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Set the proxy configuration to use for this client.
+     * @param proxy The proxy configuration
+     */
     public void setProxy(Proxy proxy)
     {
         if(proxy != null)
@@ -97,6 +137,10 @@ public class HyperionClient
             client.setProxy(java.net.Proxy.NO_PROXY);
     }
 
+    /**
+     * Set the keep alive configuration to use for this client.
+     * @param keepAliveConfiguration The keep alive configuration
+     */
     public void setKeepAliveConfiguration(KeepAliveConfiguration keepAliveConfiguration)
     {
         if(keepAliveConfiguration != null)
@@ -104,39 +148,72 @@ public class HyperionClient
                     keepAliveConfiguration.getKeepAliveDurationMs()));
     }
 
+    /**
+     * Set the client event listener
+     * @param clientEventListener The client event listener
+     */
     public void setClientEventListener(ClientEventListener clientEventListener)
     {
         this.clientEventListener = clientEventListener;
     }
 
+    /**
+     * Set the user agent string to send on the requests. The default value is "hyperionClient"
+     * @param userAgent The user agent string
+     */
     public void setUserAgent(String userAgent)
     {
         this.userAgent = userAgent;
     }
 
+    /**
+     * Set an alternate logger for this client to use for log statements. This can be used to direct client
+     * logs to different destinations. The default value is "com.dottydingo.hyperion.client.HyperionClient"
+     * @param logger The logger to use
+     */
     public void setLogger(String logger)
     {
         if(logger != null && logger.trim().length() > 0)
             this.logger = LoggerFactory.getLogger(logger);
     }
 
+    /**
+     * Set the maximum size for logging the request and response bodies. When logging is set to DEBUG these will be
+     * logged as long as the contents are less than or equal to this value. The default value is 1 megabyte
+     * @param maxLoggedBodySize The maximum size of a body to log, in bytes
+     */
     public void setMaxLoggedBodySize(long maxLoggedBodySize)
     {
         this.maxLoggedBodySize = maxLoggedBodySize;
     }
 
+    /**
+     * Perform a get (GET) operation using the supplied request.
+     * @param request The request
+     * @return The results of the get operation
+     */
     public <T extends ApiObject> EntityList<T> get(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
                 .constructParametrizedType(EntityList.class,EntityList.class, request.getEntityType()));
     }
 
+    /**
+     * Perform a query (GET) operation using the supplied request
+     * @param request The request
+     * @return The results of the query operation
+     */
     public <T extends ApiObject> EntityResponse<T> query(Request<T> request)
     {
         return executeRequest(request, objectMapper.getTypeFactory()
                 .constructParametrizedType(EntityResponse.class, EntityResponse.class, request.getEntityType()));
     }
 
+    /**
+     * Perform a delete (DELETE) operation using the supplied request
+     * @param request The request
+     * @return The number of items deleted
+     */
     public int delete(Request request)
     {
         DeleteResponse response = executeRequest(request,objectMapper.getTypeFactory().constructType(
@@ -144,18 +221,34 @@ public class HyperionClient
         return response.getCount();
     }
 
+    /**
+     * Perform a create (POST) operation using the supplied request
+     * @param request The request
+     * @return The results of the create operation
+     */
     public <T extends ApiObject> EntityList<T> create(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
                 .constructParametrizedType(EntityList.class,EntityList.class, request.getEntityType()));
     }
 
+    /**
+     * Perform an update (PUT) operation using the supplied request
+     * @param request The request
+     * @return The results of the update operation
+     */
     public <T extends ApiObject> EntityList<T> update(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
                 .constructParametrizedType(EntityList.class,EntityList.class, request.getEntityType()));
     }
 
+    /**
+     * Execute the request
+     * @param request The request
+     * @param javaType The return type
+     * @return The response
+     */
     protected <R> R executeRequest(Request request, JavaType javaType)
     {
         long start = System.currentTimeMillis();
@@ -178,6 +271,11 @@ public class HyperionClient
         }
     }
 
+    /**
+     * Build the actual http request
+     * @param request The data service request
+     * @return The http request
+     */
     protected com.squareup.okhttp.Request buildHttpRequest(Request request)
     {
         RequestBody requestBody = null;
@@ -192,6 +290,11 @@ public class HyperionClient
     }
 
 
+    /**
+     * Execute the request
+     * @param request The data service request
+     * @return The HTTP response
+     */
     protected Response executeRequest(Request request)
     {
         try
@@ -256,6 +359,12 @@ public class HyperionClient
     }
 
 
+    /**
+     * Read the response and unmarshall into the expected type
+     * @param response The http response
+     * @param javaType The type to return
+     * @return The response value
+     */
     protected <T> T readResponse(Response response,JavaType javaType)
     {
         try
@@ -268,6 +377,11 @@ public class HyperionClient
         }
     }
 
+    /**
+     * Serialize the request body
+     * @param request The data service request
+     * @return The JSON representation of the request
+     */
     protected String serializeBody(Request request)
     {
         try
@@ -281,6 +395,12 @@ public class HyperionClient
     }
 
 
+    /**
+     * Create the proper exception for the error response
+     * @param response The http response
+     * @return The exception for the error response
+     * @throws IOException
+     */
     protected HyperionException readException(Response response) throws IOException
     {
         ErrorResponse errorResponse = null;
@@ -301,7 +421,7 @@ public class HyperionClient
                 resolvedException = (HyperionException) exceptionClass.getConstructor(String.class)
                         .newInstance(errorResponse.getMessage());
             }
-            catch (Exception ignore)
+            catch (Throwable ignore)
             {
             }
 
@@ -326,10 +446,21 @@ public class HyperionClient
 
     }
 
+    /**
+     * Check to see if the supplied map has entries
+     * @param map The map
+     * @return True if the map has entries, false if the map is null or empty
+     */
     protected boolean hasEntries(MultiMap map)
     {
         return map != null && !map.isEmpty();
     }
+
+    /**
+     * Build the URL for the specified request
+     * @param request the data service request
+     * @return The URL string
+     */
     protected String buildUrl(Request request)
     {
         StringBuilder sb = new StringBuilder(512);
@@ -346,6 +477,11 @@ public class HyperionClient
         return sb.toString();
     }
 
+    /**
+     * Build the query string for the specified request
+     * @param request the data service request
+     * @return The query string
+     */
     protected String buildQueryString(Request request)
     {
         MultiMap resolvedParameters = null;
@@ -382,6 +518,11 @@ public class HyperionClient
         return sb.toString();
     }
 
+    /**
+     * Return the headers for the supplied request
+     * @param request The data service request
+     * @return The headers
+     */
     protected Headers getHeaders(Request request)
     {
         Headers.Builder headers = new Headers.Builder();
@@ -414,7 +555,11 @@ public class HyperionClient
         return headers.build();
     }
 
-
+    /**
+     * Encode the supplied string
+     * @param value The string
+     * @return The enclded value
+     */
     protected String encode(String value)
     {
         try
@@ -427,6 +572,12 @@ public class HyperionClient
         }
     }
 
+    /**
+     * Build the low level http client to use to call the service
+     * @param trustAllCertificates A flag indicating if this client should trust all certificates. Note, this should only
+     *                             be set to true when calling services using self signed certificates.
+     * @return The http client
+     */
     protected OkHttpClient buildClient(boolean trustAllCertificates)
     {
         OkHttpClient okHttpClient = new OkHttpClient();
