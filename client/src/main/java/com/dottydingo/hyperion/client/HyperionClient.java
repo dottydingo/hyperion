@@ -128,13 +128,13 @@ public class HyperionClient
     public <T extends ApiObject> EntityList<T> get(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
-                .constructParametricType(EntityList.class, request.getEntityType()));
+                .constructParametrizedType(EntityList.class,EntityList.class, request.getEntityType()));
     }
 
     public <T extends ApiObject> EntityResponse<T> query(Request<T> request)
     {
         return executeRequest(request, objectMapper.getTypeFactory()
-                .constructParametricType(EntityResponse.class, request.getEntityType()));
+                .constructParametrizedType(EntityResponse.class, EntityResponse.class, request.getEntityType()));
     }
 
     public int delete(Request request)
@@ -147,13 +147,13 @@ public class HyperionClient
     public <T extends ApiObject> EntityList<T> create(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
-                .constructParametricType(EntityList.class, request.getEntityType()));
+                .constructParametrizedType(EntityList.class,EntityList.class, request.getEntityType()));
     }
 
     public <T extends ApiObject> EntityList<T> update(Request<T> request)
     {
         return executeRequest(request,objectMapper.getTypeFactory()
-                .constructParametricType(EntityList.class, request.getEntityType()));
+                .constructParametrizedType(EntityList.class,EntityList.class, request.getEntityType()));
     }
 
     protected <R> R executeRequest(Request request, JavaType javaType)
