@@ -2,6 +2,7 @@ package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.Page;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
+import com.dottydingo.hyperion.api.v1.LegacyHistoryResponse;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.api.HistoryEntry;
@@ -16,6 +17,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
+ * Perform a history operation
  */
 public class HistoryPhase extends BasePersistencePhase
 {
@@ -45,17 +47,30 @@ public class HistoryPhase extends BasePersistencePhase
         PersistenceOperations operations = persistenceContext.getEntityPlugin().getPersistenceOperations();
         QueryResult<HistoryEntry> entries = operations.getHistory(ids.get(0),start,limit,persistenceContext);
 
-        HistoryResponse historyResponse = new HistoryResponse();
-        historyResponse.setEntries(entries.getItems());
+        if(phaseContext.isLegacyClient())
+        {
+            LegacyHistoryResponse historyResponse = new LegacyHistoryResponse();
+            historyResponse.setEntries(entries.getItems());
+            historyResponse.setTotalCount(entries.getTotalCount());
+            historyResponse.setStart(entries.getStart());
+            historyResponse.setResponseCount(entries.getResponseCount());
 
-        Page page = new Page();
-        page.setTotalCount(entries.getTotalCount());
-        page.setStart(entries.getStart());
-        page.setResponseCount(entries.getResponseCount());
+            phaseContext.setResult(historyResponse);
+        }
+        else
+        {
+            HistoryResponse historyResponse = new HistoryResponse();
+            historyResponse.setEntries(entries.getItems());
 
-        historyResponse.setPage(page);
+            Page page = new Page();
+            page.setTotalCount(entries.getTotalCount());
+            page.setStart(entries.getStart());
+            page.setResponseCount(entries.getResponseCount());
 
-        phaseContext.setResult(historyResponse);
+            historyResponse.setPage(page);
+
+            phaseContext.setResult(historyResponse);
+        }
 
         response.setResponseCode(200);
     }

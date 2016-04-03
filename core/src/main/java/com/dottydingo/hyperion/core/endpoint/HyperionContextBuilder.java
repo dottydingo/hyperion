@@ -37,6 +37,8 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
         HyperionContext hyperionContext = super.buildContext(httpServletRequest, httpServletResponse);
         hyperionContext.setShowErrorDetail(shouldIncludeErrorDetail(hyperionContext.getEndpointRequest()));
         hyperionContext.setLocale(httpServletRequest.getLocale());
+        hyperionContext.setLegacyClient(isLegacyClient(hyperionContext.getEndpointRequest()));
+
         return hyperionContext;
     }
 
@@ -76,5 +78,11 @@ public class HyperionContextBuilder extends AbstractContextBuilder<HyperionConte
         if(!includeErrorDetail)
             includeErrorDetail = request.getParameter("errorDetail") != null;
         return includeErrorDetail;
+    }
+
+    protected boolean isLegacyClient(HyperionRequest request)
+    {
+        String legacyParam = request.getFirstParameter("client_version");
+        return legacyParam != null && legacyParam.equals("1");
     }
 }

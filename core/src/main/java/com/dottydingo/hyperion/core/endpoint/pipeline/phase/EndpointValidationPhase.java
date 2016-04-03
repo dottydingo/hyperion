@@ -139,7 +139,7 @@ public class EndpointValidationPhase extends BaseHyperionPhase
                                 version));
         }
 
-        if(!validateMethod(httpMethod,uriRequestResult))
+        if(!validateMethod(httpMethod,uriRequestResult, phaseContext.isLegacyClient()))
             throw new NotAllowedException(messageSource.getErrorMessage(METHOD_NOT_ALLOWED,phaseContext.getLocale(),httpMethod));
 
         if(uriRequestResult.getId() != null)
@@ -231,15 +231,17 @@ public class EndpointValidationPhase extends BaseHyperionPhase
         return request.getRequestMethod();
     }
 
-    protected boolean validateMethod(HttpMethod method,UriRequestResult requestResult)
+    protected boolean validateMethod(HttpMethod method, UriRequestResult requestResult, boolean legacyClient)
     {
         switch (method)
         {
             case DELETE:
                 return (requestResult.getId() != null && !requestResult.isHistory());
             case POST:
-            case PUT:
                 return (requestResult.getId() == null && !requestResult.isHistory());
+            case PUT:
+                return (((legacyClient && requestResult.getId() != null) || (!legacyClient && requestResult.getId() == null))
+                        && !requestResult.isHistory());
             case GET:
                 return (requestResult.isHistory() && requestResult.getId() != null) || !requestResult.isHistory();
             case OPTIONS:

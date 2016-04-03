@@ -5,6 +5,7 @@ import com.dottydingo.hyperion.api.EntityList;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.Page;
 import com.dottydingo.hyperion.api.exception.InternalException;
+import com.dottydingo.hyperion.api.v1.LegacyEntityResponse;
 import com.dottydingo.hyperion.client.AuthorizationFactory;
 import com.dottydingo.hyperion.client.HyperionClient;
 import com.dottydingo.hyperion.client.Request;
@@ -13,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Client for making requests to Hyperion 1.x services. The client is thread safe and a single instance should generally
+ * be used to access all endpoints on a service.
  */
 public class LegacyHyperionClient extends HyperionClient
 {

@@ -23,6 +23,7 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     private AuthorizationContext authorizationContext;
     private boolean showErrorDetail;
     private Locale locale;
+    private boolean legacyClient;
 
     public EntityPlugin getEntityPlugin()
     {
@@ -133,5 +134,15 @@ public class HyperionContext extends EndpointContext<HyperionRequest,HyperionRes
     public void setLocale(Locale locale)
     {
         this.locale = locale;
+    }
+
+    public boolean isLegacyClient()
+    {
+        return legacyClient;
+    }
+
+    public void setLegacyClient(boolean legacyClient)
+    {
+        this.legacyClient = legacyClient;
     }
 }

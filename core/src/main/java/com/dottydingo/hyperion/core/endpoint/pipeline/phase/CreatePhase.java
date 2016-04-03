@@ -2,7 +2,6 @@ package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 
 import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.EntityList;
-import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.core.endpoint.marshall.EndpointMarshaller;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Perform a create (POST) operation
  */
 public class CreatePhase extends BasePersistencePhase
 {
@@ -33,12 +33,61 @@ public class CreatePhase extends BasePersistencePhase
     }
 
     @Override
-    protected void executePhase(HyperionContext phaseContext) throws Exception
+    protected void executePhase(HyperionContext hyperionContext) throws Exception
     {
-        EndpointRequest request = phaseContext.getEndpointRequest();
+        if(hyperionContext.isLegacyClient())
+            processLegacyRequest(hyperionContext);
+        else
+            processCollectionRequest(hyperionContext);
+    }
 
-        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = phaseContext.getVersionPlugin();
-        EntityPlugin plugin = phaseContext.getEntityPlugin();
+    /**
+     * Process a legacy V1 request (single item)
+     * @param hyperionContext The context
+     */
+    protected void processLegacyRequest(HyperionContext hyperionContext)
+    {
+        EndpointRequest request = hyperionContext.getEndpointRequest();
+        EndpointResponse response = hyperionContext.getEndpointResponse();
+
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = hyperionContext.getVersionPlugin();
+        EntityPlugin plugin = hyperionContext.getEntityPlugin();
+
+        ApiObject clientObject = null;
+        try
+        {
+            clientObject = marshaller.unmarshall(request.getInputStream(),apiVersionPlugin.getApiClass());
+        }
+        catch (MarshallingException e)
+        {
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST,hyperionContext.getLocale(),e.getMessage()),e);
+        }
+        clientObject.setId(null);
+
+        PersistenceContext persistenceContext = buildPersistenceContext(hyperionContext);
+        Set<String> fieldSet = persistenceContext.getRequestedFields();
+        if(fieldSet != null)
+            fieldSet.add("id");
+
+        ApiObject saved = (ApiObject) plugin.getPersistenceOperations().createOrUpdateItems(
+                Collections.singletonList(clientObject),
+                persistenceContext).get(0);
+
+        processChangeEvents(hyperionContext, persistenceContext);
+        response.setResponseCode(200);
+        hyperionContext.setResult(saved);
+    }
+
+    /**
+     * Process a multi-item request
+     * @param hyperionContext The context
+     */
+    protected void processCollectionRequest(HyperionContext hyperionContext)
+    {
+        EndpointRequest request = hyperionContext.getEndpointRequest();
+
+        ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = hyperionContext.getVersionPlugin();
+        EntityPlugin plugin = hyperionContext.getEntityPlugin();
 
         List<ApiObject<Serializable>> clientObjects = null;
         try
@@ -47,25 +96,25 @@ public class CreatePhase extends BasePersistencePhase
         }
         catch (WriteLimitException e)
         {
-            throw new BadRequestException(messageSource.getErrorMessage(ERROR_WRITE_LIMIT,phaseContext.getLocale(),e.getWriteLimit()),e);
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_WRITE_LIMIT,hyperionContext.getLocale(),e.getWriteLimit()),e);
         }
         catch (MarshallingException e)
         {
-            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST,phaseContext.getLocale(),e.getMessage()),e);
+            throw new BadRequestException(messageSource.getErrorMessage(ERROR_READING_REQUEST,hyperionContext.getLocale(),e.getMessage()),e);
         }
 
 
-        PersistenceContext persistenceContext = buildPersistenceContext(phaseContext);
+        PersistenceContext persistenceContext = buildPersistenceContext(hyperionContext);
         Set<String> fieldSet = persistenceContext.getRequestedFields();
         if(fieldSet != null)
             fieldSet.add("id");
 
         List<ApiObject> saved =  plugin.getPersistenceOperations().createOrUpdateItems(clientObjects, persistenceContext);
 
-        processChangeEvents(phaseContext,persistenceContext);
+        processChangeEvents(hyperionContext,persistenceContext);
 
         EntityList<ApiObject> entityResponse = new EntityList<>();
         entityResponse.setEntries(saved);
-        phaseContext.setResult(entityResponse);
+        hyperionContext.setResult(entityResponse);
     }
 }

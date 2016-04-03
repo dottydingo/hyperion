@@ -3,6 +3,7 @@ package com.dottydingo.hyperion.core.endpoint.pipeline.phase;
 import com.dottydingo.hyperion.api.Page;
 import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.api.EntityResponse;
+import com.dottydingo.hyperion.api.v1.LegacyEntityResponse;
 import com.dottydingo.hyperion.core.endpoint.EndpointSort;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
 import com.dottydingo.hyperion.core.persistence.QueryResult;
@@ -14,6 +15,7 @@ import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.Node;
 
 /**
+ * Perform a query operation (GET with optional query and sort)
  */
 public class QueryPhase extends BasePersistencePhase
 {
@@ -62,17 +64,31 @@ public class QueryPhase extends BasePersistencePhase
                 .getPersistenceOperations()
                 .query(queryExpression, start, limit, requestedSorts, persistenceContext);
 
-        EntityResponse entityResponse = new EntityResponse();
-        entityResponse.setEntries(queryResult.getItems());
+        if(phaseContext.isLegacyClient())
+        {
+            LegacyEntityResponse entityResponse = new LegacyEntityResponse();
+            entityResponse.setEntries(queryResult.getItems());
+            entityResponse.setResponseCount(queryResult.getResponseCount());
+            entityResponse.setStart(queryResult.getStart());
+            entityResponse.setTotalCount(queryResult.getTotalCount());
 
-        Page page = new Page();
-        page.setResponseCount(queryResult.getResponseCount());
-        page.setStart(queryResult.getStart());
-        page.setTotalCount(queryResult.getTotalCount());
+            phaseContext.setResult(entityResponse);
+        }
+        else
+        {
+            EntityResponse entityResponse = new EntityResponse();
+            entityResponse.setEntries(queryResult.getItems());
 
-        entityResponse.setPage(page);
+            Page page = new Page();
+            page.setResponseCount(queryResult.getResponseCount());
+            page.setStart(queryResult.getStart());
+            page.setTotalCount(queryResult.getTotalCount());
 
-        phaseContext.setResult(entityResponse);
+            entityResponse.setPage(page);
+
+            phaseContext.setResult(entityResponse);
+        }
+
 
         response.setResponseCode(200);
 
