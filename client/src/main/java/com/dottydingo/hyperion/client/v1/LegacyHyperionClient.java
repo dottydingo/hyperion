@@ -19,27 +19,51 @@ import java.util.List;
  */
 public class LegacyHyperionClient extends HyperionClient
 {
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     */
     public LegacyHyperionClient(String baseUrl)
     {
         super(baseUrl);
     }
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     * @param trustAllCertificates A flag indicating if all certificates should be trusted. This should only
+     *                             be set to true when calling a service using a self signed certificate.
+     */
     public LegacyHyperionClient(String baseUrl, boolean trustAllCertificates)
     {
         super(baseUrl, trustAllCertificates);
     }
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     * @param authorizationFactory The authorization factory to use for making requests
+     */
     public LegacyHyperionClient(String baseUrl, AuthorizationFactory authorizationFactory)
     {
         super(baseUrl, authorizationFactory);
     }
 
+    /**
+     * Create a client with the supplied parameters.
+     * @param baseUrl The base URL for the service
+     * @param authorizationFactory The authorization factory to use for making requests
+     * @param trustAllCertificates A flag indicating if all certificates should be trusted. This should only
+     *                             be set to true when calling a service using a self signed certificate.
+     */
     public LegacyHyperionClient(String baseUrl, AuthorizationFactory authorizationFactory, boolean trustAllCertificates)
     {
         super(baseUrl, authorizationFactory, trustAllCertificates);
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ApiObject> EntityResponse<T> query(Request<T> request)
     {
@@ -57,7 +81,9 @@ public class LegacyHyperionClient extends HyperionClient
         return response;
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ApiObject> EntityList<T> create(Request<T> request)
     {
@@ -77,6 +103,9 @@ public class LegacyHyperionClient extends HyperionClient
         return response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends ApiObject> EntityList<T> update(Request<T> request)
     {
