@@ -125,4 +125,13 @@ public class LegacyHyperionClient extends HyperionClient
 
         return response;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getClientVersion()
+    {
+        return "1";
+    }
 }

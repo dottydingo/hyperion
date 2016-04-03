@@ -36,6 +36,9 @@ public class HyperionClient
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = new ObjectMapperBuilder().getObjectMapper();
 
+    private static final String CLIENT_VERSION_HEADER_NAME = "DottyDingo-Hyperion-Client-Version";
+    private static final String CLIENT_VERSION = "2";
+
     protected Logger logger = LoggerFactory.getLogger(HyperionClient.class);
     protected String baseUrl;
     protected OkHttpClient client;
@@ -545,6 +548,9 @@ public class HyperionClient
         if(resolvedHeaders.getFirst("user-agent") == null)
             headers.add("user-agent",userAgent);
 
+        if(resolvedHeaders.getFirst(CLIENT_VERSION_HEADER_NAME) == null)
+            headers.add(CLIENT_VERSION_HEADER_NAME,getClientVersion());
+
         for (Map.Entry<String, List<String>> entry : resolvedHeaders.entries())
         {
             for (String value : entry.getValue())
@@ -553,6 +559,15 @@ public class HyperionClient
             }
         }
         return headers.build();
+    }
+
+    /**
+     * Get the client version to use in the request header
+     * @return The client version
+     */
+    protected String getClientVersion()
+    {
+        return CLIENT_VERSION;
     }
 
     /**
