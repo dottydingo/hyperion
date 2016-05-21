@@ -94,6 +94,7 @@ public class UpdatePhase extends BasePersistencePhase
     protected void processCollectionRequest(HyperionContext hyperionContext)
     {
         EndpointRequest request = hyperionContext.getEndpointRequest();
+        EndpointResponse response = hyperionContext.getEndpointResponse();
 
         ApiVersionPlugin<ApiObject<Serializable>,PersistentObject<Serializable>,Serializable> apiVersionPlugin = hyperionContext.getVersionPlugin();
         EntityPlugin plugin = hyperionContext.getEntityPlugin();
@@ -126,6 +127,8 @@ public class UpdatePhase extends BasePersistencePhase
         List<ApiObject> saved = plugin.getPersistenceOperations().updateItems(clientObjects, persistenceContext);
 
         processChangeEvents(hyperionContext,persistenceContext);
+
+        response.setResponseCode(200);
 
         EntityList<ApiObject> entityResponse = new EntityList<>();
         entityResponse.setEntries(saved);

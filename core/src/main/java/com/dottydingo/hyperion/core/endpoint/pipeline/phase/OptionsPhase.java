@@ -43,6 +43,7 @@ public class OptionsPhase extends BaseHyperionPhase
 
         response.setContentType("application/json");
         response.setContentEncoding("UTF-8");
+        response.setResponseCode(200);
 
         phaseContext.requestComplete();
 
