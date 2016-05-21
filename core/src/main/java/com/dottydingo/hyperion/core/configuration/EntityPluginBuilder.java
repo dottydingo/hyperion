@@ -428,15 +428,19 @@ public class EntityPluginBuilder
         return this;
     }
 
-    public Map<String, EntityQueryBuilder> getOverrideQueryBuilders()
-    {
-        return overrideQueryBuilders;
-    }
-
     /**
      * Set the override query builders be to used across all versions of the entity
      * @param overrideQueryBuilders the query builders
      */
+    public void setOverrideQueryBuilders(Map<String, EntityQueryBuilder> overrideQueryBuilders)
+    {
+        this.overrideQueryBuilders = overrideQueryBuilders;
+    }
+
+    public Map<String, EntityQueryBuilder> getOverrideQueryBuilders()
+    {
+        return overrideQueryBuilders;
+    }
     {
         this.overrideQueryBuilders = overrideQueryBuilders;
     }
