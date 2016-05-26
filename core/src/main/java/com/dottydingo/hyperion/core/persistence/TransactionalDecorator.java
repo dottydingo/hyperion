@@ -28,12 +28,12 @@ import java.util.Map;
 public class TransactionalDecorator<C extends ApiObject<ID>, ID extends Serializable>
         implements PersistenceOperations<C, ID>, BeanFactoryAware
 {
-    private PersistenceOperations<C, ID> delegate;
+    protected PersistenceOperations<C, ID> delegate;
 
-    private TransactionTemplate readWriteTransactionTemplate;
-    private TransactionTemplate readOnlyTransactionTemplate;
+    protected TransactionTemplate readWriteTransactionTemplate;
+    protected TransactionTemplate readOnlyTransactionTemplate;
 
-    private volatile PersistenceExceptionTranslator persistenceExceptionTranslator;
+    protected volatile PersistenceExceptionTranslator persistenceExceptionTranslator;
 
 
     @Override
@@ -174,7 +174,7 @@ public class TransactionalDecorator<C extends ApiObject<ID>, ID extends Serializ
         return cpet;
     }
 
-    private abstract class MappingExceptionCallback<T> implements TransactionCallback<T>
+    protected abstract class MappingExceptionCallback<T> implements TransactionCallback<T>
     {
         @Override
         public T doInTransaction(TransactionStatus status)
