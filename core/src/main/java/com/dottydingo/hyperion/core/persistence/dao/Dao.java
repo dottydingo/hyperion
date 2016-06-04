@@ -1,5 +1,5 @@
 package com.dottydingo.hyperion.core.persistence.dao;
-;
+
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.query.PersistentQueryBuilder;
@@ -29,7 +29,7 @@ public interface Dao<P extends PersistentObject<ID>, ID extends Serializable,QB 
 
     void delete(P entity);
 
-    P reset(P entity);
+    void reset(P entity);
 
     <H extends PersistentHistoryEntry<ID>> PersistentQueryResult<H> getHistory(Class<H> historyType, String entityType, ID entityId, Integer start,
                                                                   Integer limit);

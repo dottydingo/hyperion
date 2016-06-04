@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -166,10 +167,9 @@ public class JpaDao<P extends PersistentObject<ID>,ID extends Serializable>
     }
 
     @Override
-    public P reset(P entity)
+    public void reset(P entity)
     {
-        em.refresh(entity);
-        return entity;
+        em.detach(entity);
     }
 
     @Override
