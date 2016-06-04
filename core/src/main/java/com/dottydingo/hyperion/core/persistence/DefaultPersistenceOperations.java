@@ -293,7 +293,7 @@ public class DefaultPersistenceOperations<C extends ApiObject<ID>, P extends Per
             }
             else
             {
-                dao.reset(existingPersistent); // todo change to evict from the session
+                dao.reset(existingPersistent);
             }
 
             updatedIds.add(entry.getKey());
