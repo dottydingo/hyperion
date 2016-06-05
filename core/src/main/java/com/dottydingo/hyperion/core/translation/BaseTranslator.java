@@ -159,7 +159,15 @@ public abstract class BaseTranslator<C extends ApiObject,P extends PersistentObj
                 if(clientField.equals("id"))
                     fieldMapperMap.put(clientField,new DefaultIdFieldMapper());
                 else
-                    fieldMapperMap.put(clientField,new DefaultFieldMapper(clientField));
+                {
+                    DefaultFieldMapper fieldMapper = new DefaultFieldMapper(clientField);
+
+                    // use a custom property change evaluator for dates
+                    if(Date.class.isAssignableFrom(clientType))
+                        fieldMapper.setPropertyChangeEvaluator(new DatePropertyChangeEvaluator());
+
+                    fieldMapperMap.put(clientField, fieldMapper);
+                }
             }
         }
     }

@@ -1,9 +1,13 @@
 package com.dottydingo.hyperion.core.translation;
 
 /**
+ * A default implementation of a PropertyChangeEvaluator that uses a simple equals check.
  */
 public class DefaultPropertyChangeEvaluator<T> implements PropertyChangeEvaluator<T>
 {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasChanged(T oldValue, T newValue)
     {
