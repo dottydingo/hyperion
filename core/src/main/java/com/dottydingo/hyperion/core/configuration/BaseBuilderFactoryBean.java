@@ -63,7 +63,10 @@ public abstract class BaseBuilderFactoryBean<T> implements FactoryBean<Map<Strin
 
         for (ResolvedField field : typeWithMembers.getMemberFields())
         {
-            fields.add(field.getName());
+            ResolvedType fieldType = field.getType();
+            // skip array and collection types
+            if(!(fieldType.isArray() || Collection.class.isAssignableFrom(field.getRawMember().getType())))
+                fields.add(field.getName());
         }
 
         return fields;
