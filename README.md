@@ -57,4 +57,4 @@ be done to enable translation for that field. Configuring fields that can be sor
 are supported unless excluded.
 
 # Using Hyperion
-TBD
+See the sample project at https://github.com/dottydingo/hyperion-sample
