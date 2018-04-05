@@ -7,6 +7,7 @@ public enum HttpMethod
     GET(false),
     POST(true),
     PUT(true),
+    PATCH(true),
     DELETE(true),
     HEAD(false),
     OPTIONS(false);
