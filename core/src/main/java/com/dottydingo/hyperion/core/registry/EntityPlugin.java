@@ -8,7 +8,6 @@ import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.key.KeyConverter;
 import com.dottydingo.hyperion.core.persistence.*;
 import com.dottydingo.hyperion.core.persistence.dao.Dao;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
 
 import java.io.Serializable;
@@ -42,7 +41,7 @@ public class EntityPlugin<C extends ApiObject<ID>,P extends PersistentObject<ID>
     private ApiVersionRegistry<C,P,ID> apiVersionRegistry;
 
     private List<PersistentChangeListener<C,ID>> persistentChangeListeners = Collections.emptyList();
-    private List<EntityChangeListener<C,ID>> entityChangeListeners = Collections.emptyList();
+    private List<PersistentChangeListener<C,ID>> entityChangeListeners = Collections.emptyList();
 
     private Set<String> additionalParameters = new HashSet<>();
 
@@ -180,12 +179,12 @@ public class EntityPlugin<C extends ApiObject<ID>,P extends PersistentObject<ID>
         this.persistentChangeListeners = persistentChangeListeners;
     }
 
-    public List<EntityChangeListener<C,ID>> getEntityChangeListeners()
+    public List<PersistentChangeListener<C,ID>> getEntityChangeListeners()
     {
         return entityChangeListeners;
     }
 
-    public void setEntityChangeListeners(List<EntityChangeListener<C,ID>> entityChangeListeners)
+    public void setEntityChangeListeners(List<PersistentChangeListener<C,ID>> entityChangeListeners)
     {
         this.entityChangeListeners = entityChangeListeners;
     }

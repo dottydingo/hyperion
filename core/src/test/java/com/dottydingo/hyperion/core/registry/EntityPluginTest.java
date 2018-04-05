@@ -3,8 +3,6 @@ package com.dottydingo.hyperion.core.registry;
 
 import com.dottydingo.hyperion.core.Util;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.event.PersistentChangeEvent;
 import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
 import org.junit.Assert;
@@ -59,10 +57,10 @@ public class EntityPluginTest
     {
         Assert.assertFalse(entityPlugin.hasEntityChangeListeners());
 
-        entityPlugin.setEntityChangeListeners(Collections.singletonList(new EntityChangeListener()
+        entityPlugin.setEntityChangeListeners(Collections.singletonList(new PersistentChangeListener()
         {
             @Override
-            public void processEntityChange(EntityChangeEvent event)
+            public void processEntityChange(PersistentChangeEvent event)
             {
 
             }
@@ -93,10 +91,10 @@ public class EntityPluginTest
     {
         Assert.assertFalse(entityPlugin.hasListeners());
 
-        entityPlugin.setEntityChangeListeners(Collections.singletonList(new EntityChangeListener()
+        entityPlugin.setEntityChangeListeners(Collections.singletonList(new PersistentChangeListener()
         {
             @Override
-            public void processEntityChange(EntityChangeEvent event)
+            public void processEntityChange(PersistentChangeEvent event)
             {
 
             }
@@ -118,10 +116,10 @@ public class EntityPluginTest
         }));
 
         Assert.assertTrue(entityPlugin.hasListeners());
-        entityPlugin.setEntityChangeListeners(Collections.singletonList(new EntityChangeListener()
+        entityPlugin.setEntityChangeListeners(Collections.singletonList(new PersistentChangeListener()
         {
             @Override
-            public void processEntityChange(EntityChangeEvent event)
+            public void processEntityChange(PersistentChangeEvent event)
             {
 
             }

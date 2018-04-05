@@ -1,7 +1,7 @@
 package com.dottydingo.hyperion.core.persistence;
 
 import com.dottydingo.hyperion.core.message.HyperionMessageSource;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
+import com.dottydingo.hyperion.core.persistence.event.PersistentChangeEvent;
 import com.dottydingo.hyperion.core.registry.ApiVersionPlugin;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
 import com.dottydingo.hyperion.core.endpoint.HttpMethod;
@@ -24,7 +24,7 @@ public class PersistenceContext
     private UserContext userContext;
     private Date currentTimestamp;
     private Map<ItemChangeKey,Set<String>> itemChangedFieldsMap = new HashMap<>();
-    private List<EntityChangeEvent> entityChangeEvents = new ArrayList<EntityChangeEvent>();
+    private List<PersistentChangeEvent> entityChangeEvents = new ArrayList<PersistentChangeEvent>();
     private AuthorizationContext authorizationContext;
     private Locale locale;
     private HyperionMessageSource messageSource;
@@ -149,12 +149,12 @@ public class PersistenceContext
         return currentTimestamp;
     }
 
-    public void addEntityChangeEvent(EntityChangeEvent entityChangeEvent)
+    public void addEntityChangeEvent(PersistentChangeEvent entityChangeEvent)
     {
         entityChangeEvents.add(entityChangeEvent);
     }
 
-    public List<EntityChangeEvent> getEntityChangeEvents()
+    public List<PersistentChangeEvent> getEntityChangeEvents()
     {
         return entityChangeEvents;
     }

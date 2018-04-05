@@ -5,11 +5,10 @@ import com.dottydingo.hyperion.api.exception.BadRequestException;
 import com.dottydingo.hyperion.core.endpoint.HyperionContext;
 import com.dottydingo.hyperion.core.endpoint.HyperionRequest;
 import com.dottydingo.hyperion.core.key.KeyConverterException;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeEvent;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.PersistenceContext;
+import com.dottydingo.hyperion.core.persistence.event.PersistentChangeEvent;
+import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
 import com.dottydingo.hyperion.core.registry.EntityPlugin;
-import com.dottydingo.service.endpoint.context.MultiMap;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -73,10 +72,10 @@ public abstract class BasePersistencePhase extends BaseHyperionPhase
         if(!entityPlugin.hasEntityChangeListeners())
             return;
 
-        List<EntityChangeListener> entityChangeListeners = entityPlugin.getEntityChangeListeners();
-        for (EntityChangeListener entityChangeListener : entityChangeListeners)
+        List<PersistentChangeListener> entityChangeListeners = entityPlugin.getEntityChangeListeners();
+        for (PersistentChangeListener entityChangeListener : entityChangeListeners)
         {
-            for (EntityChangeEvent event : persistenceContext.getEntityChangeEvents())
+            for (PersistentChangeEvent event : persistenceContext.getEntityChangeEvents())
             {
                 entityChangeListener.processEntityChange(event);
             }

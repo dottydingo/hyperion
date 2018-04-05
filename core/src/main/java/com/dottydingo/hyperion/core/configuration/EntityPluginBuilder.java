@@ -9,7 +9,6 @@ import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
 import com.dottydingo.hyperion.core.model.PersistentObject;
 import com.dottydingo.hyperion.core.persistence.*;
 import com.dottydingo.hyperion.core.persistence.dao.Dao;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
 import com.dottydingo.hyperion.core.registry.*;
 import com.fasterxml.classmate.MemberResolver;
@@ -50,7 +49,7 @@ public class EntityPluginBuilder
     protected CreateKeyProcessor defaultCreateKeyProcessor;
 
     protected List<PersistentChangeListener> persistentChangeListeners = new ArrayList<>();
-    protected List<EntityChangeListener> entityChangeListeners = new ArrayList<>();
+    protected List<PersistentChangeListener> entityChangeListeners = new ArrayList<>();
 
     protected Map<String,EntitySortBuilder> defaultSortBuilders = new HashMap<>();
     protected Map<String,EntityQueryBuilder> defaultQueryBuilders = new HashMap<>();
@@ -110,7 +109,7 @@ public class EntityPluginBuilder
         persistentListeners.addAll(persistentChangeListeners);
         entityPlugin.setPersistentChangeListeners(persistentListeners);
 
-        List<EntityChangeListener> entityListeners = new ArrayList<>();
+        List<PersistentChangeListener> entityListeners = new ArrayList<>();
         entityListeners.addAll(serviceRegistryBuilder.getEntityChangeListeners());
         entityListeners.addAll(entityChangeListeners);
         entityPlugin.setEntityChangeListeners(entityListeners);
@@ -125,11 +124,12 @@ public class EntityPluginBuilder
         apiVersionRegistry.setPlugins(apiVersionPlugins);
         entityPlugin.setApiVersionRegistry(apiVersionRegistry);
 
-        applyAdditionalConfiguration(entityPlugin);
+        applyAdditionalConfiguration(serviceRegistryBuilder,entityPlugin);
         return entityPlugin;
     }
 
-    protected void applyAdditionalConfiguration(EntityPlugin plugin){}
+    protected void applyAdditionalConfiguration(ServiceRegistryBuilder serviceRegistryBuilder,
+                                                EntityPlugin plugin){}
 
     protected void validateRequired()
     {
@@ -350,7 +350,7 @@ public class EntityPluginBuilder
         return this;
     }
 
-    protected List<EntityChangeListener> getEntityChangeListeners()
+    protected List<PersistentChangeListener> getEntityChangeListeners()
     {
         return entityChangeListeners;
     }
@@ -360,7 +360,7 @@ public class EntityPluginBuilder
      * persistentChangeListeners specified at the registry level.
      * @param entityChangeListeners the entity change listeners
      */
-    public EntityPluginBuilder setEntityChangeListeners(List<EntityChangeListener> entityChangeListeners)
+    public EntityPluginBuilder setEntityChangeListeners(List<PersistentChangeListener> entityChangeListeners)
     {
         this.entityChangeListeners = entityChangeListeners;
         return this;

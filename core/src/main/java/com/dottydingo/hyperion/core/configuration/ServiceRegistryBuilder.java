@@ -2,7 +2,6 @@ package com.dottydingo.hyperion.core.configuration;
 
 import com.dottydingo.hyperion.core.key.KeyConverter;
 import com.dottydingo.hyperion.core.model.PersistentHistoryEntry;
-import com.dottydingo.hyperion.core.persistence.event.EntityChangeListener;
 import com.dottydingo.hyperion.core.persistence.PersistenceOperations;
 import com.dottydingo.hyperion.core.persistence.dao.Dao;
 import com.dottydingo.hyperion.core.persistence.event.PersistentChangeListener;
@@ -24,7 +23,7 @@ public class ServiceRegistryBuilder
     private Boolean defaultHistoryEnabled;
     private Class<? extends PersistentHistoryEntry> defaultHistoryType;
     private List<PersistentChangeListener> persistentChangeListeners = new ArrayList<>();
-    private List<EntityChangeListener> entityChangeListeners = new ArrayList<>();
+    private List<PersistentChangeListener> entityChangeListeners = new ArrayList<>();
 
     private List<EntityPluginBuilder> entities = new ArrayList<>();
 
@@ -128,13 +127,13 @@ public class ServiceRegistryBuilder
      * Set the post transaction entity change listeners to apply to all entities
      * @param entityChangeListeners the change listeners
      */
-    public ServiceRegistryBuilder setEntityChangeListeners(List<EntityChangeListener> entityChangeListeners)
+    public ServiceRegistryBuilder setEntityChangeListeners(List<PersistentChangeListener> entityChangeListeners)
     {
         this.entityChangeListeners = entityChangeListeners;
         return this;
     }
 
-    protected List<EntityChangeListener> getEntityChangeListeners()
+    protected List<PersistentChangeListener> getEntityChangeListeners()
     {
         return entityChangeListeners;
     }
