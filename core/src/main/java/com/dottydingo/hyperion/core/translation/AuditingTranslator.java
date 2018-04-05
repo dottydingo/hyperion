@@ -37,19 +37,19 @@ public abstract class AuditingTranslator<C extends AuditableApiObject,P extends 
         persistent.setModifiedBy(context.getUserContext().getUserId());
     }
 
+
     @Override
-    protected boolean afterCopy(ObjectWrapper<C> clientObjectWrapper, ObjectWrapper<P> persistentObjectWrapper, PersistenceContext context)
+    public boolean copyClient(C client, P persistent, PersistenceContext context)
     {
-        boolean dirty = super.afterCopy(clientObjectWrapper, persistentObjectWrapper, context);
+        boolean dirty = super.copyClient(client, persistent, context);
 
         if(dirty)
         {
-            P persistent = persistentObjectWrapper.getWrappedObject();
             persistent.setModified(context.getCurrentTimestamp());
             persistent.setModifiedBy(context.getUserContext().getUserId()) ;
         }
-
         return dirty;
     }
+
 
 }
