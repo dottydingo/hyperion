@@ -180,7 +180,7 @@ public class DefaultPersistenceOperations<C extends ApiObject<ID>, P extends Per
                     C newObject = translator.convertPersistent(saved, adminPersistenceContext);
                     PersistentChangeEvent<C, ID> entityChangeEvent =
                             new PersistentChangeEvent<C, ID>(null, newObject, null,
-                                    context, saved.getId(), EntityChangeAction.CREATE);
+                                    context, saved.getId(), EntityChangeAction.CREATE, context.getEntity());
 
                     if (entityPlugin.hasPersistentChangeListeners())
                     {
@@ -319,7 +319,8 @@ public class DefaultPersistenceOperations<C extends ApiObject<ID>, P extends Per
                             context.getChangedFields(context.getEntity(), savedItem.getId()),
                             context,
                             savedItem.getId(),
-                            EntityChangeAction.MODIFY);
+                            EntityChangeAction.MODIFY,
+                            context.getEntity());
 
                     if (entityPlugin.hasPersistentChangeListeners())
                         processPersistentChangeEvents(context, Collections.singletonList(entityChangeEvent));
@@ -403,7 +404,8 @@ public class DefaultPersistenceOperations<C extends ApiObject<ID>, P extends Per
                 {
                     C originalItem = translator.convertPersistent(item, adminPersistenceContext);
                     PersistentChangeEvent<C,ID> entityChangeEvent = new PersistentChangeEvent<>( originalItem,
-                            null, null, context,item.getId(),EntityChangeAction.DELETE);
+                            null, null, context,item.getId(),EntityChangeAction.DELETE,
+                            context.getEntity());
 
                     if(entityPlugin.hasPersistentChangeListeners())
                         deleteEvents.add(entityChangeEvent);

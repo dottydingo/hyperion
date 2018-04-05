@@ -8,28 +8,16 @@ import java.util.Set;
 
 /**
  * Events that can be handled in the transaction layer.
+ *
  */
-public class PersistentChangeEvent<C extends ApiObject,ID extends Serializable> extends EntityChangeEvent<C>
+public class PersistentChangeEvent<C extends ApiObject,ID extends Serializable> extends EntityChangeEvent<C,ID>
 {
-    private ID id;
-    private EntityChangeAction entityChangeAction;
-
 
     public PersistentChangeEvent(C originalItem, C updatedItem, Set<String> updatedFields,
-                                 PersistenceContext persistenceContext, ID id, EntityChangeAction entityChangeAction)
+                                 PersistenceContext persistenceContext, ID id, EntityChangeAction entityChangeAction,
+                                 String entity)
     {
-        super(originalItem, updatedItem, updatedFields, persistenceContext);
-        this.id = id;
-        this.entityChangeAction = entityChangeAction;
+        super(originalItem, updatedItem, updatedFields, persistenceContext, id, entityChangeAction, entity);
     }
 
-    public ID getId()
-    {
-        return id;
-    }
-
-    public EntityChangeAction getEntityChangeAction()
-    {
-        return entityChangeAction;
-    }
 }

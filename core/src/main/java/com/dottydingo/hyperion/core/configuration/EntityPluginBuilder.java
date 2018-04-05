@@ -125,8 +125,11 @@ public class EntityPluginBuilder
         apiVersionRegistry.setPlugins(apiVersionPlugins);
         entityPlugin.setApiVersionRegistry(apiVersionRegistry);
 
+        applyAdditionalConfiguration(entityPlugin);
         return entityPlugin;
     }
+
+    protected void applyAdditionalConfiguration(EntityPlugin plugin){}
 
     protected void validateRequired()
     {

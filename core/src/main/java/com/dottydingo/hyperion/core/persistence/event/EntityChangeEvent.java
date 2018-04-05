@@ -9,21 +9,29 @@ import java.util.Set;
 
 /**
  * An event triggered by a change to an entity
+ *
+ * This class will be removed in an upcoming release
  */
-public class EntityChangeEvent<C extends ApiObject>
+public class EntityChangeEvent<C extends ApiObject,ID extends Serializable>
 {
+    protected ID id;
+    protected EntityChangeAction entityChangeAction;
+    protected String entity;
     private C originalItem;
     private C updatedItem;
     private Set<String> updatedFields;
     private PersistenceContext persistenceContext;
 
     public EntityChangeEvent(C originalItem, C updatedItem, Set<String> updatedFields,
-                             PersistenceContext persistenceContext)
+                             PersistenceContext persistenceContext, ID id, EntityChangeAction entityChangeAction, String entity)
     {
         this.originalItem = originalItem;
         this.updatedItem = updatedItem;
         this.updatedFields = updatedFields;
         this.persistenceContext = persistenceContext;
+        this.id = id;
+        this.entityChangeAction = entityChangeAction;
+        this.entity = entity;
     }
 
 
@@ -47,4 +55,18 @@ public class EntityChangeEvent<C extends ApiObject>
         return persistenceContext;
     }
 
+    public ID getId()
+    {
+        return id;
+    }
+
+    public EntityChangeAction getEntityChangeAction()
+    {
+        return entityChangeAction;
+    }
+
+    public String getEntity()
+    {
+        return entity;
+    }
 }

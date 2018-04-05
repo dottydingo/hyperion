@@ -42,7 +42,7 @@ public class EntityPlugin<C extends ApiObject<ID>,P extends PersistentObject<ID>
     private ApiVersionRegistry<C,P,ID> apiVersionRegistry;
 
     private List<PersistentChangeListener<C,ID>> persistentChangeListeners = Collections.emptyList();
-    private List<EntityChangeListener<C>> entityChangeListeners = Collections.emptyList();
+    private List<EntityChangeListener<C,ID>> entityChangeListeners = Collections.emptyList();
 
     private Set<String> additionalParameters = new HashSet<>();
 
@@ -180,12 +180,12 @@ public class EntityPlugin<C extends ApiObject<ID>,P extends PersistentObject<ID>
         this.persistentChangeListeners = persistentChangeListeners;
     }
 
-    public List<EntityChangeListener<C>> getEntityChangeListeners()
+    public List<EntityChangeListener<C,ID>> getEntityChangeListeners()
     {
         return entityChangeListeners;
     }
 
-    public void setEntityChangeListeners(List<EntityChangeListener<C>> entityChangeListeners)
+    public void setEntityChangeListeners(List<EntityChangeListener<C,ID>> entityChangeListeners)
     {
         this.entityChangeListeners = entityChangeListeners;
     }

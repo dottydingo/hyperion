@@ -30,6 +30,7 @@ public class PersistenceContext
     private HyperionMessageSource messageSource;
     private Map<Object,Set<String>> providedFields = Collections.emptyMap();
     private MultiMap additionalParameters = new MultiMap();
+    private Map<String,Object> contextItemMap = new HashMap<>();
 
     public PersistenceContext()
     {
@@ -51,6 +52,7 @@ public class PersistenceContext
         this.messageSource = other.messageSource;
         this.providedFields = other.providedFields;
         this.additionalParameters = other.additionalParameters;
+        this.contextItemMap = other.contextItemMap;
     }
 
 
@@ -213,5 +215,15 @@ public class PersistenceContext
     public void setAdditionalParameters(MultiMap additionalParameters)
     {
         this.additionalParameters = additionalParameters;
+    }
+
+    public void putContextItem(String key, Object value)
+    {
+        contextItemMap.put(key,value);
+    }
+
+    public <T> T getContextItem(String key)
+    {
+        return (T) contextItemMap.get(key);
     }
 }

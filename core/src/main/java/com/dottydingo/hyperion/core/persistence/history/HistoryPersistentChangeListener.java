@@ -26,7 +26,7 @@ public class HistoryPersistentChangeListener implements PersistentChangeListener
     public void processEntityChange(PersistentChangeEvent<ApiObject,Serializable> event)
     {
         PersistenceContext context = event.getPersistenceContext();
-        if(!context.getEntityPlugin().isHistoryEnabled())
+        if(!context.getEntity().equals(event.getEntity()) || !context.getEntityPlugin().isHistoryEnabled())
             return;
 
         try
