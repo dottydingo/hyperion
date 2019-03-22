@@ -68,7 +68,7 @@ public class EntityPluginBuilder
             keyConverter = serviceRegistryBuilder.getDefaultKeyConverter();
 
         if(persistenceOperations == null)
-            serviceRegistryBuilder.getDefaultPersistenceOperations();
+            persistenceOperations = serviceRegistryBuilder.getDefaultPersistenceOperations();
 
         if(dao == null)
             dao = serviceRegistryBuilder.getDefaultDao();
